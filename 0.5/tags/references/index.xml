@@ -1,0 +1,43 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – References</title><link>https://go-wasmcontainers.github.io/docs/0.5/tags/references/</link><description>Recent content in References on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.5/tags/references/index.xml" rel="self" type="application/rss+xml"/><item><title>References</title><link>https://go-wasmcontainers.github.io/docs/0.5/references/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.5/references/</guid><description>
+&lt;p&gt;Every behaviour of the engine that follows an external format or protocol is
+written against one of the documents below. The engine repository&amp;rsquo;s own
+&lt;code&gt;docs/REFERENCES.md&lt;/code&gt; says, for each, which version was opened and which file it
+governs.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Reference&lt;/th&gt;
+&lt;th&gt;What it decides&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://github.com/opencontainers/image-spec" target="_blank" rel="noopener"&gt;OCI Image Format Specification&lt;/a&gt; (v1.1.1)&lt;/td&gt;
+&lt;td&gt;digests, manifests, image indexes, image config, layers and whiteouts, image layout&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://github.com/opencontainers/distribution-spec" target="_blank" rel="noopener"&gt;OCI Distribution Specification&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;pulling manifests and blobs from a registry&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://github.com/distribution/distribution/blob/main/docs/content/spec/auth/token.md" target="_blank" rel="noopener"&gt;Docker Registry token authentication&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;the bearer-token challenge and token request&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://docs.docker.com/reference/api/engine/" target="_blank" rel="noopener"&gt;Docker Engine API&lt;/a&gt; (v1.47)&lt;/td&gt;
+&lt;td&gt;the endpoints and schemas &lt;code&gt;wctrd&lt;/code&gt; is compatible with&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://tag-runtime.cncf.io/wgs/wasm/deliverables/wasm-oci-artifact/" target="_blank" rel="noopener"&gt;Wasm OCI artifact layout&lt;/a&gt; (CNCF TAG-Runtime)&lt;/td&gt;
+&lt;td&gt;media types and config fields of a Wasm image&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://github.com/tetratelabs/wazero" target="_blank" rel="noopener"&gt;wazero&lt;/a&gt; (v1.12.0)&lt;/td&gt;
+&lt;td&gt;the runtime, its WASI preview1 imports and writable filesystem interface&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href="https://github.com/WebAssembly/WASI/blob/wasi-0.1/preview1/docs.md" target="_blank" rel="noopener"&gt;WASI preview1&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;the system interface a &lt;code&gt;wasip1&lt;/code&gt; module is written against&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</description></item></channel></rss>
