@@ -5,6 +5,13 @@ runs in the page (the browser executor, &lt;code&gt;runtime/browser&lt;/code&gt;
 v0.2.0). This is &lt;strong&gt;playground v0.2.0&lt;/strong&gt;: completion and line editing (below),
 persistence and offline use, the new commands and the images &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;
 and &lt;code&gt;minigzip&lt;/code&gt;, on engine v0.9.0.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="the-dashboard-is-the-default-ui"&gt;The dashboard is the default UI&lt;span class="hx:absolute hx:-mt-20" id="the-dashboard-is-the-default-ui"&gt;&lt;/span&gt;
+&lt;a href="#the-dashboard-is-the-default-ui" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;On the live site, the playground now opens the &lt;a href="https://go-wasmcontainers.github.io/docs/0.9/dashboard/"&gt;dashboard&lt;/a&gt;
+(Containers, Images, Volumes, Terminal), running on the persistent engine worker.
+The terminal-only page stays at &lt;code&gt;?ui=terminal&lt;/code&gt;. It works offline: &lt;code&gt;dashboard.wasm&lt;/code&gt;
+is in the service-worker cache. This is deployed on the playground&amp;rsquo;s main branch
+but is not in a playground tag yet (the latest tag is v0.2.0). The terminal
+sections below describe the terminal page.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="completion-and-editing"&gt;Completion and editing&lt;span class="hx:absolute hx:-mt-20" id="completion-and-editing"&gt;&lt;/span&gt;
 &lt;a href="#completion-and-editing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal completes with Tab, as a shell does: subcommands, flags, &lt;code&gt;-m&lt;/code&gt;
 sizes, local images (for &lt;code&gt;run&lt;/code&gt; and &lt;code&gt;rmi&lt;/code&gt;), the catalogue of images to pull,

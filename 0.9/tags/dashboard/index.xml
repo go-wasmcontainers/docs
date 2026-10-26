@@ -32,12 +32,14 @@ sequences are dropped.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="limitations"&gt;Limitations&lt;span class="hx:absolute hx:-mt-20" id="limitations"&gt;&lt;/span&gt;
 &lt;a href="#limitations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;The standalone demo keeps its state in memory: nothing persists across a
-reload. Persistence comes when the dashboard becomes the playground&amp;rsquo;s main UI
-(planned).&lt;/li&gt;
+reload. In the &lt;a href="https://go-wasmcontainers.github.io/docs/0.9/playground/"&gt;playground&lt;/a&gt; the dashboard runs
+on the persistent engine worker instead.&lt;/li&gt;
 &lt;li&gt;Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;dashboard.wasm&lt;/code&gt; is 20 MB uncompressed.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;dashboard.wasm&lt;/code&gt; is 20.45 MB raw and 5.32 MB gzipped; a size reduction of
+go-widgets is in progress (planned).&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 data-hextra-search-id="next"&gt;Next&lt;span class="hx:absolute hx:-mt-20" id="next"&gt;&lt;/span&gt;
-&lt;a href="#next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The dashboard is planned to become the playground&amp;rsquo;s main UI. That has not
-happened: the &lt;a href="https://go-wasmcontainers.github.io/docs/0.9/playground/"&gt;playground&lt;/a&gt; is still the terminal
-page.&lt;/p&gt;</description></item></channel></rss>
+&lt;h2 data-hextra-search-id="in-the-playground"&gt;In the playground&lt;span class="hx:absolute hx:-mt-20" id="in-the-playground"&gt;&lt;/span&gt;
+&lt;a href="#in-the-playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The dashboard is now the playground&amp;rsquo;s default UI on the live site (Containers,
+Images, Volumes, Terminal). The terminal-only page stays at &lt;code&gt;?ui=terminal&lt;/code&gt;.
+This is deployed on the playground&amp;rsquo;s main branch and is not in a playground tag
+yet: the latest tag is v0.2.0.&lt;/p&gt;</description></item></channel></rss>

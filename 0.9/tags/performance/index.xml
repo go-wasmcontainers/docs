@@ -83,6 +83,10 @@ native wazero and wasmtime 50 on the same runner for comparison:&lt;/p&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Page ready is slower with the dashboard.&lt;/strong&gt; On the live site in Chromium the
+page was ready in 728 ms for the terminal page and 1070 ms for the dashboard
+(the new default UI). &lt;code&gt;dashboard.wasm&lt;/code&gt; is 20.45 MB raw and 5.32 MB gzipped; a
+size reduction of go-widgets is in progress (planned).&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Cold start in the browser is slower than wasmtime&lt;/strong&gt; (81 ms against 23 ms in
 Chromium, 291 ms in Firefox). These are single runs on one CI machine, not
 medians, so they show orders of magnitude rather than precise ratios.&lt;/p&gt;</description></item></channel></rss>
