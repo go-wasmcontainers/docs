@@ -2,8 +2,9 @@
 &lt;div class="hx:overflow-x-auto hx:mt-6 hx:flex hx:rounded-lg hx:border hx:py-2 hx:ltr:pr-4 hx:rtl:pl-4 hx:contrast-more:border-current hx:contrast-more:dark:border-current hx:border-blue-200 hx:bg-blue-100 hx:text-blue-900 hx:dark:border-blue-200/30 hx:dark:bg-blue-900/30 hx:dark:text-blue-200"&gt;
 &lt;div class="hx:ltr:pl-3 hx:ltr:pr-2 hx:rtl:pr-3 hx:rtl:pl-2"&gt;&lt;svg height=1.2em class="hx:inline-block hx:align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;&lt;/div&gt;
 &lt;div class="hx:w-full hx:min-w-0 hx:leading-7"&gt;
-&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: design, M-relay-1 being written.&lt;/strong&gt; The implementation lives in
-&lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;. This
+&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: M-relay-1 and M-relay-2 shipped in relay v0.1.0&lt;/strong&gt; (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.1/relay/"&gt;Relay&lt;/a&gt;); the rest is planned. The implementation lives
+in &lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;. This
 page decides what is built and records why, so the code can be reviewed against
 it. Milestones are named &lt;code&gt;M-relay-1&lt;/code&gt; and up.&lt;/div&gt;
 &lt;/div&gt;
@@ -1323,4 +1324,73 @@ registrars; RFC 2136 for a school&amp;rsquo;s own DNS server)?&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/juanfont/headscale" target="_blank" rel="noopener"&gt;headscale&lt;/a&gt;: &lt;a href="https://headscale.net/stable/about/faq/" target="_blank" rel="noopener"&gt;FAQ&lt;/a&gt; and &lt;a href="https://headscale.net/stable/about/features/" target="_blank" rel="noopener"&gt;features&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;NetBird: &lt;a href="https://github.com/netbirdio/netbird" target="_blank" rel="noopener"&gt;repository&lt;/a&gt; (licences) and &lt;a href="https://docs.netbird.io/manage/peers/browser-client/architecture" target="_blank" rel="noopener"&gt;browser client architecture&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/slackhq/nebula" target="_blank" rel="noopener"&gt;Nebula&lt;/a&gt;, &lt;a href="https://github.com/zerotier/ZeroTierOne" target="_blank" rel="noopener"&gt;ZeroTierOne&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</description></item></channel></rss>
+&lt;/ul&gt;</description></item><item><title>Relay security model</title><link>https://go-wasmcontainers.github.io/docs/0.1/relay/security/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.1/relay/security/</guid><description>
+&lt;h2 data-hextra-search-id="principals"&gt;Principals&lt;span class="hx:absolute hx:-mt-20" id="principals"&gt;&lt;/span&gt;
+&lt;a href="#principals" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Who&lt;/th&gt;
+&lt;th&gt;Credential&lt;/th&gt;
+&lt;th&gt;Where&lt;/th&gt;
+&lt;th&gt;May&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Teacher, on the relay&amp;rsquo;s machine&lt;/td&gt;
+&lt;td&gt;the admin socket (&lt;code&gt;0600&lt;/code&gt; in a &lt;code&gt;0700&lt;/code&gt; state directory)&lt;/td&gt;
+&lt;td&gt;Unix socket&lt;/td&gt;
+&lt;td&gt;everything&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Teacher, remote&lt;/td&gt;
+&lt;td&gt;the admin token (&lt;code&gt;Authorization: Bearer&lt;/code&gt;) or an OpenID Connect token carrying &lt;code&gt;--teacher-group&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--admin-listen&lt;/code&gt; only, over TLS&lt;/td&gt;
+&lt;td&gt;everything&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Student&lt;/td&gt;
+&lt;td&gt;a session token from &lt;code&gt;Join&lt;/code&gt; (join code, plus an OpenID Connect identity when the class requires one)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--listen&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;their own ports and flow decisions; read the groups&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The public listener never grants the teacher role, whatever arrives on it
+(the admin token included).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-the-relay-refuses"&gt;What the relay refuses&lt;span class="hx:absolute hx:-mt-20" id="what-the-relay-refuses"&gt;&lt;/span&gt;
+&lt;a href="#what-the-relay-refuses" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Identity is the relay&amp;rsquo;s&lt;/strong&gt;: it assigns every address and port; a frame that
+names a port the session does not own is refused, a datagram from a source
+port the sender has not bound is dropped.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Authentication before the upgrade&lt;/strong&gt;: the session token is a WebSocket
+subprotocol (&lt;code&gt;bearer.&amp;lt;token&amp;gt;&lt;/code&gt;), checked before the upgrade and before any
+per-session state; it never appears in a URL. Unknown &lt;code&gt;Origin&lt;/code&gt; and &lt;code&gt;Host&lt;/code&gt;
+are refused.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Pre-authentication limits&lt;/strong&gt; per source address on joins and upgrades, a cap
+on concurrent handshakes, header timeouts and sizes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Bounds&lt;/strong&gt;: 16 KiB frames, 64 KiB stream windows, and per session: 256
+streams, 64 listeners, 10 ports, 32 pending connects, 2 MiB/s and 2 000
+frames/s; a connection whose send queue passes 4 MiB is closed. Per class:
+50 security groups and 500 rules (Neutron&amp;rsquo;s quotas).&lt;/li&gt;
+&lt;li&gt;A frame that does not decode, data beyond the window, or a frame out of
+place closes the connection.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tokens&lt;/strong&gt;: Ed25519, one fixed layout and one algorithm, checked against the
+relay&amp;rsquo;s clock; a kicked session&amp;rsquo;s tokens stop working at once.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="secrets"&gt;Secrets&lt;span class="hx:absolute hx:-mt-20" id="secrets"&gt;&lt;/span&gt;
+&lt;a href="#secrets" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The admin token, the signing keys, the CA key, an EAB key and the state file
+are &lt;code&gt;0600&lt;/code&gt; files of the relay&amp;rsquo;s user, refused if anyone else can read them,
+never on a command line, in an environment variable or in a URL. The internal
+CA is name-constrained: even its key cannot sign for another site.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-the-relay-keeps-about-students"&gt;What the relay keeps about students&lt;span class="hx:absolute hx:-mt-20" id="what-the-relay-keeps-about-students"&gt;&lt;/span&gt;
+&lt;a href="#what-the-relay-keeps-about-students" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Per session: the display name typed, a derived DNS label, and — with OpenID
+Connect — a pseudonymous hash of issuer and subject (never the token, the
+e-mail address or the groups, which are checked at join time and dropped).
+Flow logs hold addresses and ports, not contents. Deleting a class deletes all
+of it; the audit log (logins, refusals, kicks, rule changes) keeps 30 days by
+default. The teacher&amp;rsquo;s institution is the controller under the GDPR.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="tested"&gt;Tested&lt;span class="hx:absolute hx:-mt-20" id="tested"&gt;&lt;/span&gt;
+&lt;a href="#tested" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every point above has a test in the repository; the decoders of untrusted
+input (frames, tokens, join codes, labels, rule specifications, and the relay
+fed arbitrary frames) are fuzzed in CI, and &lt;code&gt;govulncheck&lt;/code&gt; runs on every change.&lt;/p&gt;</description></item></channel></rss>

@@ -39,7 +39,7 @@
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Classroom relay&lt;/td&gt;
-&lt;td&gt;students&amp;rsquo; browsers reach each other&amp;rsquo;s containers through a relay on the teacher&amp;rsquo;s laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the &lt;code&gt;wctr-relay&lt;/code&gt; command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.1/design/classroom-network/"&gt;design&lt;/a&gt; (milestones M-relay-1 to M-relay-5, M-relay-HA). M-relay-1 is being written in &lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;students&amp;rsquo; browsers reach each other&amp;rsquo;s containers through a relay on the teacher&amp;rsquo;s laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the &lt;code&gt;wctr-relay&lt;/code&gt; command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.1/design/classroom-network/"&gt;design&lt;/a&gt; (milestones M-relay-1 to M-relay-5, M-relay-HA). &lt;strong&gt;M-relay-1 and M-relay-2 shipped in &lt;a href="https://go-wasmcontainers.github.io/docs/0.1/relay/"&gt;relay v0.1.0&lt;/a&gt;&lt;/strong&gt;; still planned: the engine&amp;rsquo;s network driver and the browser path (M-relay-3, -4), the live flow map (M-relay-2b), ICMP (M-relay-5), high availability (M-relay-HA)&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Shell and &lt;code&gt;exec&lt;/code&gt;&lt;/td&gt;

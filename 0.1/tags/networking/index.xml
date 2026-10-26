@@ -2,8 +2,9 @@
 &lt;div class="hx:overflow-x-auto hx:mt-6 hx:flex hx:rounded-lg hx:border hx:py-2 hx:ltr:pr-4 hx:rtl:pl-4 hx:contrast-more:border-current hx:contrast-more:dark:border-current hx:border-blue-200 hx:bg-blue-100 hx:text-blue-900 hx:dark:border-blue-200/30 hx:dark:bg-blue-900/30 hx:dark:text-blue-200"&gt;
 &lt;div class="hx:ltr:pl-3 hx:ltr:pr-2 hx:rtl:pr-3 hx:rtl:pl-2"&gt;&lt;svg height=1.2em class="hx:inline-block hx:align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;&lt;/div&gt;
 &lt;div class="hx:w-full hx:min-w-0 hx:leading-7"&gt;
-&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: design, M-relay-1 being written.&lt;/strong&gt; The implementation lives in
-&lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;. This
+&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: M-relay-1 and M-relay-2 shipped in relay v0.1.0&lt;/strong&gt; (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.1/relay/"&gt;Relay&lt;/a&gt;); the rest is planned. The implementation lives
+in &lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;. This
 page decides what is built and records why, so the code can be reviewed against
 it. Milestones are named &lt;code&gt;M-relay-1&lt;/code&gt; and up.&lt;/div&gt;
 &lt;/div&gt;
@@ -1323,4 +1324,92 @@ registrars; RFC 2136 for a school&amp;rsquo;s own DNS server)?&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/juanfont/headscale" target="_blank" rel="noopener"&gt;headscale&lt;/a&gt;: &lt;a href="https://headscale.net/stable/about/faq/" target="_blank" rel="noopener"&gt;FAQ&lt;/a&gt; and &lt;a href="https://headscale.net/stable/about/features/" target="_blank" rel="noopener"&gt;features&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;NetBird: &lt;a href="https://github.com/netbirdio/netbird" target="_blank" rel="noopener"&gt;repository&lt;/a&gt; (licences) and &lt;a href="https://docs.netbird.io/manage/peers/browser-client/architecture" target="_blank" rel="noopener"&gt;browser client architecture&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/slackhq/nebula" target="_blank" rel="noopener"&gt;Nebula&lt;/a&gt;, &lt;a href="https://github.com/zerotier/ZeroTierOne" target="_blank" rel="noopener"&gt;ZeroTierOne&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Relay</title><link>https://go-wasmcontainers.github.io/docs/0.1/relay/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.1/relay/</guid><description>
+&lt;p&gt;&lt;code&gt;wctr-relay&lt;/code&gt; connects the WASI containers of a class&amp;rsquo;s browsers (or engines)
+through one relay that is also a &lt;strong&gt;firewall&lt;/strong&gt;, with security groups modelled
+on OpenStack Neutron. It runs on the teacher&amp;rsquo;s laptop for a classroom LAN, or
+on a server for remote students with OpenID Connect sign-in. Release
+&lt;strong&gt;v0.1.0&lt;/strong&gt; of &lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;
+covers milestones M-relay-1 and M-relay-2 of the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.1/design/classroom-network/"&gt;design&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="hx:overflow-x-auto hx:mt-6 hx:flex hx:rounded-lg hx:border hx:py-2 hx:ltr:pr-4 hx:rtl:pl-4 hx:contrast-more:border-current hx:contrast-more:dark:border-current hx:border-blue-200 hx:bg-blue-100 hx:text-blue-900 hx:dark:border-blue-200/30 hx:dark:bg-blue-900/30 hx:dark:text-blue-200"&gt;
+&lt;div class="hx:ltr:pl-3 hx:ltr:pr-2 hx:rtl:pr-3 hx:rtl:pl-2"&gt;&lt;svg height=1.2em class="hx:inline-block hx:align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;&lt;/div&gt;
+&lt;div class="hx:w-full hx:min-w-0 hx:leading-7"&gt;
+&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;What works today&lt;/strong&gt;: the relay, its firewall, its control API and the
+&lt;code&gt;wctr-relay&lt;/code&gt; command, tested natively. The engine does not use the relay yet
+(its network driver is being written), so containers in the playground cannot
+reach each other through it yet; the live flow map is milestone M-relay-2b.&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="install"&gt;Install&lt;span class="hx:absolute hx:-mt-20" id="install"&gt;&lt;/span&gt;
+&lt;a href="#install" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install github.com/go-wasmcontainers/relay/cmd/wctr-relay@v0.1.0&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Pure Go, &lt;code&gt;CGO_ENABLED=0&lt;/code&gt;; Linux, macOS and Windows.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="start-a-class-teacher"&gt;Start a class (teacher)&lt;span class="hx:absolute hx:-mt-20" id="start-a-class-teacher"&gt;&lt;/span&gt;
+&lt;a href="#start-a-class-teacher" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay init --name relay.local --ip 192.168.1.10 &lt;span class="c1"&gt;# state directory, admin token, internal CA&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay serve --listen :8443 &lt;span class="p"&gt;&amp;amp;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay class create &lt;span class="s2"&gt;&amp;#34;Networking 101&amp;#34;&lt;/span&gt; &lt;span class="c1"&gt;# prints the class id and the join code&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Students join with the code. Each gets a subnet (&lt;code&gt;10.42.&amp;lt;n&amp;gt;.0/24&lt;/code&gt;), each
+container an address and the name &lt;code&gt;&amp;lt;container&amp;gt;.&amp;lt;student&amp;gt;.class&lt;/code&gt;. A new class
+starts &lt;strong&gt;isolated&lt;/strong&gt;: no ingress, egress to the teacher&amp;rsquo;s subnet only. Opening
+flows is the lab:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay sg create web --class &amp;lt;class&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay rule add web --class &amp;lt;class&amp;gt; --ingress --proto tcp --port &lt;span class="m"&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay rule add default --class &amp;lt;class&amp;gt; --egress --proto tcp --port &lt;span class="m"&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay port &lt;span class="nb"&gt;set&lt;/span&gt; alice/web --class &amp;lt;class&amp;gt; --sg default,web
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay flows --class &amp;lt;class&amp;gt; --follow &lt;span class="c1"&gt;# every allow and deny, with the rule that decided&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay explain --class &amp;lt;class&amp;gt; bob/curl alice/web tcp/80&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Deleting a rule resets, at once, the flows only that rule allowed.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="certificates"&gt;Certificates&lt;span class="hx:absolute hx:-mt-20" id="certificates"&gt;&lt;/span&gt;
+&lt;a href="#certificates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Students&amp;rsquo; browsers must trust the relay&amp;rsquo;s certificate. In order of preference:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;a publicly trusted certificate for a name the school owns:
+&lt;code&gt;--tls acme --acme-domain class.example-school.fr&lt;/code&gt; (ACME through
+&lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;go-authn/servercert&lt;/a&gt;), or
+&lt;code&gt;--tls files --cert … --key …&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;the relay&amp;rsquo;s internal CA (the default, &lt;code&gt;--tls internal&lt;/code&gt;): install the root
+printed by &lt;code&gt;wctr-relay ca export&lt;/code&gt; on the class&amp;rsquo;s machines; it is
+name-constrained to the relay&amp;rsquo;s names and addresses;&lt;/li&gt;
+&lt;li&gt;behind Caddy or another TLS proxy: &lt;code&gt;--tls off --listen 127.0.0.1:8080&lt;/code&gt;
+(refused on any other address).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 data-hextra-search-id="pages"&gt;Pages&lt;span class="hx:absolute hx:-mt-20" id="pages"&gt;&lt;/span&gt;
+&lt;a href="#pages" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.1/relay/cli/"&gt;Command reference&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.1/relay/security/"&gt;Security model&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</description></item></channel></rss>
