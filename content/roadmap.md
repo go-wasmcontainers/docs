@@ -19,6 +19,7 @@ tags: [roadmap]
 | **`wctr stats`** (memory against its limit, bytes written, layer and log size, pids; CPU not measured) | engine v0.7.0 |
 | **Volumes**: `wctr volume create\|ls\|inspect\|rm\|prune`, `run -v NAME:/path[:ro]` | engine v0.8.0 |
 | **`tar+zstd` layers** (bounded, fuzzed); WebAssembly exception handling enabled natively | engine v0.9.0 |
+| **Networking**: sockets for guests (WasmEdge socket extension V2, preview1 `sock_*`), built-in DNS by container name, the networks `bridge` (10.88.0.0/16) and `none`, `wctr network create\|ls\|inspect\|rm`, `run --network`, a class network through the relay (`wctrd --relay`); `wctrd --wasi engine` is the new default; see [Networking]({{< relref "networking" >}}) | engine v0.10.0 |
 | **Playground v0.2.0**, on engine v0.9.0 (with completion, persistence and offline use): `start`, `stop`, `restart`, `diff`, `stats`, `events`, `volume`, `system df\|prune`, `run -v`; the images `lua` 5.4.9, `sqlite3` 3.53.4 and `minigzip` (zlib 1.3.2), C tools built by go-pkgx for wasip1 | playground v0.2.0, live |
 | **Playground M1**: `wctr` in a browser tab, no server | playground v0.1.0; live at <https://go-wasmcontainers.github.io/playground/> |
 | **Classroom relay** M-relay-1 and M-relay-2: [`wctr-relay`]({{< relref "relay" >}}), the relay and firewall with security groups modelled on OpenStack Neutron, its gRPC control API, TLS, OpenID Connect | relay v0.1.0 |
@@ -33,7 +34,8 @@ Nothing below exists yet.
 | Item | What it is |
 | --- | --- |
 | Playground: stdin, a shell, networking | the playground has none of the three yet |
-| Networking | containers that listen and connect, through the WasmEdge socket ABI |
+| Networking in the playground | the networking above, in the browser: the next milestone, **not live yet** |
+| Published ports | `run -p`, and `network connect` |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
 | Shell and `exec` | `wctr exec`, attach, and an interactive shell, through a WASIX subset |
 | Image build | building an image from a Dockerfile |

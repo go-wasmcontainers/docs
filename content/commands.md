@@ -14,7 +14,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 |---|---|
 | `pull IMAGE` | `IMAGE` is a registry reference or `oci:<dir>[:<ref.name>]` |
 | `images` | `-q` |
-| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0) |
+| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0) |
 | `ps` | `-a/--all`, `-q` |
 | `logs CONTAINER` | `-f/--follow` |
 | `rm CONTAINER...` | `-f/--force` |
@@ -28,6 +28,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `events` | `--since`, `--until`, filters on type, event, container, image, volume and label (v0.6.0) |
 | `stats` | (v0.7.0) |
 | `volume create\|ls\|inspect\|rm\|prune` | (v0.8.0) |
+| `network create\|ls\|inspect\|rm` | (v0.10.0) |
 | `system df` | `-v` (v0.4.0) |
 | `system prune` | `-a`, `-f` (v0.4.0) |
 | `version` | |
