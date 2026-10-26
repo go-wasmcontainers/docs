@@ -3,7 +3,11 @@
 client of its control API. Locally they use the state directory&amp;rsquo;s admin socket
 (&lt;code&gt;0600&lt;/code&gt;: its permissions are the credential); for a remote relay, &lt;code&gt;--server URL --token-file FILE [--ca-file ROOT.pem]&lt;/code&gt;, where URL is the relay&amp;rsquo;s &lt;code&gt;--admin-listen&lt;/code&gt; address
 over https (the token is never a flag value). &lt;code&gt;--state-dir&lt;/code&gt; (default &lt;code&gt;&amp;lt;user config dir&amp;gt;/wctr-relay&lt;/code&gt;) applies to
-all.&lt;/p&gt;
+all, and so does &lt;code&gt;--admin-socket PATH&lt;/code&gt; (since v0.2.1): the admin socket&amp;rsquo;s
+path, &lt;code&gt;admin.sock&lt;/code&gt; in the state directory by default. A Unix socket path holds
+at most 103 bytes on macOS and 107 on Linux; a longer one is refused with that
+reason, so a deep state directory needs a short &lt;code&gt;--admin-socket&lt;/code&gt;, given to
+&lt;code&gt;serve&lt;/code&gt; and to the other commands alike.&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
