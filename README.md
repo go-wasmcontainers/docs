@@ -35,6 +35,7 @@ against that release.
 | Path | What |
 | --- | --- |
 | `content/` | the pages; `_index.md` is the home, `weight` orders the sidebar |
+| `content/design/` | design documents for planned parts (the classroom network); the decision table at the top of each is its decision record |
 | `i18n/en.yaml` | the site's strings, beside the theme's |
 | `hugo.yaml` | `baseURL`, the engine version described, the navbar, the brand mounts |
 | `layouts/_partials/custom/version-select.html` | the version selector (reads `versions.json`) |
