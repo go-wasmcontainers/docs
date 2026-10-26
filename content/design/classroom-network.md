@@ -81,7 +81,7 @@ Three candidates were compared.
 
 | | WebSocket (`wss`) | WebTransport | WebRTC data channels |
 | --- | --- | --- | --- |
-| Support | every browser the labs target | Chrome 97, Edge 98, Firefox 114, Safari 26.4 (iOS 26.4) per caniuse; MDN marks it Baseline 2026 ("since March 2026") | Baseline widely available since January 2020 (MDN) |
+| Support | every browser the labs target | Chrome 97, Firefox 114, Safari 26.4 (iOS 26.4) per MDN's compatibility data, and `serverCertificateHashes` from Chrome 100, Firefox 125, Safari 26.4; MDN marks it Baseline 2026 ("since March 2026") | Baseline widely available since January 2020 (MDN) |
 | In a Web Worker | yes | yes (MDN: the constructor is available in workers) | not established by MDN (an `RTCDataChannel` is transferable, which is not the same) |
 | Certificate without a public CA | must be trusted by the browser | `serverCertificateHashes`: no CA needed, but strict constraints (below) | DTLS fingerprints from signalling |
 | Multiplexing | ours, in the frames | native streams and datagrams (QUIC), no head-of-line blocking between streams | native channels |
@@ -608,7 +608,7 @@ Opened for this design (October 2026):
 
 - W3C, [WebTransport](https://www.w3.org/TR/webtransport/), Candidate Recommendation Snapshot, 30 July 2026: custom certificate requirements and certificate-hash verification
 - MDN, [`WebTransport()` constructor](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport): `serverCertificateHashes`, secure context, availability in workers
-- caniuse, [WebTransport](https://caniuse.com/webtransport): browser versions
+- MDN browser-compat-data, [`api/WebTransport.json`](https://github.com/mdn/browser-compat-data/blob/main/api/WebTransport.json): browser versions of the constructor and of `serverCertificateHashes`
 - MDN, [`RTCDataChannel`](https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel): availability
 - MDN, [Mixed content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
 - MDN, [`SharedArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer): secure context and cross-origin isolation
