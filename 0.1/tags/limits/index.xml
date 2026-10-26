@@ -1,0 +1,12 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Limits</title><link>https://go-wasmcontainers.github.io/docs/0.1/tags/limits/</link><description>Recent content in Limits on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.1/tags/limits/index.xml" rel="self" type="application/rss+xml"/><item><title>Limitations</title><link>https://go-wasmcontainers.github.io/docs/0.1/limitations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.1/limitations/</guid><description>
+&lt;p&gt;Engine v0.1.0 (milestone M1) does &lt;strong&gt;not&lt;/strong&gt; have:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;networking, &lt;code&gt;exec&lt;/code&gt;, attach and build: no container networking, no &lt;code&gt;exec&lt;/code&gt;, no
+attaching to a container (so an interactive &lt;code&gt;run&lt;/code&gt;), and no image build; the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.1/roadmap/"&gt;roadmap&lt;/a&gt; lists them as planned;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;tar+zstd&lt;/code&gt; layers: they are not supported yet;&lt;/li&gt;
+&lt;li&gt;containers that survive a &lt;code&gt;wctrd&lt;/code&gt; restart: containers live in the daemon&amp;rsquo;s
+memory and are lost when it restarts (images are kept);&lt;/li&gt;
+&lt;li&gt;a distinct quota error: when a container exhausts its storage quota, the
+write surfaces to the module as &lt;code&gt;EIO&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

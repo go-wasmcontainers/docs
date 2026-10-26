@@ -1,0 +1,41 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Performance</title><link>https://go-wasmcontainers.github.io/docs/0.1/tags/performance/</link><description>Recent content in Performance on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.1/tags/performance/index.xml" rel="self" type="application/rss+xml"/><item><title>Performance</title><link>https://go-wasmcontainers.github.io/docs/0.1/performance/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.1/performance/</guid><description>
+&lt;p&gt;Measured on an Apple M4 Max, one core, median of 3. The benchmarks are
+committed in the engine repository.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Benchmark&lt;/th&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;th&gt;Result&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;pull from a layout&lt;/td&gt;
+&lt;td&gt;cold pull of the &lt;code&gt;hello&lt;/code&gt; image (735 kB tar+gzip layer): verify and store&lt;/td&gt;
+&lt;td&gt;1.26 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;unpack a gzip layer&lt;/td&gt;
+&lt;td&gt;apply that layer to an empty tree&lt;/td&gt;
+&lt;td&gt;11.5 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;copy-on-write clone&lt;/td&gt;
+&lt;td&gt;a container&amp;rsquo;s root plus its first write&lt;/td&gt;
+&lt;td&gt;2.2 µs&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;cold start&lt;/td&gt;
+&lt;td&gt;first container of an image: wazero compiles the module and runs it to exit&lt;/td&gt;
+&lt;td&gt;610 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;warm start&lt;/td&gt;
+&lt;td&gt;every later container: compiled module from the per-digest cache&lt;/td&gt;
+&lt;td&gt;3.4 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;These numbers are not yet compared to a reference runtime.&lt;/strong&gt; No reference
+runtime was installed on the measuring machine; the comparison is an open item.&lt;/p&gt;</description></item></channel></rss>
