@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{{- /* Hextra's baseof.html, with one change: lang is the language's locale when
+       it has one (zh-Hans), not its key (zh). A browser picks the glyph
+       variants of the Han characters shared by Chinese and Japanese from lang,
+       and the right ones are the Simplified Chinese ones under zh-Hans. */ -}}
+{{- $lang := partial "utils/hugo-compat/language-locale.html" .Site.Language | default .Site.Language.Lang -}}
+<html lang="{{ $lang }}" dir="{{ partial "utils/hugo-compat/language-direction.html" .Site.Language | default `ltr` }}">
+  {{- partial "head.html" . -}}
+  <body>
+    <a href="#content" class="hx:sr-only hx:focus-visible:not-sr-only hx:focus-visible:fixed hx:focus-visible:z-50 hx:focus-visible:top-2 hx:focus-visible:left-2 hx:focus-visible:bg-primary-500 hx:focus-visible:text-white hx:focus-visible:px-4 hx:focus-visible:py-2 hx:focus-visible:rounded-md hx:focus-visible:text-sm hx:focus-visible:font-medium">
+      {{- (T "skipToContent") | default "Skip to content" -}}
+    </a>
+    {{- partial "banner.html" . -}}
+    {{- partial "navbar.html" . -}}
+    {{- block "main" . }}{{ end -}}
+    {{- if or (eq .Site.Params.footer.enable nil) (.Site.Params.footer.enable) }}
+      {{ partial "footer.html" . }}
+    {{ end }}
+    {{ partial "components/search-dialog.html" . }}
+    {{ partial "scripts.html" . }}
+  </body>
+</html>
