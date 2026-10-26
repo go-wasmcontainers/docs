@@ -11,9 +11,10 @@ not live yet**: it is the next milestone. Everything below is the native engine.
 ```console
 $ wctr network create lab
 $ wctr run -d --name web --network lab netprobe serve 80
+$ wctr run --rm --network lab netprobe get http://web/class
 ```
 
-A second container on the same network reaches `web` by its name.
+The second container reaches `web` by its name, through the network's DNS.
 
 ## Sockets for guests
 
