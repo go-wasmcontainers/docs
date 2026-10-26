@@ -9,21 +9,27 @@ tags: [relay, networking]
 through one relay that is also a **firewall**, with security groups modelled
 on OpenStack Neutron. It runs on the teacher's laptop for a classroom LAN, or
 on a server for remote students with OpenID Connect sign-in. Release
-**v0.1.0** of [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay)
-covers milestones M-relay-1 and M-relay-2 of the
+**v0.2.0** of [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay)
+covers milestones M-relay-1, M-relay-2 and M-relay-2b (the
+[live flow map]({{< relref "flowmap" >}})) of the
 [design]({{< relref "design/classroom-network" >}}).
 
 {{< callout type="info" >}}
-**What works today**: the relay, its firewall, its control API and the
-`wctr-relay` command, tested natively. The engine does not use the relay yet
-(its network driver is being written), so containers in the playground cannot
-reach each other through it yet; the live flow map is milestone M-relay-2b.
+**What works today**: the relay, its firewall, its control API, the
+`wctr-relay` command and the live flow map, tested natively and, for the
+flow map, in Chromium and Firefox. The engine does not use the relay yet (its
+network driver is being written), so containers in the playground cannot
+reach each other through it yet.
 {{< /callout >}}
 
 ## Install
 
+Download the binary for your system from the
+[releases](https://github.com/go-wasmcontainers/relay/releases) (it includes
+the flow map), or build it:
+
 ```sh
-go install github.com/go-wasmcontainers/relay/cmd/wctr-relay@v0.1.0
+go install github.com/go-wasmcontainers/relay/cmd/wctr-relay@v0.2.0   # without the flow map page
 ```
 
 Pure Go, `CGO_ENABLED=0`; Linux, macOS and Windows.
@@ -69,4 +75,5 @@ Students' browsers must trust the relay's certificate. In order of preference:
 ## Pages
 
 - [Command reference]({{< relref "cli" >}})
+- [The live flow map]({{< relref "flowmap" >}})
 - [Security model]({{< relref "security" >}})
