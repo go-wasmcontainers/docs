@@ -8,9 +8,9 @@ tags: [playground]
 **<https://go-wasmcontainers.github.io/playground/>** is a terminal in a web
 page running `wctr` against WASI containers. There is no server: the engine
 runs in the page (the browser executor, `runtime/browser`, new in engine
-v0.2.0). The playground's latest release is v0.1.0; the page since gained the
-completion and line editing below (engine v0.3.0), and it now runs engine
-v0.9.0.
+v0.2.0). This is **playground v0.2.0**: completion and line editing (below),
+persistence and offline use, the new commands and the images `lua`, `sqlite3`
+and `minigzip`, on engine v0.9.0.
 
 ## Completion and editing
 
