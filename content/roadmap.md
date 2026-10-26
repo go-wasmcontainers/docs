@@ -13,6 +13,8 @@ tags: [roadmap]
 | **Browser executor** (`runtime/browser`), the shared WASI host (`wasi`), `api/inproc`, the `cli` package, `RegistryOptions.Mirrors` | engine v0.2.0 |
 | **`wctr completion`** for bash, zsh, fish and PowerShell; **`cli/lineedit`**, a pure-Go line editor with completion, used by the playground terminal | engine v0.3.0 |
 | **Playground M1**: `wctr` in a browser tab, no server | playground v0.1.0, live at <https://go-wasmcontainers.github.io/playground/> |
+| **Classroom relay** M-relay-1 and M-relay-2: [`wctr-relay`]({{< relref "relay" >}}), the relay and firewall with security groups modelled on OpenStack Neutron, its gRPC control API, TLS, OpenID Connect | relay v0.1.0 |
+| **Live flow map** (M-relay-2b): the relay's page drawing the class's flows, refused ones in red | relay v0.2.0 |
 
 What the engine does not do is on [Limitations]({{< relref "limitations" >}}).
 
@@ -24,7 +26,7 @@ Nothing below exists yet.
 | --- | --- |
 | Playground: stdin, a shell, networking | the playground has none of the three yet |
 | Networking | containers that listen and connect, through the WasmEdge socket ABI |
-| Classroom relay | students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the `wctr-relay` command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the [design]({{< relref "design/classroom-network" >}}) (milestones M-relay-1 to M-relay-5, M-relay-HA). **M-relay-1 and M-relay-2 shipped in [relay v0.1.0]({{< relref "relay" >}})**; still planned: the engine's network driver and the browser path (M-relay-3, -4), the live flow map (M-relay-2b), ICMP (M-relay-5), high availability (M-relay-HA) |
+| Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
 | Shell and `exec` | `wctr exec`, attach, and an interactive shell, through a WASIX subset |
 | Image build | building an image from a Dockerfile |
 | Compose | several containers described in one file |

@@ -6,7 +6,7 @@ tags: [design, networking, security]
 ---
 
 {{< callout type="info" >}}
-**Status: M-relay-1 and M-relay-2 shipped in relay v0.1.0** (see
+**Status: M-relay-1 and M-relay-2 shipped in relay v0.1.0, M-relay-2b (the live flow map) in v0.2.0** (see
 [Relay]({{< relref "relay" >}})); the rest is planned. The implementation lives
 in [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay). This
 page decides what is built and records why, so the code can be reviewed against
