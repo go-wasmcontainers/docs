@@ -21,26 +21,28 @@ cd engine
 go build ./...
 ```
 
-That compiles the packages; there is no `engine` command to start until the
-daemon and the Docker API are written.
+That compiles the packages; there is no `wctrd` or `wctr` command to start until
+the daemon and its API are written.
 
 ## The session M1 is written to serve
 
-**Planned for M1 (native, wazero executor).** Once the engine listens on
-`/var/run/docker.sock`, the Docker CLI is used as it always is:
+**Planned for M1 (native, wazero executor).** Once `wctrd` is running and
+listening on `/var/run/wctr.sock`, `wctr` finds it by itself; `WCTR_HOST` points
+it elsewhere:
 
 ```sh
-docker pull <image>        # an OCI image with os=wasip1, arch=wasm
-docker run <image>         # runs the module under wazero
-docker ps                  # lists the containers
-docker logs <container>    # its standard output and error
-docker inspect <container> # its configuration and state
-docker rm <container>
+wctr pull <image>        # an OCI image with os=wasip1, arch=wasm
+wctr run <image>         # runs the module under wazero
+wctr ps                  # lists the containers
+wctr logs <container>    # its standard output and error
+wctr inspect <container> # its configuration and state
+wctr images              # lists the pulled images
+wctr rm <container>
+wctr rmi <image>
 ```
 
-Anything else a Docker user might try (`docker exec`, `docker build`,
-`docker compose`, published ports) is **planned, not part of M1**; see the
-[roadmap]({{< relref "roadmap" >}}).
+Anything else (`wctr exec`, building an image, Compose, published ports) is
+**planned, not part of M1**; see the [roadmap]({{< relref "roadmap" >}}).
 
 ## Where to follow it
 

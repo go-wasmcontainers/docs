@@ -78,7 +78,7 @@ menu:
         icon: github
 
 params:
-  description: "A Docker-compatible container engine whose containers are WASI (wasip1) modules, in pure Go (CGO=0), with an in-browser playground planned for container training labs."
+  description: "A container engine whose containers are WASI (wasip1) modules, compatible with the Docker Engine API, in pure Go (CGO=0), with an in-browser playground planned for container training labs."
 
   # The go-wasmcontainers/engine release these pages describe. Its minor
   # version is the documentation's version label (v0.1.2 -> 0.1): the CI reads

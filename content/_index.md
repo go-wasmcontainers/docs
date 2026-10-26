@@ -4,20 +4,21 @@ linkTitle: "Home"
 type: docs
 cascade:
   type: docs
-description: "A Docker-compatible container engine whose containers are WASI modules, in pure Go (CGO=0), with an in-browser playground planned for cloud and container training labs."
+description: "A container engine whose containers are WASI modules, compatible with the Docker Engine API, in pure Go (CGO=0), with an in-browser playground planned for cloud and container training labs."
 ---
 
-**go-wasmcontainers runs WASI modules as Docker containers.** A container here
-is a `wasip1/wasm` module: the image is an OCI image whose platform is
-`os=wasip1`, `arch=wasm`, the `docker` command line talks to the engine over
-`/var/run/docker.sock`, and the module runs in [wazero](https://wazero.io), a
-pure-Go WebAssembly runtime, instead of in a Linux kernel.
+**go-wasmcontainers runs WASI modules as containers.** A container here is a
+`wasip1/wasm` module: the image is an OCI image whose platform is `os=wasip1`,
+`arch=wasm`, the `wctr` command line talks to the `wctrd` daemon over
+`/var/run/wctr.sock`, and the module runs in [wazero](https://wazero.io), a
+pure-Go WebAssembly runtime, instead of in a Linux kernel. `wctrd` is
+compatible with the Docker Engine API.
 
 {{< callout type="warning" >}}
 **Work in progress; nothing is released.** The engine's first milestone, M1
-(native, wazero executor: `pull`, `run`, `ps`, `logs`, `rm`, `inspect`), is
-being written. Everything else is **planned** and is marked so on every page.
-These pages describe the `main` branch.
+(native, wazero executor: `wctr pull`, `run`, `ps`, `logs`, `rm`, `rmi`,
+`inspect`, `images`), is being written. Everything else is **planned** and is
+marked so on every page. These pages describe the `main` branch.
 {{< /callout >}}
 
 ## Why
@@ -25,13 +26,14 @@ These pages describe the `main` branch.
 Teaching containers usually means a Linux machine per learner. A WASI module
 needs no kernel, so the same engine can run natively today (M1) and, in the
 plan, in a browser worker — which would make a training lab a web page. The
-learner still types the `docker` commands they will type at work.
+learner types container commands the way they will at work.
 
 ## Pages
 
-- [Architecture]({{< relref "architecture" >}}): the engine, the Docker API, the executors, the images
+- [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
 - [Getting started]({{< relref "getting-started" >}}): what exists today, and what M1 will give you
 - [Roadmap]({{< relref "roadmap" >}}): what is in progress and what is planned
+- [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
 - [References]({{< relref "references" >}}): the specifications the code is written against
 
 ## Repositories
