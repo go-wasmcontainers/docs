@@ -1,14 +1,15 @@
 ---
 title: "Classroom network"
 weight: 10
-description: "How students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall, with rules modelled on OpenStack Neutron security groups and a gRPC control API. Design only: nothing here is written."
+description: "How students' browsers reach each other's containers through a relay — on the teacher's laptop or on the internet — that is also a firewall, with rules modelled on OpenStack Neutron security groups, a gRPC control API, OpenID Connect sign-in and a high-availability plan."
 tags: [design, networking, security]
 ---
 
 {{< callout type="info" >}}
-**Status: design, planned.** No code exists for anything on this page. It
-decides what will be built and records why, so the implementation can be
-reviewed against it. Milestones are named `M-relay-1` and up.
+**Status: design, M-relay-1 being written.** The implementation lives in
+[go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay). This
+page decides what is built and records why, so the code can be reviewed against
+it. Milestones are named `M-relay-1` and up.
 {{< /callout >}}
 
 ## The problem
@@ -35,13 +36,28 @@ opposed to the data plane that carries the containers' bytes).
 | # | Question | Decision |
 | --- | --- | --- |
 | 1 | Browser to relay transport | **WebSocket over TLS (`wss`)**, one per browser, multiplexing every container's flows. WebTransport is the second transport, added later. WebRTC is not used. |
-| 2 | Where the page comes from | **The relay serves the playground itself over HTTPS on the LAN**, with a classroom CA. Fallback: the page stays on GitHub Pages and connects to the relay, through WebTransport with certificate hashes where available. |
+| 2 | Where the page comes from | **Both paths are first-class**: the relay serves the playground itself over HTTPS on the LAN, and the page on GitHub Pages connects to the relay. Whether a school can install a CA is not known in advance, so the join flow **detects** which works (see [Join-flow detection](#join-flow-detection)). |
+| 2b | Where the TLS certificate comes from | In this order: **(1) a publicly trusted certificate from ACME** through [go-authn/servercert](https://github.com/go-authn/servercert) (a school-owned name such as `class.<school-domain>` pointing at the relay; DNS-01 for a LAN-only relay is to be added to servercert); **(2) the relay's internal CA**, whose root a school installs; **(3) WebTransport certificate hashes** from the GitHub Pages page. Caddy in front of the relay is the documented alternative. |
 | 3 | Network model | **L4 flows**: the relay brokers `connect`/`listen`/datagrams between container endpoints, each with a virtual IP and a DNS name. No packet-level (L3) network stack in the engine. |
 | 4 | Firewall model | Neutron's **networks, ports, security groups and rules**, allow-only, stateful by default, enforced at both ends of every flow, with flow logs. |
 | 5 | Control API | **gRPC services**, served with Connect so the same handler answers gRPC, gRPC-Web and Connect; the teacher's CLI is a **separate cobra binary, `wctr-relay`**. |
 | 6 | Identity | The relay assigns every address; nothing a browser sends about its own identity is trusted. Teacher: an admin token. Students: a class code exchanged for a short-lived session token. |
+| 7 | Internet mode | The same relay can run on the internet for remote or hybrid students, with **OpenID Connect** sign-in verified by [go-authn/oidc](https://github.com/go-authn/oidc), logins through [go-authn/rp](https://github.com/go-authn/rp), and [go-authn/bridge](https://github.com/go-authn/bridge) as the identity provider for SAML-only universities. The LAN mode keeps working with a class code and no identity provider. |
+| 8 | High availability | The **control plane** (classes, groups, rules, addresses, signing keys, audit) is replicated with Raft across relays; the **data plane** (live flows, connection tracking) is not. One relay holds a class at a time, under a lease with an increasing **epoch**; clients follow an ordered list of relays and refuse an older epoch. |
+| 9 | Build or adopt | **Hybrid**: our relay stays the classroom data plane and firewall (relay-side enforcement and flow logs are the lesson); go-authn supplies identity and certificates; the client failover follows Tailscale's DERP pattern. See [Alternatives considered](#alternatives-considered). |
+| 10 | Seeing the network | The relay serves a **live flow map**: a go-widgets page (Go `js/wasm` on a canvas) fed by an aggregated, coalesced server stream over the Connect protocol; denied flows flash red with the refusing decision; teacher view of the class, per-student view of one's own flows. See [The live flow map](#the-live-flow-map). |
 
-The docs repository has no ADR convention, so this table is the decision record.
+Answers to the questions this page first left open (decided 2026-10-26):
+
+| Question | Answer |
+| --- | --- |
+| Default class network | `10.42.0.0/16`, configurable per class with `wctr-relay class create --cidr` |
+| How a new class starts | **isolated**: no ingress, egress to the teacher's subnet only. Opening flows is part of the lab. Neutron's default group is a template the teacher can choose. |
+| Can schools install a classroom CA? | **Unknown per school**, so both TLS paths stay first-class and the join flow detects which works |
+| IPv6 | later; the model carries `ethertype`, the first milestones allocate IPv4 only |
+| The teacher's containers | they join as a session (subnet 0, label `teacher`), so the teacher can publish shared services |
+
+The docs repository has no ADR convention, so these tables are the decision record.
 
 ## Topology
 
@@ -157,28 +173,79 @@ A page that talks to the teacher's laptop runs into four browser rules.
 | Certificate | WebTransport hashes (no trust needed), or a trusted certificate for `wss` | a certificate every student browser trusts |
 | Version skew | page and relay released separately | the relay embeds one playground release: no skew |
 
-**Recommendation: (b).** The relay embeds a pinned playground release and
-serves it at `https://<relay-name>:8443/`. The certificate comes from a
-**classroom CA** that `wctr-relay` creates once (mkcert's model: a local CA
-installed in the trust stores, which issues the server certificate). Its root
-certificate is what a school's IT installs on managed machines, by the same
-policy channel that installs any CA. mkcert's README states the risk: the CA
-key "gives complete power to intercept secure requests" from any machine that
-trusts it, so the relay **name-constrains** the CA to the classroom's names
-and addresses, keeps its key `0600` in the user's configuration directory,
-never exports it, and `wctr-relay ca rotate` replaces it.
+**Both are first-class.** Whether a school can install a CA on its machines is
+not known in advance, so neither deployment is a fallback for the other.
 
-**Fallback: (a), with WebTransport and certificate hashes.** When no CA can be
-installed (students' own machines), the page stays on GitHub Pages; the join
-link carries the relay's address and certificate hash in the URL **fragment**
-(never sent to any server). The student accepts the Local Network Access
-prompt. A browser without WebTransport falls back to `wss`, which requires the
-student to open `https://<relay>:8443/` once and accept the certificate
-warning: the last resort, documented as such.
+### Where the certificate comes from, in order of preference
+
+1. **A publicly trusted certificate from ACME.** A school-owned name (say
+   `class.example-school.fr`) resolves to the relay's address — a private LAN
+   address is fine — and a public CA issues its certificate: no student
+   installs anything. Caddy's automatic-HTTPS documentation states the key
+   point for a LAN-only relay: with the DNS challenge, "the server requesting a
+   certificate does not need to be externally accessible"; it needs credentials
+   for the DNS provider. The DNS-01 challenge (RFC 8555 §8.4) proves control of
+   the name with a TXT record at `_acme-challenge.<name>` whose value is the
+   base64url SHA-256 of the key authorization. The relay takes its certificate
+   from [go-authn/servercert](https://github.com/go-authn/servercert), the
+   fleet's shared source of TLS server certificates: files reloaded on change,
+   or ACME through autocert with External Account Binding. servercert answers
+   `tls-alpn-01` and `http-01` only ("No `dns-01`"), which covers a relay on
+   the internet; it also covers a LAN-only relay whose organisation has a
+   **GÉANT TCS / HARICA** account with pre-validated domains, which issues "with
+   no ACME challenge at all". For every other LAN-only relay, **DNS-01 is added
+   to servercert** (shared code, not a copy in the relay). An IP-address
+   certificate is not an option for a LAN relay: Let's Encrypt issues them
+   (generally available since 15 January 2026, short-lived profile only, 160
+   hours), but servercert refuses IP names, and whether a public CA would
+   validate a private LAN address was not established here; a name is the
+   path.
+2. **The relay's internal CA**, when no name or no internet at issuance is
+   available. `wctr-relay init` creates a root (ECDSA P-256), **name-constrained**
+   to the classroom's names and addresses, which a school installs on managed
+   machines by the same policy channel that installs any CA. mkcert's README
+   states the risk of any such CA: its key "gives complete power to intercept
+   secure requests" from a machine that trusts it — hence the name
+   constraints, a `0600` key that is never exported, and `wctr-relay ca rotate`.
+   Caddy's internal issuer is the same idea (a local CA it tries to add to the
+   system trust store, which "isn't guaranteed to work" without privileges),
+   but it lives in Caddy's PKI app, not in CertMagic (which has no internal
+   issuer), so embedding it would mean embedding Caddy.
+3. **WebTransport certificate hashes** from the GitHub Pages page (deployment
+   (a)): no trust needed, under the constraints of
+   [§1](#1-transport-between-the-browser-and-the-relay).
+
+**Caddy as a front** is the documented alternative for a teacher who already
+runs it: `wctr-relay serve --tls off --listen 127.0.0.1:8080` (the relay
+refuses `--tls off` on any non-loopback address) behind Caddy's
+`reverse_proxy`, with Caddy's own ACME or `tls internal` and `caddy trust`.
+The relay still checks `Origin` and `Host` itself. If on-demand TLS is used it
+"must be both enabled and restricted" (Caddy's words), with an `ask` endpoint.
+
+**Secrets**: a DNS provider's API token, an EAB HMAC key and the CA key are
+read from **files** (`0600`, owned by the relay's user), never from a command
+line, an environment variable or a URL.
+
+### Join-flow detection
+
+The join link (printed and shown as a QR code by `wctr-relay class create`)
+carries, in its URL **fragment** (never sent to a server): the relay's LAN URL,
+its GitHub Pages fallback, the join code, and the WebTransport certificate hash
+when there is one. The page:
+
+1. fetches `https://<relay>/v1/info` (a small public JSON document: version,
+   relay id, TLS mode) with a 3 s timeout; if it answers, the certificate is
+   trusted (public ACME or an installed internal CA) and the browser is sent to
+   the playground **served by the relay** (deployment (b));
+2. otherwise, if the page is on GitHub Pages and the browser has WebTransport
+   with `serverCertificateHashes`, it connects with the hash (deployment (a));
+3. otherwise it tells the student exactly what is missing (install the CA,
+   accept the Local Network Access prompt, or use another browser), rather than
+   failing silently.
 
 Whether a page loaded after a certificate warning is still a secure context
 in each browser is **not established** by the references opened here; M-relay-3
-measures it in the three browsers before (b) can rely on a click-through.
+measures it in the three browsers before any path relies on a click-through.
 
 ## 3. Network model: L4 flows, not L3 packets
 
@@ -313,6 +380,63 @@ Rules carry a `log` flag; denies are always logged. The teacher streams logs
 live (CLI, dashboard); a student sees the decisions about their own ports,
 which is the point of the exercise ("why can't I reach Bob's server?").
 
+### The live flow map
+
+The relay serves a page that draws the class's network **as it happens**:
+nodes are sessions (the students and the teacher) holding their containers,
+coloured by security group; edges are live flows, their width following
+throughput; **denied** flows flash red with the rule decision that refused
+them ("no ingress rule of bob/web allows tcp/80"), because seeing the refusal
+is the lesson.
+
+- **Data.** The page calls a server-streaming RPC,
+  `FlowLogService.WatchFlowMap`, over the Connect protocol (the reason
+  connect-go was chosen: "the other RPC types also support HTTP/1.1", server
+  streaming included, so a browser needs no proxy). The relay **aggregates**:
+  every tick (default 4 Hz) it sends one update holding the per-edge counters
+  (src port → dst port, protocol and port: bytes each way, flows opened, open,
+  denied) and the discrete events since the last tick (opened, closed, denied,
+  revoked, with the rule ids). A slow page gets **coalesced** updates — the
+  newest state replaces the unsent one — never an unbounded queue. A view is
+  capped (400 nodes, 2 000 edges; past that the update says what was left out).
+- **View.** A **stable, incremental layout**, not a force simulation (no full
+  relayout per tick): sessions are boxes on
+  a grid ordered by subnet (teacher first), containers inside them, so a node
+  does not move when traffic changes and 40 students × several containers stay
+  readable on a projector. Click a node or an edge for its details (groups,
+  the rules that matched, conntrack state, counters). Filters by student,
+  group and port. Light and dark themes. Pause and replay of the last minutes
+  are **deferred** (the ring of the last 1 000 events is already kept).
+- **Technique (decided 2026-10-26): the fleet's own toolkit.** The page is a
+  Go `js/wasm` application built on
+  [go-widgets/toolkit](https://github.com/go-widgets/toolkit) and run in a
+  `<canvas>` by [go-widgets/webcanvas](https://github.com/go-widgets/webcanvas),
+  which blits "an RGBA framebuffer into the canvas and routes DOM pointer and
+  keyboard events back into the scene". The widgets a flow map needs and the
+  toolkit lacks — a node-link **graph view** with groups, animated edges and
+  incremental layout, a legend, a filter bar, a detail panel, a sparkline —
+  are added **to go-widgets**, generic and reusable, under its conventions
+  (MVVM, Theme, keyboard navigation, its coverage gate), each in its own pull
+  request and minor release; the relay imports them. Everything is served by
+  the relay (same origin, the `.wasm` included), under a strict
+  Content-Security-Policy: `default-src 'self'; script-src 'self'
+  'wasm-unsafe-eval'` (the narrowest allowance WebAssembly compilation needs),
+  no inline script, no third-party request — the relay runs without internet.
+  The join QR code is drawn from [go-gfx/qr](https://github.com/go-gfx/qr)'s
+  module matrix. Because a canvas has no DOM to assert on, the page's tests
+  read the **view model** (MVVM's testable layer), which the page exposes to
+  the test harness.
+- **Access.** The teacher's view of the whole class needs the admin role (the
+  admin token on loopback or the Unix socket, or the OpenID Connect teacher
+  role in internet mode). A student may open **their own** view: only the
+  flows that touch their own containers, with the other end named but no flow
+  between two other students — the privacy between students the class needs.
+- **Tests.** Playwright (Chromium and Firefox) drives real flows through an
+  in-process relay and asserts what the page's view model says (edges present,
+  a denied flash with its rule, counters moving), not screenshots; the update
+  latency from a flow to the screen, the frame time at about 200 nodes and
+  1 000 edges on one core, and the relay's CPU at 40 sessions are measured.
+
 ### Quotas
 
 Per class, as Neutron's: `security_group` (default 50), `security_group_rule`
@@ -421,7 +545,7 @@ per frame matters.
 ### The teacher's command line
 
 A **separate binary, `wctr-relay`**, in its own repository
-(`go-wasmcontainers/relay`, to be created), built with cobra like the rest of
+([go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay)), built with cobra like the rest of
 the fleet. It is the relay daemon and its client, as `wctrd` and `wctr` are for
 the engine, but in one binary because a teacher installs one thing. It stays out
 of `wctr`, whose surface is compatible with the Docker Engine API and is what
@@ -453,10 +577,17 @@ One WebSocket per browser, binary messages, one frame per message:
  +------+------+--------------+--------------+----------------+
 ```
 
-Frame types: `LISTEN`, `UNLISTEN`, `CONNECT`, `ACCEPT`, `REFUSE`, `DATA`,
-`WINDOW`, `CLOSE`, `RESET`, `DATAGRAM`, `RESOLVE`, `ECHO`, `POLICY`, `PING`.
-Control payloads are protobuf messages from the same `.proto`; `DATA` payloads
-are raw bytes. Flow control is credit-based per stream (64 KiB initial window,
+Frame types (version 1, numbered in the protocol): `HELLO`, `WELCOME`,
+`ATTACH`, `ATTACHED`, `DETACH`, `LISTEN`, `LISTENING`, `UNLISTEN`, `CONNECT`,
+`ACCEPT`, `REFUSE`, `DATA`, `WINDOW`, `CLOSE`, `RESET`, `DATAGRAM`, `RESOLVE`,
+`RESOLVED`, `RESULT`, `REAUTH`, `GOAWAY`; `ECHO` comes with ICMP in M-relay-5.
+The client allocates odd stream ids and the relay even ones. The session token
+is checked **before** the WebSocket upgrade: a browser cannot set an
+`Authorization` header on a WebSocket, so the token travels as a second
+subprotocol (`Sec-WebSocket-Protocol: wctr-relay.v1, bearer.<token>`) — a
+header, never a URL. `REAUTH` hands the relay a fresh token on the open
+connection. Control payloads are protobuf messages from the same `.proto`;
+`DATA` payloads are raw bytes. Flow control is credit-based per stream (64 KiB initial window,
 `WINDOW` frames return credit) and per connection (1 MiB), so one fast sender
 cannot fill the relay's memory for a slow reader. The relay rewrites every
 source address: a frame names a stream or a port the session owns, never an
@@ -479,6 +610,73 @@ sequenceDiagram
   A->>R: DATA stream 7
   R->>B: DATA stream 3
 ```
+
+## Internet mode: OpenID Connect
+
+The same star can run on a server on the internet, for remote or hybrid
+classes. It must then not be open to everyone, so it signs people in with
+**OpenID Connect**, using the fleet's own libraries:
+
+| Piece | Library | What it does here |
+| --- | --- | --- |
+| verifying tokens | [go-authn/oidc](https://github.com/go-authn/oidc) | the relay verifies the token that comes with `Join`, `RefreshSession` and the teacher's calls: issuer compared exactly, audience required, expiry required, an allowlist of signature algorithms (no `none`, no HMAC), key-set refetches bounded. With `Type: "at+jwt"` it refuses an ID token presented as an access token (RFC 9068 §4, which the library cites). |
+| logging people in | [go-authn/rp](https://github.com/go-authn/rp) | the browser login (authorization code with PKCE S256, state and nonce) and the teacher's `wctr-relay login`, a **loopback login** (RFC 8252) that listens on 127.0.0.1 only and opens the system browser |
+| universities | [go-authn/bridge](https://github.com/go-authn/bridge) | an OpenID provider in front of a SAML federation: people "log in at their own university, through RENATER's Fédération Éducation-Recherche or eduGAIN". **The recommended identity provider for academia**, since many university IdPs speak SAML only. |
+
+**Authorization model.**
+
+- **Issuer and audience pinned** in the relay's configuration (`--oidc-issuer`,
+  `--oidc-audience`); one issuer per relay.
+- **Class membership**: an identity alone admits nobody. A student still joins
+  a class with its **join code**; the class may also list who may join —
+  `sub:<subject>`, `email:<address>` (only an address the issuer marked
+  verified: go-authn/oidc's `Username` falls back to `email` only when
+  `email_verified` is true, for the same reason) or `group:<group>` — and may
+  **require** an identity (`--require-identity`), which a relay on the internet
+  sets on every class.
+- **Teacher role**: a configured group claim (`--teacher-group`) gives the
+  admin role, but only on the **admin listener**, never on the public one.
+- **One identity, one session per class**: joining again returns the same
+  session (same addresses), and the per-session quotas are therefore
+  **per identity**, not per IP address — a class behind one NAT is not one
+  student.
+
+**Long connections and short tokens.** A data connection lasts a lesson; an
+access token lasts minutes. The relay's own session token is what the data
+connection holds, bound to the session; before it expires the page calls
+`RefreshSession` (with a fresh OIDC token, from the refresh grant go-authn/rp
+handles) and sends the new session token in a `REAUTH` frame. No flow is
+dropped. A connection whose token expires without `REAUTH` gets `GOAWAY` and
+closes. **Logout and revocation**: the teacher's `KickSession`, or deleting the
+class, ends the session and its tokens at once (the relay checks that the
+session exists on every authentication, not only the signature).
+
+**Internet hardening.**
+
+- **Authenticate before upgrading**: the session token is checked before the
+  WebSocket upgrade, and before any per-session state is allocated; an
+  unauthenticated request costs a header parse and a signature check.
+- **Per-IP limits before authentication**: token buckets on `Join` and on
+  upgrade attempts per source address, and a cap on concurrent unauthenticated
+  handshakes. `ReadHeaderTimeout` (5 s), `MaxHeaderBytes` (16 KiB) and idle
+  timeouts against slowloris.
+- **Max sessions per identity** (one per class) and per class (its subnets).
+- Frame and flow bounds as on the LAN ([security audit](#6-security-audit)).
+- **No admin API on the public listener**: the admin API stays on the Unix
+  socket and loopback, or on a separate `--admin-listen` that requires the
+  teacher role (or the admin token).
+- **Audit log** (JSON lines, `0600`): logins, refusals, kicks, class and rule
+  changes, with pseudonymous identities.
+
+**Privacy (GDPR).** Students are data subjects, often minors. The relay stores,
+per session: a display name the student typed, a derived DNS label, and — with
+OpenID Connect — a **pseudonymous identifier** (a hash of issuer and subject),
+never the token, the e-mail address or the groups (they are checked at the
+moment of joining and dropped). Flow logs hold addresses and ports, not
+contents. Retention: everything about a class is deleted with the class
+(`wctr-relay class delete`); the audit log is pruned after 30 days by default
+(`--audit-retention`). The teacher's institution is the controller and should
+say so in the course's information notice.
 
 ## 6. Security audit
 
@@ -549,6 +747,104 @@ a loaded machine. Masking and unmasking WebSocket payloads is a byte loop on
 the hot path: it goes to a shared SIMD kernel (go-simd) if it shows in the
 profile, not into the relay.
 
+## High availability
+
+**The problem.** A class runs on relays in a datacenter; if that relay stops
+answering, the class must move to another one without losing its setup.
+
+**What state exists.**
+
+| Plane | State | On failover |
+| --- | --- | --- |
+| control | classes, join codes, members and their identities' hashes, security groups and rules, port and address/DNS assignments, session-token signing keys, audit log | **replicated**: survives |
+| data | live streams, UDP connection tracking, listeners | **not replicated**: flows are reset (containers see `ECONNRESET`, which is teachable); listeners are re-registered by the engines when they reconnect; addresses, names and rules are the same |
+
+**Replication: Raft, not a CRDT.** The control plane is a replicated state
+machine (the Raft paper, §2: servers "compute identical copies of the same
+state" and are "fully functional (available) as long as any majority of the servers
+are operational"; "they do not depend on timing to ensure the consistency of the
+logs"). Security rules need that linearizability. A CRDT (go-crdt exists in the
+fleet) merges concurrent updates instead of ordering them: an add-wins set
+would bring back an allow-rule the teacher deleted on another replica during a
+partition. **A deleted allow-rule must never reappear by merge**, so CRDTs are
+the wrong tool here. The library candidate is etcd's `raft` (the core
+algorithm only: "the application supplies its own network transport and
+persistent storage"; Apache-2.0; used by etcd, CockroachDB and TiDB). The
+relay already reaches its state through a `Store` interface (`FileStore` on a
+single relay), which the replicated store implements.
+
+**One relay per class: an epoch lease.** The star needs a class to live on
+**one** relay at a time. The replicated store holds, per class, a lease
+`(relay_id, epoch, expiry)`; a relay takes or renews it through the log, and
+each new holder increments the **epoch** (Raft's terms are the model: "terms
+act as a logical clock", and a server rejects a request with a stale term).
+The epoch is in `Welcome` and in `Class`; a client **refuses a relay that shows
+an older epoch** than one it has seen (fencing), so a partitioned old holder
+cannot keep half a class. A relay that cannot renew its lease stops serving
+the class before the lease expires, with a margin for clock drift.
+
+**Quorum.** A majority quorum of 2 datacenters does not survive the loss of
+either (2 of 2 needed). Three sites are needed: two datacenters and a small
+**witness** (a third voter that serves no class). The trade-off is written
+down rather than hidden: without the witness, a two-site deployment is
+active/passive with manual failover.
+
+**Client-side failover, after DERP.** Tailscale's DERP documentation describes
+the pattern: each client gets a map of relays, picks one by latency, "selects
+the next closest region" when its region is unreachable, and saves the list so
+it works while the coordination server is down. Ours: the join link carries a
+**signed class descriptor** listing the relays in order (not DNS-only failover:
+resolvers cache past a TTL). A client health-checks, reconnects with
+exponential backoff and jitter, and resumes with its **session token, valid on
+any relay** of the cluster (signing keys are in the replicated store and
+rotated through it; OpenID Connect tokens stay valid because issuer and
+audience are the cluster's). Each relay has its own certificate from
+servercert.
+
+**Phase 2: federation.** Relay-to-relay links would let one class span relays
+(geographic proximity, partial failure), the firewall still enforced at both
+ends. Not before the single-holder design is shipped and measured.
+
+**Chaos plan** (M-relay-HA): kill the lease holder in the middle of a lab;
+partition one datacenter; skew the clocks of the lease holder; run mixed relay
+versions during a rolling upgrade; make every student reconnect at once
+(thundering herd: jitter, and admission control that answers "retry after"
+rather than accepting more than it can serve).
+
+## Alternatives considered
+
+Before writing the relay, existing overlay networks were evaluated (October
+2026) against what a lab needs: running in a browser tab with nothing
+installed, inside the engine's Go `js/wasm`, a firewall the teacher controls,
+flow logs, a LAN mode without internet, and high availability.
+
+| | Browser client | Firewall and where | HA | Licence |
+| --- | --- | --- | --- | --- |
+| **Tailscale** building blocks: DERP, `tsnet`, `cmd/tsconnect` | yes: `cmd/tsconnect/wasm` runs wireguard-go and gVisor's netstack in the page, DERP over WebSocket (`derphttp/websocket.go`, js build); the npm package's `main.wasm` is 26.4 MB (4.73 MB brotli); its JS API exposes `login`, `ssh` and `fetch` ([`@tailscale/connect` files](https://app.unpkg.com/@tailscale/connect)); it ships logs to Tailscale's log service by default | ACLs, deny by default, directional, enforced **on the receiving device** | DERP regions with client failover; the control server is Tailscale's | BSD-3-Clause |
+| **headscale** (open control server) | uses Tailscale's clients | Tailscale ACLs; "OIDC groups cannot be used in ACLs"; flow logs only an open issue | single instance; SQLite recommended, PostgreSQL "in maintenance mode"; scope: homelabs, "not enterprise software" | BSD-3-Clause |
+| **NetBird** | a browser client exists (Go to WASM, wireguard-go, WebSocket relay), as a dashboard feature for SSH and RDP, logged in with the admin's credentials | groups and rules | no HA statement found | management, signal and relay **AGPLv3** |
+| **Nebula** | none (UDP only) | groups in certificates | lighthouses | MIT |
+| **ZeroTier** | none found | a rules engine | — | MPL-2.0 plus non-free parts |
+
+**What decided it.**
+
+- With end-to-end WireGuard, **the relay sees nothing**: good for privacy, but
+  there is no relay-side enforcement and no relay-side flow log. Filtering at
+  the receiver is sound against untrusted students (a student can only weaken
+  their own node), but egress rules cannot be enforced on a node the student
+  controls, and logs kept by the endpoints can be forged by the student whose
+  flows they describe. The relay-side log is the lesson.
+- Neutron's model only partly translates to Tailscale ACLs: ingress rules map
+  to tags and ports; egress rules and stateless groups do not.
+- headscale has no HA, so adopting it would not remove the Raft work.
+- A 26 MB WireGuard + netstack per tab, against a socket-level relay that adds
+  no network stack to the engine (performance of both is unmeasured).
+
+**Decision: hybrid (option C).** Our relay stays the classroom data plane and
+firewall; identity and certificates come from go-authn; client failover
+follows DERP's ordered-relay pattern. A later option, not planned: `tsnet` in
+the teacher's relay to reach native machines on an existing tailnet.
+
 ## 8. Roadmap and what the engine must expose
 
 ### The engine's `NetworkDriver`
@@ -584,23 +880,18 @@ relay's tests need no browser.
 | Milestone | Content | Tests |
 | --- | --- | --- |
 | **M-relay-1** | `NetworkDriver` in the engine (by the engine's owner); the relay as a Go library: framing, flow broker, firewall, DNS, conntrack | **in-process relay + two native engines** in one `go test`: TCP across, UDP, DNS, deny, revoke, stateless; fuzzed decoders; rule evaluation tables |
-| **M-relay-2** | `wctr-relay` binary: WebSocket transport, control API (connect-go), cobra CLI, persistence, flow logs, quotas | native engines over loopback `wss`; restart with state; rate limits; chaos on the native path |
-| **M-relay-3** | browser driver in the Web Worker; deployment (b): the relay serves the playground, classroom CA | Chrome, Firefox and WebKit driven by Playwright against a local relay; secure-context check after a certificate warning |
-| **M-relay-4** | deployment (a) from GitHub Pages; WebTransport with certificate hashes; teacher dashboard over gRPC-Web/Connect | the Local Network Access prompt in each browser; transport fallback |
+| **M-relay-2** | `wctr-relay` binary: WebSocket transport, control API (connect-go), cobra CLI, persistence, flow logs, quotas; TLS from servercert (files or ACME) or the internal CA; OpenID Connect verification (go-authn/oidc) and the internet hardening | native engines over loopback `wss`; restart with state; rate limits; a test identity provider; chaos on the native path |
+| **M-relay-2b** | the live flow map: `WatchFlowMap` (aggregated, coalesced); the graph, legend, filter, detail and sparkline widgets added to go-widgets (their own releases); the page served by the relay; teacher and per-student views | Playwright (Chromium, Firefox) on real flows through an in-process relay; update latency and CPU at 40 sessions |
+| **M-relay-3** | browser driver in the Web Worker; deployment (b): the relay serves the playground; join-flow detection | Chrome, Firefox and WebKit driven by Playwright against a local relay; secure-context check after a certificate warning |
+| **M-relay-4** | deployment (a) from GitHub Pages; WebTransport with certificate hashes; teacher dashboard over gRPC-Web/Connect; `wctr-relay login` (go-authn/rp loopback); DNS-01 in servercert | the Local Network Access prompt in each browser; transport fallback |
 | **M-relay-5** | `wctr_net.icmp_echo` and a `ping` image; chaos campaign; performance in a real classroom | the chaos table above; the performance table above |
+| **M-relay-HA** | Raft-replicated `Store` (etcd `raft`), per-class epoch leases, signed class descriptor with ordered relays, client failover | the high-availability chaos plan |
 
 ## Open questions
 
-1. Is `10.42.0.0/16` acceptable as the default class network, or must it be
-   chosen per school to avoid clashing with the LAN?
-2. Default class template: Neutron's `default` (students reach each other) or
-   **isolated** (they must open ports)?
-3. Can the schools install a classroom CA on managed machines? If not,
-   deployment (a) is the main path, not the fallback.
-4. Is IPv6 needed in labs? The model carries `ethertype`; the first milestones
-   allocate IPv4 only.
-5. Should the teacher's own containers join as a session (`teacher`), so a
-   lesson can run a shared service for the whole class?
+1. Which DNS providers must servercert's DNS-01 support first (schools'
+   registrars; RFC 2136 for a school's own DNS server)?
+2. The witness site for a two-datacenter deployment: who runs it?
 
 ## References
 
@@ -625,3 +916,14 @@ Opened for this design (October 2026):
 - [Connect protocol](https://connectrpc.com/docs/protocol/) and [connect-go](https://github.com/connectrpc/connect-go)
 - [quic-go/webtransport-go](https://github.com/quic-go/webtransport-go)
 - [mkcert](https://github.com/FiloSottile/mkcert)
+- [go-widgets/toolkit](https://github.com/go-widgets/toolkit), [go-widgets/webcanvas](https://github.com/go-widgets/webcanvas) and [go-gfx/qr](https://github.com/go-gfx/qr) (the fleet's rendering pieces, for the flow map)
+- Caddy, [Automatic HTTPS](https://caddyserver.com/docs/automatic-https) (DNS challenge, internal CA, IP certificates, on-demand TLS), [`acme_server`](https://caddyserver.com/docs/caddyfile/directives/acme_server) and [`caddy trust`](https://caddyserver.com/docs/command-line)
+- [CertMagic](https://github.com/caddyserver/certmagic): the library behind Caddy's automatic HTTPS (DNS-01 through libdns; no internal issuer)
+- IETF, [RFC 8555, ACME](https://www.rfc-editor.org/rfc/rfc8555), §8.4 (DNS-01)
+- Let's Encrypt, [Short-lived and IP address certificates generally available](https://letsencrypt.org/2026/01/15/6day-and-ip-general-availability/) (15 January 2026)
+- go-authn: [servercert](https://github.com/go-authn/servercert), [oidc](https://github.com/go-authn/oidc), [rp](https://github.com/go-authn/rp), [bridge](https://github.com/go-authn/bridge)
+- D. Ongaro, J. Ousterhout, [In Search of an Understandable Consensus Algorithm (Raft, extended version)](https://raft.github.io/raft.pdf), and [etcd-io/raft](https://github.com/etcd-io/raft)
+- Tailscale: [DERP servers](https://tailscale.com/kb/1232/derp-servers), [ACLs](https://tailscale.com/kb/1018/acls), [`tsnet`](https://pkg.go.dev/tailscale.com/tsnet), [`cmd/tsconnect`](https://github.com/tailscale/tailscale/tree/main/cmd/tsconnect) and its [`wasm_js.go`](https://github.com/tailscale/tailscale/blob/main/cmd/tsconnect/wasm/wasm_js.go), [`derphttp/websocket.go`](https://github.com/tailscale/tailscale/blob/main/derp/derphttp/websocket.go)
+- [headscale](https://github.com/juanfont/headscale): [FAQ](https://headscale.net/stable/about/faq/) and [features](https://headscale.net/stable/about/features/)
+- NetBird: [repository](https://github.com/netbirdio/netbird) (licences) and [browser client architecture](https://docs.netbird.io/manage/peers/browser-client/architecture)
+- [Nebula](https://github.com/slackhq/nebula), [ZeroTierOne](https://github.com/zerotier/ZeroTierOne)

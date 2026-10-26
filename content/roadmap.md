@@ -22,7 +22,7 @@ Nothing below exists yet.
 | Browser executor | the executor contract in a browser Web Worker, which the playground needs |
 | Playground | an in-browser terminal running `wctr` against WASI containers, for cloud and container training labs (the `playground` repository exists; no code yet) |
 | Networking | containers that listen and connect, through the WasmEdge socket ABI |
-| Classroom relay | students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the `wctr-relay` command; see the [design]({{< relref "design/classroom-network" >}}) (milestones M-relay-1 to M-relay-5) |
+| Classroom relay | students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the `wctr-relay` command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the [design]({{< relref "design/classroom-network" >}}) (milestones M-relay-1 to M-relay-5, M-relay-HA). M-relay-1 is being written in [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay) |
 | Shell and `exec` | `wctr exec`, attach, and an interactive shell, through a WASIX subset |
 | Image build | building an image from a Dockerfile |
 | Compose | several containers described in one file |
