@@ -1,23 +1,29 @@
 ---
 title: "Getting started"
 weight: 10
-description: "Install wctr and wctrd v0.1.0 and run a WebAssembly container."
+description: "Try wctr in your browser, or install wctr and wctrd and run a WebAssembly container."
 tags: [start]
 ---
+
+## In your browser
+
+Open <https://go-wasmcontainers.github.io/playground/> and type
+`wctr run --rm hello`. Nothing to install, no server: see the
+[Playground]({{< relref "playground" >}}) page.
 
 ## Install
 
 Go 1.27.3 or later, no cgo:
 
 ```sh
-go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.1.0
-go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.1.0
+go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.2.0
+go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.2.0
 ```
 
 ## A session
 
-This is the output of the engine's acceptance test (`TestAcceptance` in
-`cmd/wctrd`), run against the real binaries in CI; nothing is edited. The
+This is the output of the engine's acceptance test at v0.1.0
+(`TestAcceptance` in `cmd/wctrd`), run against the real binaries in CI; nothing is edited. The
 default socket, `/var/run/wctr.sock`, needs write access to `/var/run`, so the
 session uses a socket in the home directory:
 

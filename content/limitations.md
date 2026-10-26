@@ -1,11 +1,20 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What engine v0.1.0 does not do."
+description: "What the engine (v0.2.0) and the playground do not do."
 tags: [limits]
 ---
 
-Engine v0.1.0 (milestone M1) does **not** have:
+## Playground
+
+The playground has no stdin, no shell (one `wctr` command per line) and no
+networking. Ctrl-C stops waiting for a container but leaves it running. Each
+container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB
+of logs, and 64 containers at once.
+
+## Engine
+
+Engine v0.2.0 (the same limits as v0.1.0) does **not** have:
 
 - networking, `exec`, attach and build: no container networking, no `exec`, no
   attaching to a container (so an interactive `run`), and no image build; the

@@ -15,28 +15,31 @@ pure-Go WebAssembly runtime, instead of in a Linux kernel. `wctrd` serves a
 subset of the Docker Engine API.
 
 {{< callout type="info" >}}
-**Engine v0.1.0 (milestone M1) is released.** It runs natively on Linux and
-macOS: `wctr pull`, `images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`,
-`kill` and `version`. No networking, `exec`, attach or build yet: see
-[Limitations]({{< relref "limitations" >}}). The browser playground and
-everything on the [roadmap]({{< relref "roadmap" >}}) are **planned**. These
-pages describe v0.1.0.
+**Engine v0.2.0 is released**, and **the playground is live**:
+<https://go-wasmcontainers.github.io/playground/> runs `wctr` in a browser tab,
+with no server. The engine also runs natively on Linux and macOS: `wctr pull`,
+`images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`, `kill` and `version`.
+No networking, `exec`, attach or build yet: see
+[Limitations]({{< relref "limitations" >}}). Everything on the
+[roadmap]({{< relref "roadmap" >}}) is **planned**. These pages describe
+engine v0.2.0.
 {{< /callout >}}
 
 ## Why
 
 Teaching containers usually means a Linux machine per learner. A WASI module
-needs no kernel, so the same engine runs natively today and, in the plan, in a
-browser worker — which would make a training lab a web page. The learner types
-container commands the way they will at work.
+needs no kernel, so the same engine runs natively and in a browser tab — which
+makes a training lab a web page. The learner types container commands the way
+they will at work.
 
 ## Pages
 
+- [Playground]({{< relref "playground" >}}): `wctr` in a browser tab
 - [Getting started]({{< relref "getting-started" >}}): install, and a real session
 - [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
 - [Performance]({{< relref "performance" >}}): what was measured
-- [Limitations]({{< relref "limitations" >}}): what v0.1.0 does not do
+- [Limitations]({{< relref "limitations" >}}): what the engine does not do
 - [Design]({{< relref "design" >}}): design documents for planned parts, such as the [classroom network]({{< relref "design/classroom-network" >}})
 - [Roadmap]({{< relref "roadmap" >}}): what is planned
 - [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
@@ -46,8 +49,8 @@ container commands the way they will at work.
 
 | Repo | Status |
 | --- | --- |
-| [engine](https://github.com/go-wasmcontainers/engine) | v0.1.0 released (M1) |
-| [playground](https://github.com/go-wasmcontainers/playground) | planned; not started |
+| [engine](https://github.com/go-wasmcontainers/engine) | v0.2.0 released |
+| [playground](https://github.com/go-wasmcontainers/playground) | live, in the browser |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
 | [go-wasmcontainers.github.io](https://github.com/go-wasmcontainers/go-wasmcontainers.github.io) | the landing page |
 | [brand](https://github.com/go-wasmcontainers/brand) | logo, icons and social images |

@@ -10,8 +10,10 @@ tags: [roadmap]
 | Item | Release |
 | --- | --- |
 | **Engine M1**: native, wazero executor; `wctr pull`, `images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`, `kill`, `version`; the `wctrd` daemon | engine v0.1.0 |
+| **Browser executor** (`runtime/browser`), the shared WASI host (`wasi`), `api/inproc`, the `cli` package, `RegistryOptions.Mirrors` | engine v0.2.0 |
+| **Playground M1**: `wctr` in a browser tab, no server | live at <https://go-wasmcontainers.github.io/playground/> (no release tag yet) |
 
-What v0.1.0 does not do is on [Limitations]({{< relref "limitations" >}}).
+What the engine does not do is on [Limitations]({{< relref "limitations" >}}).
 
 ## Planned
 
@@ -19,8 +21,7 @@ Nothing below exists yet.
 
 | Item | What it is |
 | --- | --- |
-| Browser executor | the executor contract in a browser Web Worker, which the playground needs |
-| Playground | an in-browser terminal running `wctr` against WASI containers, for cloud and container training labs (the `playground` repository exists; no code yet) |
+| Playground: stdin, a shell, networking | the playground has none of the three yet |
 | Networking | containers that listen and connect, through the WasmEdge socket ABI |
 | Classroom relay | students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the `wctr-relay` command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the [design]({{< relref "design/classroom-network" >}}) (milestones M-relay-1 to M-relay-5, M-relay-HA). M-relay-1 is being written in [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay) |
 | Shell and `exec` | `wctr exec`, attach, and an interactive shell, through a WASIX subset |
