@@ -8,9 +8,9 @@ tags: [relay, cli]
 
 `wctr-relay` is one binary: `serve` runs the relay; every other command is a
 client of its control API. Locally they use the state directory's admin socket
-(`0600`: its permissions are the credential); for a remote relay, `--server
-https://host:port --token-file FILE [--ca-file ROOT.pem]` (the token is never a
-flag value). `--state-dir` (default `<user config dir>/wctr-relay`) applies to
+(`0600`: its permissions are the credential); for a remote relay, `--server URL --token-file
+FILE [--ca-file ROOT.pem]`, where URL is the relay's `--admin-listen` address
+over https (the token is never a flag value). `--state-dir` (default `<user config dir>/wctr-relay`) applies to
 all.
 
 | Command | What |
