@@ -12,6 +12,15 @@ v0.2.0). This is **playground v0.2.0**: completion and line editing (below),
 persistence and offline use, the new commands and the images `lua`, `sqlite3`
 and `minigzip`, on engine v0.9.0.
 
+## The dashboard is the default UI
+
+On the live site, the playground now opens the [dashboard]({{< relref "dashboard" >}})
+(Containers, Images, Volumes, Terminal), running on the persistent engine worker.
+The terminal-only page stays at `?ui=terminal`. It works offline: `dashboard.wasm`
+is in the service-worker cache. This is deployed on the playground's main branch
+but is not in a playground tag yet (the latest tag is v0.2.0). The terminal
+sections below describe the terminal page.
+
 ## Completion and editing
 
 The terminal completes with Tab, as a shell does: subcommands, flags, `-m`
