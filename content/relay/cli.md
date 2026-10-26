@@ -11,7 +11,11 @@ client of its control API. Locally they use the state directory's admin socket
 (`0600`: its permissions are the credential); for a remote relay, `--server URL --token-file
 FILE [--ca-file ROOT.pem]`, where URL is the relay's `--admin-listen` address
 over https (the token is never a flag value). `--state-dir` (default `<user config dir>/wctr-relay`) applies to
-all.
+all, and so does `--admin-socket PATH` (since v0.2.1): the admin socket's
+path, `admin.sock` in the state directory by default. A Unix socket path holds
+at most 103 bytes on macOS and 107 on Linux; a longer one is refused with that
+reason, so a deep state directory needs a short `--admin-socket`, given to
+`serve` and to the other commands alike.
 
 | Command | What |
 | --- | --- |
