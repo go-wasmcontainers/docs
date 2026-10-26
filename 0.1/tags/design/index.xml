@@ -65,9 +65,10 @@ building an image from a Dockerfile, Compose and a mini-Kubernetes are on the
 &lt;div class="hx:overflow-x-auto hx:mt-6 hx:flex hx:rounded-lg hx:border hx:py-2 hx:ltr:pr-4 hx:rtl:pl-4 hx:contrast-more:border-current hx:contrast-more:dark:border-current hx:border-blue-200 hx:bg-blue-100 hx:text-blue-900 hx:dark:border-blue-200/30 hx:dark:bg-blue-900/30 hx:dark:text-blue-200"&gt;
 &lt;div class="hx:ltr:pl-3 hx:ltr:pr-2 hx:rtl:pr-3 hx:rtl:pl-2"&gt;&lt;svg height=1.2em class="hx:inline-block hx:align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;&lt;/div&gt;
 &lt;div class="hx:w-full hx:min-w-0 hx:leading-7"&gt;
-&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: design, planned.&lt;/strong&gt; No code exists for anything on this page. It
-decides what will be built and records why, so the implementation can be
-reviewed against it. Milestones are named &lt;code&gt;M-relay-1&lt;/code&gt; and up.&lt;/div&gt;
+&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: design, M-relay-1 being written.&lt;/strong&gt; The implementation lives in
+&lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;. This
+page decides what is built and records why, so the code can be reviewed against
+it. Milestones are named &lt;code&gt;M-relay-1&lt;/code&gt; and up.&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;h2 data-hextra-search-id="the-problem"&gt;The problem&lt;span class="hx:absolute hx:-mt-20" id="the-problem"&gt;&lt;/span&gt;
@@ -104,7 +105,12 @@ opposed to the data plane that carries the containers&amp;rsquo; bytes).&lt;/p&g
 &lt;tr&gt;
 &lt;td&gt;2&lt;/td&gt;
 &lt;td&gt;Where the page comes from&lt;/td&gt;
-&lt;td&gt;&lt;strong&gt;The relay serves the playground itself over HTTPS on the LAN&lt;/strong&gt;, with a classroom CA. Fallback: the page stays on GitHub Pages and connects to the relay, through WebTransport with certificate hashes where available.&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Both paths are first-class&lt;/strong&gt;: the relay serves the playground itself over HTTPS on the LAN, and the page on GitHub Pages connects to the relay. Whether a school can install a CA is not known in advance, so the join flow &lt;strong&gt;detects&lt;/strong&gt; which works (see &lt;a href="#join-flow-detection"&gt;Join-flow detection&lt;/a&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2b&lt;/td&gt;
+&lt;td&gt;Where the TLS certificate comes from&lt;/td&gt;
+&lt;td&gt;In this order: &lt;strong&gt;(1) a publicly trusted certificate from ACME&lt;/strong&gt; through &lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;go-authn/servercert&lt;/a&gt; (a school-owned name such as &lt;code&gt;class.&amp;lt;school-domain&amp;gt;&lt;/code&gt; pointing at the relay; DNS-01 for a LAN-only relay is to be added to servercert); &lt;strong&gt;(2) the relay&amp;rsquo;s internal CA&lt;/strong&gt;, whose root a school installs; &lt;strong&gt;(3) WebTransport certificate hashes&lt;/strong&gt; from the GitHub Pages page. Caddy in front of the relay is the documented alternative.&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;3&lt;/td&gt;
@@ -126,9 +132,60 @@ opposed to the data plane that carries the containers&amp;rsquo; bytes).&lt;/p&g
 &lt;td&gt;Identity&lt;/td&gt;
 &lt;td&gt;The relay assigns every address; nothing a browser sends about its own identity is trusted. Teacher: an admin token. Students: a class code exchanged for a short-lived session token.&lt;/td&gt;
 &lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;Internet mode&lt;/td&gt;
+&lt;td&gt;The same relay can run on the internet for remote or hybrid students, with &lt;strong&gt;OpenID Connect&lt;/strong&gt; sign-in verified by &lt;a href="https://github.com/go-authn/oidc" target="_blank" rel="noopener"&gt;go-authn/oidc&lt;/a&gt;, logins through &lt;a href="https://github.com/go-authn/rp" target="_blank" rel="noopener"&gt;go-authn/rp&lt;/a&gt;, and &lt;a href="https://github.com/go-authn/bridge" target="_blank" rel="noopener"&gt;go-authn/bridge&lt;/a&gt; as the identity provider for SAML-only universities. The LAN mode keeps working with a class code and no identity provider.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;td&gt;High availability&lt;/td&gt;
+&lt;td&gt;The &lt;strong&gt;control plane&lt;/strong&gt; (classes, groups, rules, addresses, signing keys, audit) is replicated with Raft across relays; the &lt;strong&gt;data plane&lt;/strong&gt; (live flows, connection tracking) is not. One relay holds a class at a time, under a lease with an increasing &lt;strong&gt;epoch&lt;/strong&gt;; clients follow an ordered list of relays and refuse an older epoch.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;Build or adopt&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Hybrid&lt;/strong&gt;: our relay stays the classroom data plane and firewall (relay-side enforcement and flow logs are the lesson); go-authn supplies identity and certificates; the client failover follows Tailscale&amp;rsquo;s DERP pattern. See &lt;a href="#alternatives-considered"&gt;Alternatives considered&lt;/a&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;td&gt;Seeing the network&lt;/td&gt;
+&lt;td&gt;The relay serves a &lt;strong&gt;live flow map&lt;/strong&gt;: a go-widgets page (Go &lt;code&gt;js/wasm&lt;/code&gt; on a canvas) fed by an aggregated, coalesced server stream over the Connect protocol; denied flows flash red with the refusing decision; teacher view of the class, per-student view of one&amp;rsquo;s own flows. See &lt;a href="#the-live-flow-map"&gt;The live flow map&lt;/a&gt;.&lt;/td&gt;
+&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;The docs repository has no ADR convention, so this table is the decision record.&lt;/p&gt;
+&lt;p&gt;Answers to the questions this page first left open (decided 2026-10-26):&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Question&lt;/th&gt;
+&lt;th&gt;Answer&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Default class network&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;10.42.0.0/16&lt;/code&gt;, configurable per class with &lt;code&gt;wctr-relay class create --cidr&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;How a new class starts&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;isolated&lt;/strong&gt;: no ingress, egress to the teacher&amp;rsquo;s subnet only. Opening flows is part of the lab. Neutron&amp;rsquo;s default group is a template the teacher can choose.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Can schools install a classroom CA?&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Unknown per school&lt;/strong&gt;, so both TLS paths stay first-class and the join flow detects which works&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;IPv6&lt;/td&gt;
+&lt;td&gt;later; the model carries &lt;code&gt;ethertype&lt;/code&gt;, the first milestones allocate IPv4 only&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;The teacher&amp;rsquo;s containers&lt;/td&gt;
+&lt;td&gt;they join as a session (subnet 0, label &lt;code&gt;teacher&lt;/code&gt;), so the teacher can publish shared services&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The docs repository has no ADR convention, so these tables are the decision record.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="topology"&gt;Topology&lt;span class="hx:absolute hx:-mt-20" id="topology"&gt;&lt;/span&gt;
 &lt;a href="#topology" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div role="img" aria-label="Diagram"&gt;
 &lt;pre class="mermaid hx:mt-6"&gt;
@@ -296,26 +353,75 @@ connection fails.&lt;/li&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;&lt;strong&gt;Recommendation: (b).&lt;/strong&gt; The relay embeds a pinned playground release and
-serves it at &lt;code&gt;https://&amp;lt;relay-name&amp;gt;:8443/&lt;/code&gt;. The certificate comes from a
-&lt;strong&gt;classroom CA&lt;/strong&gt; that &lt;code&gt;wctr-relay&lt;/code&gt; creates once (mkcert&amp;rsquo;s model: a local CA
-installed in the trust stores, which issues the server certificate). Its root
-certificate is what a school&amp;rsquo;s IT installs on managed machines, by the same
-policy channel that installs any CA. mkcert&amp;rsquo;s README states the risk: the CA
-key &amp;ldquo;gives complete power to intercept secure requests&amp;rdquo; from any machine that
-trusts it, so the relay &lt;strong&gt;name-constrains&lt;/strong&gt; the CA to the classroom&amp;rsquo;s names
-and addresses, keeps its key &lt;code&gt;0600&lt;/code&gt; in the user&amp;rsquo;s configuration directory,
-never exports it, and &lt;code&gt;wctr-relay ca rotate&lt;/code&gt; replaces it.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Fallback: (a), with WebTransport and certificate hashes.&lt;/strong&gt; When no CA can be
-installed (students&amp;rsquo; own machines), the page stays on GitHub Pages; the join
-link carries the relay&amp;rsquo;s address and certificate hash in the URL &lt;strong&gt;fragment&lt;/strong&gt;
-(never sent to any server). The student accepts the Local Network Access
-prompt. A browser without WebTransport falls back to &lt;code&gt;wss&lt;/code&gt;, which requires the
-student to open &lt;code&gt;https://&amp;lt;relay&amp;gt;:8443/&lt;/code&gt; once and accept the certificate
-warning: the last resort, documented as such.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Both are first-class.&lt;/strong&gt; Whether a school can install a CA on its machines is
+not known in advance, so neither deployment is a fallback for the other.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="where-the-certificate-comes-from-in-order-of-preference"&gt;Where the certificate comes from, in order of preference&lt;span class="hx:absolute hx:-mt-20" id="where-the-certificate-comes-from-in-order-of-preference"&gt;&lt;/span&gt;
+&lt;a href="#where-the-certificate-comes-from-in-order-of-preference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;A publicly trusted certificate from ACME.&lt;/strong&gt; A school-owned name (say
+&lt;code&gt;class.example-school.fr&lt;/code&gt;) resolves to the relay&amp;rsquo;s address — a private LAN
+address is fine — and a public CA issues its certificate: no student
+installs anything. Caddy&amp;rsquo;s automatic-HTTPS documentation states the key
+point for a LAN-only relay: with the DNS challenge, &amp;ldquo;the server requesting a
+certificate does not need to be externally accessible&amp;rdquo;; it needs credentials
+for the DNS provider. The DNS-01 challenge (RFC 8555 §8.4) proves control of
+the name with a TXT record at &lt;code&gt;_acme-challenge.&amp;lt;name&amp;gt;&lt;/code&gt; whose value is the
+base64url SHA-256 of the key authorization. The relay takes its certificate
+from &lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;go-authn/servercert&lt;/a&gt;, the
+fleet&amp;rsquo;s shared source of TLS server certificates: files reloaded on change,
+or ACME through autocert with External Account Binding. servercert answers
+&lt;code&gt;tls-alpn-01&lt;/code&gt; and &lt;code&gt;http-01&lt;/code&gt; only (&amp;ldquo;No &lt;code&gt;dns-01&lt;/code&gt;&amp;rdquo;), which covers a relay on
+the internet; it also covers a LAN-only relay whose organisation has a
+&lt;strong&gt;GÉANT TCS / HARICA&lt;/strong&gt; account with pre-validated domains, which issues &amp;ldquo;with
+no ACME challenge at all&amp;rdquo;. For every other LAN-only relay, &lt;strong&gt;DNS-01 is added
+to servercert&lt;/strong&gt; (shared code, not a copy in the relay). An IP-address
+certificate is not an option for a LAN relay: Let&amp;rsquo;s Encrypt issues them
+(generally available since 15 January 2026, short-lived profile only, 160
+hours), but servercert refuses IP names, and whether a public CA would
+validate a private LAN address was not established here; a name is the
+path.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The relay&amp;rsquo;s internal CA&lt;/strong&gt;, when no name or no internet at issuance is
+available. &lt;code&gt;wctr-relay init&lt;/code&gt; creates a root (ECDSA P-256), &lt;strong&gt;name-constrained&lt;/strong&gt;
+to the classroom&amp;rsquo;s names and addresses, which a school installs on managed
+machines by the same policy channel that installs any CA. mkcert&amp;rsquo;s README
+states the risk of any such CA: its key &amp;ldquo;gives complete power to intercept
+secure requests&amp;rdquo; from a machine that trusts it — hence the name
+constraints, a &lt;code&gt;0600&lt;/code&gt; key that is never exported, and &lt;code&gt;wctr-relay ca rotate&lt;/code&gt;.
+Caddy&amp;rsquo;s internal issuer is the same idea (a local CA it tries to add to the
+system trust store, which &amp;ldquo;isn&amp;rsquo;t guaranteed to work&amp;rdquo; without privileges),
+but it lives in Caddy&amp;rsquo;s PKI app, not in CertMagic (which has no internal
+issuer), so embedding it would mean embedding Caddy.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;WebTransport certificate hashes&lt;/strong&gt; from the GitHub Pages page (deployment
+(a)): no trust needed, under the constraints of
+&lt;a href="#1-transport-between-the-browser-and-the-relay"&gt;§1&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Caddy as a front&lt;/strong&gt; is the documented alternative for a teacher who already
+runs it: &lt;code&gt;wctr-relay serve --tls off --listen 127.0.0.1:8080&lt;/code&gt; (the relay
+refuses &lt;code&gt;--tls off&lt;/code&gt; on any non-loopback address) behind Caddy&amp;rsquo;s
+&lt;code&gt;reverse_proxy&lt;/code&gt;, with Caddy&amp;rsquo;s own ACME or &lt;code&gt;tls internal&lt;/code&gt; and &lt;code&gt;caddy trust&lt;/code&gt;.
+The relay still checks &lt;code&gt;Origin&lt;/code&gt; and &lt;code&gt;Host&lt;/code&gt; itself. If on-demand TLS is used it
+&amp;ldquo;must be both enabled and restricted&amp;rdquo; (Caddy&amp;rsquo;s words), with an &lt;code&gt;ask&lt;/code&gt; endpoint.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Secrets&lt;/strong&gt;: a DNS provider&amp;rsquo;s API token, an EAB HMAC key and the CA key are
+read from &lt;strong&gt;files&lt;/strong&gt; (&lt;code&gt;0600&lt;/code&gt;, owned by the relay&amp;rsquo;s user), never from a command
+line, an environment variable or a URL.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="join-flow-detection"&gt;Join-flow detection&lt;span class="hx:absolute hx:-mt-20" id="join-flow-detection"&gt;&lt;/span&gt;
+&lt;a href="#join-flow-detection" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The join link (printed and shown as a QR code by &lt;code&gt;wctr-relay class create&lt;/code&gt;)
+carries, in its URL &lt;strong&gt;fragment&lt;/strong&gt; (never sent to a server): the relay&amp;rsquo;s LAN URL,
+its GitHub Pages fallback, the join code, and the WebTransport certificate hash
+when there is one. The page:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;fetches &lt;code&gt;https://&amp;lt;relay&amp;gt;/v1/info&lt;/code&gt; (a small public JSON document: version,
+relay id, TLS mode) with a 3 s timeout; if it answers, the certificate is
+trusted (public ACME or an installed internal CA) and the browser is sent to
+the playground &lt;strong&gt;served by the relay&lt;/strong&gt; (deployment (b));&lt;/li&gt;
+&lt;li&gt;otherwise, if the page is on GitHub Pages and the browser has WebTransport
+with &lt;code&gt;serverCertificateHashes&lt;/code&gt;, it connects with the hash (deployment (a));&lt;/li&gt;
+&lt;li&gt;otherwise it tells the student exactly what is missing (install the CA,
+accept the Local Network Access prompt, or use another browser), rather than
+failing silently.&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;Whether a page loaded after a certificate warning is still a secure context
 in each browser is &lt;strong&gt;not established&lt;/strong&gt; by the references opened here; M-relay-3
-measures it in the three browsers before (b) can rely on a click-through.&lt;/p&gt;
+measures it in the three browsers before any path relies on a click-through.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="3-network-model-l4-flows-not-l3-packets"&gt;3. Network model: L4 flows, not L3 packets&lt;span class="hx:absolute hx:-mt-20" id="3-network-model-l4-flows-not-l3-packets"&gt;&lt;/span&gt;
 &lt;a href="#3-network-model-l4-flows-not-l3-packets" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The containers&amp;rsquo; sockets use the WasmEdge socket extension in the module
 &lt;code&gt;wasi_snapshot_preview1&lt;/code&gt;, as &lt;code&gt;github.com/stealthrocket/net&lt;/code&gt; imports it:
@@ -504,6 +610,61 @@ matching rule or &lt;code&gt;no rule&lt;/code&gt;, and at close the bytes each w
 Rules carry a &lt;code&gt;log&lt;/code&gt; flag; denies are always logged. The teacher streams logs
 live (CLI, dashboard); a student sees the decisions about their own ports,
 which is the point of the exercise (&amp;ldquo;why can&amp;rsquo;t I reach Bob&amp;rsquo;s server?&amp;rdquo;).&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-live-flow-map"&gt;The live flow map&lt;span class="hx:absolute hx:-mt-20" id="the-live-flow-map"&gt;&lt;/span&gt;
+&lt;a href="#the-live-flow-map" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The relay serves a page that draws the class&amp;rsquo;s network &lt;strong&gt;as it happens&lt;/strong&gt;:
+nodes are sessions (the students and the teacher) holding their containers,
+coloured by security group; edges are live flows, their width following
+throughput; &lt;strong&gt;denied&lt;/strong&gt; flows flash red with the rule decision that refused
+them (&amp;ldquo;no ingress rule of bob/web allows tcp/80&amp;rdquo;), because seeing the refusal
+is the lesson.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Data.&lt;/strong&gt; The page calls a server-streaming RPC,
+&lt;code&gt;FlowLogService.WatchFlowMap&lt;/code&gt;, over the Connect protocol (the reason
+connect-go was chosen: &amp;ldquo;the other RPC types also support HTTP/1.1&amp;rdquo;, server
+streaming included, so a browser needs no proxy). The relay &lt;strong&gt;aggregates&lt;/strong&gt;:
+every tick (default 4 Hz) it sends one update holding the per-edge counters
+(src port → dst port, protocol and port: bytes each way, flows opened, open,
+denied) and the discrete events since the last tick (opened, closed, denied,
+revoked, with the rule ids). A slow page gets &lt;strong&gt;coalesced&lt;/strong&gt; updates — the
+newest state replaces the unsent one — never an unbounded queue. A view is
+capped (400 nodes, 2 000 edges; past that the update says what was left out).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;View.&lt;/strong&gt; A &lt;strong&gt;stable, incremental layout&lt;/strong&gt;, not a force simulation (no full
+relayout per tick): sessions are boxes on
+a grid ordered by subnet (teacher first), containers inside them, so a node
+does not move when traffic changes and 40 students × several containers stay
+readable on a projector. Click a node or an edge for its details (groups,
+the rules that matched, conntrack state, counters). Filters by student,
+group and port. Light and dark themes. Pause and replay of the last minutes
+are &lt;strong&gt;deferred&lt;/strong&gt; (the ring of the last 1 000 events is already kept).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Technique (decided 2026-10-26): the fleet&amp;rsquo;s own toolkit.&lt;/strong&gt; The page is a
+Go &lt;code&gt;js/wasm&lt;/code&gt; application built on
+&lt;a href="https://github.com/go-widgets/toolkit" target="_blank" rel="noopener"&gt;go-widgets/toolkit&lt;/a&gt; and run in a
+&lt;code&gt;&amp;lt;canvas&amp;gt;&lt;/code&gt; by &lt;a href="https://github.com/go-widgets/webcanvas" target="_blank" rel="noopener"&gt;go-widgets/webcanvas&lt;/a&gt;,
+which blits &amp;ldquo;an RGBA framebuffer into the canvas and routes DOM pointer and
+keyboard events back into the scene&amp;rdquo;. The widgets a flow map needs and the
+toolkit lacks — a node-link &lt;strong&gt;graph view&lt;/strong&gt; with groups, animated edges and
+incremental layout, a legend, a filter bar, a detail panel, a sparkline —
+are added &lt;strong&gt;to go-widgets&lt;/strong&gt;, generic and reusable, under its conventions
+(MVVM, Theme, keyboard navigation, its coverage gate), each in its own pull
+request and minor release; the relay imports them. Everything is served by
+the relay (same origin, the &lt;code&gt;.wasm&lt;/code&gt; included), under a strict
+Content-Security-Policy: &lt;code&gt;default-src 'self'; script-src 'self' 'wasm-unsafe-eval'&lt;/code&gt; (the narrowest allowance WebAssembly compilation needs),
+no inline script, no third-party request — the relay runs without internet.
+The join QR code is drawn from &lt;a href="https://github.com/go-gfx/qr" target="_blank" rel="noopener"&gt;go-gfx/qr&lt;/a&gt;&amp;rsquo;s
+module matrix. Because a canvas has no DOM to assert on, the page&amp;rsquo;s tests
+read the &lt;strong&gt;view model&lt;/strong&gt; (MVVM&amp;rsquo;s testable layer), which the page exposes to
+the test harness.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Access.&lt;/strong&gt; The teacher&amp;rsquo;s view of the whole class needs the admin role (the
+admin token on loopback or the Unix socket, or the OpenID Connect teacher
+role in internet mode). A student may open &lt;strong&gt;their own&lt;/strong&gt; view: only the
+flows that touch their own containers, with the other end named but no flow
+between two other students — the privacy between students the class needs.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tests.&lt;/strong&gt; Playwright (Chromium and Firefox) drives real flows through an
+in-process relay and asserts what the page&amp;rsquo;s view model says (edges present,
+a denied flash with its rule, counters moving), not screenshots; the update
+latency from a flow to the screen, the frame time at about 200 nodes and
+1 000 edges on one core, and the relay&amp;rsquo;s CPU at 40 sessions are measured.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 data-hextra-search-id="quotas"&gt;Quotas&lt;span class="hx:absolute hx:-mt-20" id="quotas"&gt;&lt;/span&gt;
 &lt;a href="#quotas" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Per class, as Neutron&amp;rsquo;s: &lt;code&gt;security_group&lt;/code&gt; (default 50), &lt;code&gt;security_group_rule&lt;/code&gt;
 (default 500), and &lt;code&gt;port&lt;/code&gt; (default 40 × 10). Per session, for safety rather
@@ -634,7 +795,7 @@ field of the request (a student cannot pass another session&amp;rsquo;s id).&lt;
 &lt;/ul&gt;
 &lt;h3 data-hextra-search-id="the-teachers-command-line"&gt;The teacher&amp;rsquo;s command line&lt;span class="hx:absolute hx:-mt-20" id="the-teachers-command-line"&gt;&lt;/span&gt;
 &lt;a href="#the-teachers-command-line" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A &lt;strong&gt;separate binary, &lt;code&gt;wctr-relay&lt;/code&gt;&lt;/strong&gt;, in its own repository
-(&lt;code&gt;go-wasmcontainers/relay&lt;/code&gt;, to be created), built with cobra like the rest of
+(&lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;), built with cobra like the rest of
 the fleet. It is the relay daemon and its client, as &lt;code&gt;wctrd&lt;/code&gt; and &lt;code&gt;wctr&lt;/code&gt; are for
 the engine, but in one binary because a teacher installs one thing. It stays out
 of &lt;code&gt;wctr&lt;/code&gt;, whose surface is compatible with the Docker Engine API and is what
@@ -681,10 +842,17 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;Frame types: &lt;code&gt;LISTEN&lt;/code&gt;, &lt;code&gt;UNLISTEN&lt;/code&gt;, &lt;code&gt;CONNECT&lt;/code&gt;, &lt;code&gt;ACCEPT&lt;/code&gt;, &lt;code&gt;REFUSE&lt;/code&gt;, &lt;code&gt;DATA&lt;/code&gt;,
-&lt;code&gt;WINDOW&lt;/code&gt;, &lt;code&gt;CLOSE&lt;/code&gt;, &lt;code&gt;RESET&lt;/code&gt;, &lt;code&gt;DATAGRAM&lt;/code&gt;, &lt;code&gt;RESOLVE&lt;/code&gt;, &lt;code&gt;ECHO&lt;/code&gt;, &lt;code&gt;POLICY&lt;/code&gt;, &lt;code&gt;PING&lt;/code&gt;.
-Control payloads are protobuf messages from the same &lt;code&gt;.proto&lt;/code&gt;; &lt;code&gt;DATA&lt;/code&gt; payloads
-are raw bytes. Flow control is credit-based per stream (64 KiB initial window,
+&lt;p&gt;Frame types (version 1, numbered in the protocol): &lt;code&gt;HELLO&lt;/code&gt;, &lt;code&gt;WELCOME&lt;/code&gt;,
+&lt;code&gt;ATTACH&lt;/code&gt;, &lt;code&gt;ATTACHED&lt;/code&gt;, &lt;code&gt;DETACH&lt;/code&gt;, &lt;code&gt;LISTEN&lt;/code&gt;, &lt;code&gt;LISTENING&lt;/code&gt;, &lt;code&gt;UNLISTEN&lt;/code&gt;, &lt;code&gt;CONNECT&lt;/code&gt;,
+&lt;code&gt;ACCEPT&lt;/code&gt;, &lt;code&gt;REFUSE&lt;/code&gt;, &lt;code&gt;DATA&lt;/code&gt;, &lt;code&gt;WINDOW&lt;/code&gt;, &lt;code&gt;CLOSE&lt;/code&gt;, &lt;code&gt;RESET&lt;/code&gt;, &lt;code&gt;DATAGRAM&lt;/code&gt;, &lt;code&gt;RESOLVE&lt;/code&gt;,
+&lt;code&gt;RESOLVED&lt;/code&gt;, &lt;code&gt;RESULT&lt;/code&gt;, &lt;code&gt;REAUTH&lt;/code&gt;, &lt;code&gt;GOAWAY&lt;/code&gt;; &lt;code&gt;ECHO&lt;/code&gt; comes with ICMP in M-relay-5.
+The client allocates odd stream ids and the relay even ones. The session token
+is checked &lt;strong&gt;before&lt;/strong&gt; the WebSocket upgrade: a browser cannot set an
+&lt;code&gt;Authorization&lt;/code&gt; header on a WebSocket, so the token travels as a second
+subprotocol (&lt;code&gt;Sec-WebSocket-Protocol: wctr-relay.v1, bearer.&amp;lt;token&amp;gt;&lt;/code&gt;) — a
+header, never a URL. &lt;code&gt;REAUTH&lt;/code&gt; hands the relay a fresh token on the open
+connection. Control payloads are protobuf messages from the same &lt;code&gt;.proto&lt;/code&gt;;
+&lt;code&gt;DATA&lt;/code&gt; payloads are raw bytes. Flow control is credit-based per stream (64 KiB initial window,
 &lt;code&gt;WINDOW&lt;/code&gt; frames return credit) and per connection (1 MiB), so one fast sender
 cannot fill the relay&amp;rsquo;s memory for a slow reader. The relay rewrites every
 source address: a frame names a stream or a port the session owns, never an
@@ -707,7 +875,90 @@ R--&amp;gt;&amp;gt;A: ACCEPT stream 7
 A-&amp;gt;&amp;gt;R: DATA stream 7
 R-&amp;gt;&amp;gt;B: DATA stream 3
 &lt;/pre&gt;
-&lt;/div&gt;&lt;h2 data-hextra-search-id="6-security-audit"&gt;6. Security audit&lt;span class="hx:absolute hx:-mt-20" id="6-security-audit"&gt;&lt;/span&gt;
+&lt;/div&gt;&lt;h2 data-hextra-search-id="internet-mode-openid-connect"&gt;Internet mode: OpenID Connect&lt;span class="hx:absolute hx:-mt-20" id="internet-mode-openid-connect"&gt;&lt;/span&gt;
+&lt;a href="#internet-mode-openid-connect" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The same star can run on a server on the internet, for remote or hybrid
+classes. It must then not be open to everyone, so it signs people in with
+&lt;strong&gt;OpenID Connect&lt;/strong&gt;, using the fleet&amp;rsquo;s own libraries:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Piece&lt;/th&gt;
+&lt;th&gt;Library&lt;/th&gt;
+&lt;th&gt;What it does here&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;verifying tokens&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-authn/oidc" target="_blank" rel="noopener"&gt;go-authn/oidc&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;the relay verifies the token that comes with &lt;code&gt;Join&lt;/code&gt;, &lt;code&gt;RefreshSession&lt;/code&gt; and the teacher&amp;rsquo;s calls: issuer compared exactly, audience required, expiry required, an allowlist of signature algorithms (no &lt;code&gt;none&lt;/code&gt;, no HMAC), key-set refetches bounded. With &lt;code&gt;Type: &amp;quot;at+jwt&amp;quot;&lt;/code&gt; it refuses an ID token presented as an access token (RFC 9068 §4, which the library cites).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;logging people in&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-authn/rp" target="_blank" rel="noopener"&gt;go-authn/rp&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;the browser login (authorization code with PKCE S256, state and nonce) and the teacher&amp;rsquo;s &lt;code&gt;wctr-relay login&lt;/code&gt;, a &lt;strong&gt;loopback login&lt;/strong&gt; (RFC 8252) that listens on 127.0.0.1 only and opens the system browser&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;universities&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-authn/bridge" target="_blank" rel="noopener"&gt;go-authn/bridge&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;an OpenID provider in front of a SAML federation: people &amp;ldquo;log in at their own university, through RENATER&amp;rsquo;s Fédération Éducation-Recherche or eduGAIN&amp;rdquo;. &lt;strong&gt;The recommended identity provider for academia&lt;/strong&gt;, since many university IdPs speak SAML only.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Authorization model.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Issuer and audience pinned&lt;/strong&gt; in the relay&amp;rsquo;s configuration (&lt;code&gt;--oidc-issuer&lt;/code&gt;,
+&lt;code&gt;--oidc-audience&lt;/code&gt;); one issuer per relay.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Class membership&lt;/strong&gt;: an identity alone admits nobody. A student still joins
+a class with its &lt;strong&gt;join code&lt;/strong&gt;; the class may also list who may join —
+&lt;code&gt;sub:&amp;lt;subject&amp;gt;&lt;/code&gt;, &lt;code&gt;email:&amp;lt;address&amp;gt;&lt;/code&gt; (only an address the issuer marked
+verified: go-authn/oidc&amp;rsquo;s &lt;code&gt;Username&lt;/code&gt; falls back to &lt;code&gt;email&lt;/code&gt; only when
+&lt;code&gt;email_verified&lt;/code&gt; is true, for the same reason) or &lt;code&gt;group:&amp;lt;group&amp;gt;&lt;/code&gt; — and may
+&lt;strong&gt;require&lt;/strong&gt; an identity (&lt;code&gt;--require-identity&lt;/code&gt;), which a relay on the internet
+sets on every class.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Teacher role&lt;/strong&gt;: a configured group claim (&lt;code&gt;--teacher-group&lt;/code&gt;) gives the
+admin role, but only on the &lt;strong&gt;admin listener&lt;/strong&gt;, never on the public one.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;One identity, one session per class&lt;/strong&gt;: joining again returns the same
+session (same addresses), and the per-session quotas are therefore
+&lt;strong&gt;per identity&lt;/strong&gt;, not per IP address — a class behind one NAT is not one
+student.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Long connections and short tokens.&lt;/strong&gt; A data connection lasts a lesson; an
+access token lasts minutes. The relay&amp;rsquo;s own session token is what the data
+connection holds, bound to the session; before it expires the page calls
+&lt;code&gt;RefreshSession&lt;/code&gt; (with a fresh OIDC token, from the refresh grant go-authn/rp
+handles) and sends the new session token in a &lt;code&gt;REAUTH&lt;/code&gt; frame. No flow is
+dropped. A connection whose token expires without &lt;code&gt;REAUTH&lt;/code&gt; gets &lt;code&gt;GOAWAY&lt;/code&gt; and
+closes. &lt;strong&gt;Logout and revocation&lt;/strong&gt;: the teacher&amp;rsquo;s &lt;code&gt;KickSession&lt;/code&gt;, or deleting the
+class, ends the session and its tokens at once (the relay checks that the
+session exists on every authentication, not only the signature).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Internet hardening.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Authenticate before upgrading&lt;/strong&gt;: the session token is checked before the
+WebSocket upgrade, and before any per-session state is allocated; an
+unauthenticated request costs a header parse and a signature check.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Per-IP limits before authentication&lt;/strong&gt;: token buckets on &lt;code&gt;Join&lt;/code&gt; and on
+upgrade attempts per source address, and a cap on concurrent unauthenticated
+handshakes. &lt;code&gt;ReadHeaderTimeout&lt;/code&gt; (5 s), &lt;code&gt;MaxHeaderBytes&lt;/code&gt; (16 KiB) and idle
+timeouts against slowloris.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Max sessions per identity&lt;/strong&gt; (one per class) and per class (its subnets).&lt;/li&gt;
+&lt;li&gt;Frame and flow bounds as on the LAN (&lt;a href="#6-security-audit"&gt;security audit&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No admin API on the public listener&lt;/strong&gt;: the admin API stays on the Unix
+socket and loopback, or on a separate &lt;code&gt;--admin-listen&lt;/code&gt; that requires the
+teacher role (or the admin token).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Audit log&lt;/strong&gt; (JSON lines, &lt;code&gt;0600&lt;/code&gt;): logins, refusals, kicks, class and rule
+changes, with pseudonymous identities.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Privacy (GDPR).&lt;/strong&gt; Students are data subjects, often minors. The relay stores,
+per session: a display name the student typed, a derived DNS label, and — with
+OpenID Connect — a &lt;strong&gt;pseudonymous identifier&lt;/strong&gt; (a hash of issuer and subject),
+never the token, the e-mail address or the groups (they are checked at the
+moment of joining and dropped). Flow logs hold addresses and ports, not
+contents. Retention: everything about a class is deleted with the class
+(&lt;code&gt;wctr-relay class delete&lt;/code&gt;); the audit log is pruned after 30 days by default
+(&lt;code&gt;--audit-retention&lt;/code&gt;). The teacher&amp;rsquo;s institution is the controller and should
+say so in the course&amp;rsquo;s information notice.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="6-security-audit"&gt;6. Security audit&lt;span class="hx:absolute hx:-mt-20" id="6-security-audit"&gt;&lt;/span&gt;
 &lt;a href="#6-security-audit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The relay is a network service on a LAN full of untrusted clients, parsing
 their frames. Every row is a requirement for the implementation and a test.&lt;/p&gt;
 &lt;table&gt;
@@ -872,6 +1123,148 @@ on a lossy Wi-Fi; WebTransport&amp;rsquo;s independent streams are the remedy.&l
 a loaded machine. Masking and unmasking WebSocket payloads is a byte loop on
 the hot path: it goes to a shared SIMD kernel (go-simd) if it shows in the
 profile, not into the relay.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="high-availability"&gt;High availability&lt;span class="hx:absolute hx:-mt-20" id="high-availability"&gt;&lt;/span&gt;
+&lt;a href="#high-availability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;The problem.&lt;/strong&gt; A class runs on relays in a datacenter; if that relay stops
+answering, the class must move to another one without losing its setup.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;What state exists.&lt;/strong&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Plane&lt;/th&gt;
+&lt;th&gt;State&lt;/th&gt;
+&lt;th&gt;On failover&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;control&lt;/td&gt;
+&lt;td&gt;classes, join codes, members and their identities&amp;rsquo; hashes, security groups and rules, port and address/DNS assignments, session-token signing keys, audit log&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;replicated&lt;/strong&gt;: survives&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;data&lt;/td&gt;
+&lt;td&gt;live streams, UDP connection tracking, listeners&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;not replicated&lt;/strong&gt;: flows are reset (containers see &lt;code&gt;ECONNRESET&lt;/code&gt;, which is teachable); listeners are re-registered by the engines when they reconnect; addresses, names and rules are the same&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Replication: Raft, not a CRDT.&lt;/strong&gt; The control plane is a replicated state
+machine (the Raft paper, §2: servers &amp;ldquo;compute identical copies of the same
+state&amp;rdquo; and are &amp;ldquo;fully functional (available) as long as any majority of the servers
+are operational&amp;rdquo;; &amp;ldquo;they do not depend on timing to ensure the consistency of the
+logs&amp;rdquo;). Security rules need that linearizability. A CRDT (go-crdt exists in the
+fleet) merges concurrent updates instead of ordering them: an add-wins set
+would bring back an allow-rule the teacher deleted on another replica during a
+partition. &lt;strong&gt;A deleted allow-rule must never reappear by merge&lt;/strong&gt;, so CRDTs are
+the wrong tool here. The library candidate is etcd&amp;rsquo;s &lt;code&gt;raft&lt;/code&gt; (the core
+algorithm only: &amp;ldquo;the application supplies its own network transport and
+persistent storage&amp;rdquo;; Apache-2.0; used by etcd, CockroachDB and TiDB). The
+relay already reaches its state through a &lt;code&gt;Store&lt;/code&gt; interface (&lt;code&gt;FileStore&lt;/code&gt; on a
+single relay), which the replicated store implements.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;One relay per class: an epoch lease.&lt;/strong&gt; The star needs a class to live on
+&lt;strong&gt;one&lt;/strong&gt; relay at a time. The replicated store holds, per class, a lease
+&lt;code&gt;(relay_id, epoch, expiry)&lt;/code&gt;; a relay takes or renews it through the log, and
+each new holder increments the &lt;strong&gt;epoch&lt;/strong&gt; (Raft&amp;rsquo;s terms are the model: &amp;ldquo;terms
+act as a logical clock&amp;rdquo;, and a server rejects a request with a stale term).
+The epoch is in &lt;code&gt;Welcome&lt;/code&gt; and in &lt;code&gt;Class&lt;/code&gt;; a client &lt;strong&gt;refuses a relay that shows
+an older epoch&lt;/strong&gt; than one it has seen (fencing), so a partitioned old holder
+cannot keep half a class. A relay that cannot renew its lease stops serving
+the class before the lease expires, with a margin for clock drift.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Quorum.&lt;/strong&gt; A majority quorum of 2 datacenters does not survive the loss of
+either (2 of 2 needed). Three sites are needed: two datacenters and a small
+&lt;strong&gt;witness&lt;/strong&gt; (a third voter that serves no class). The trade-off is written
+down rather than hidden: without the witness, a two-site deployment is
+active/passive with manual failover.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Client-side failover, after DERP.&lt;/strong&gt; Tailscale&amp;rsquo;s DERP documentation describes
+the pattern: each client gets a map of relays, picks one by latency, &amp;ldquo;selects
+the next closest region&amp;rdquo; when its region is unreachable, and saves the list so
+it works while the coordination server is down. Ours: the join link carries a
+&lt;strong&gt;signed class descriptor&lt;/strong&gt; listing the relays in order (not DNS-only failover:
+resolvers cache past a TTL). A client health-checks, reconnects with
+exponential backoff and jitter, and resumes with its &lt;strong&gt;session token, valid on
+any relay&lt;/strong&gt; of the cluster (signing keys are in the replicated store and
+rotated through it; OpenID Connect tokens stay valid because issuer and
+audience are the cluster&amp;rsquo;s). Each relay has its own certificate from
+servercert.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Phase 2: federation.&lt;/strong&gt; Relay-to-relay links would let one class span relays
+(geographic proximity, partial failure), the firewall still enforced at both
+ends. Not before the single-holder design is shipped and measured.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Chaos plan&lt;/strong&gt; (M-relay-HA): kill the lease holder in the middle of a lab;
+partition one datacenter; skew the clocks of the lease holder; run mixed relay
+versions during a rolling upgrade; make every student reconnect at once
+(thundering herd: jitter, and admission control that answers &amp;ldquo;retry after&amp;rdquo;
+rather than accepting more than it can serve).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="alternatives-considered"&gt;Alternatives considered&lt;span class="hx:absolute hx:-mt-20" id="alternatives-considered"&gt;&lt;/span&gt;
+&lt;a href="#alternatives-considered" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before writing the relay, existing overlay networks were evaluated (October
+2026) against what a lab needs: running in a browser tab with nothing
+installed, inside the engine&amp;rsquo;s Go &lt;code&gt;js/wasm&lt;/code&gt;, a firewall the teacher controls,
+flow logs, a LAN mode without internet, and high availability.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Browser client&lt;/th&gt;
+&lt;th&gt;Firewall and where&lt;/th&gt;
+&lt;th&gt;HA&lt;/th&gt;
+&lt;th&gt;Licence&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Tailscale&lt;/strong&gt; building blocks: DERP, &lt;code&gt;tsnet&lt;/code&gt;, &lt;code&gt;cmd/tsconnect&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;yes: &lt;code&gt;cmd/tsconnect/wasm&lt;/code&gt; runs wireguard-go and gVisor&amp;rsquo;s netstack in the page, DERP over WebSocket (&lt;code&gt;derphttp/websocket.go&lt;/code&gt;, js build); the npm package&amp;rsquo;s &lt;code&gt;main.wasm&lt;/code&gt; is 26.4 MB (4.73 MB brotli); its JS API exposes &lt;code&gt;login&lt;/code&gt;, &lt;code&gt;ssh&lt;/code&gt; and &lt;code&gt;fetch&lt;/code&gt; (&lt;a href="https://app.unpkg.com/@tailscale/connect" target="_blank" rel="noopener"&gt;&lt;code&gt;@tailscale/connect&lt;/code&gt; files&lt;/a&gt;); it ships logs to Tailscale&amp;rsquo;s log service by default&lt;/td&gt;
+&lt;td&gt;ACLs, deny by default, directional, enforced &lt;strong&gt;on the receiving device&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;DERP regions with client failover; the control server is Tailscale&amp;rsquo;s&lt;/td&gt;
+&lt;td&gt;BSD-3-Clause&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;headscale&lt;/strong&gt; (open control server)&lt;/td&gt;
+&lt;td&gt;uses Tailscale&amp;rsquo;s clients&lt;/td&gt;
+&lt;td&gt;Tailscale ACLs; &amp;ldquo;OIDC groups cannot be used in ACLs&amp;rdquo;; flow logs only an open issue&lt;/td&gt;
+&lt;td&gt;single instance; SQLite recommended, PostgreSQL &amp;ldquo;in maintenance mode&amp;rdquo;; scope: homelabs, &amp;ldquo;not enterprise software&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;BSD-3-Clause&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;NetBird&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;a browser client exists (Go to WASM, wireguard-go, WebSocket relay), as a dashboard feature for SSH and RDP, logged in with the admin&amp;rsquo;s credentials&lt;/td&gt;
+&lt;td&gt;groups and rules&lt;/td&gt;
+&lt;td&gt;no HA statement found&lt;/td&gt;
+&lt;td&gt;management, signal and relay &lt;strong&gt;AGPLv3&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Nebula&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;none (UDP only)&lt;/td&gt;
+&lt;td&gt;groups in certificates&lt;/td&gt;
+&lt;td&gt;lighthouses&lt;/td&gt;
+&lt;td&gt;MIT&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;ZeroTier&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;none found&lt;/td&gt;
+&lt;td&gt;a rules engine&lt;/td&gt;
+&lt;td&gt;—&lt;/td&gt;
+&lt;td&gt;MPL-2.0 plus non-free parts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;What decided it.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;With end-to-end WireGuard, &lt;strong&gt;the relay sees nothing&lt;/strong&gt;: good for privacy, but
+there is no relay-side enforcement and no relay-side flow log. Filtering at
+the receiver is sound against untrusted students (a student can only weaken
+their own node), but egress rules cannot be enforced on a node the student
+controls, and logs kept by the endpoints can be forged by the student whose
+flows they describe. The relay-side log is the lesson.&lt;/li&gt;
+&lt;li&gt;Neutron&amp;rsquo;s model only partly translates to Tailscale ACLs: ingress rules map
+to tags and ports; egress rules and stateless groups do not.&lt;/li&gt;
+&lt;li&gt;headscale has no HA, so adopting it would not remove the Raft work.&lt;/li&gt;
+&lt;li&gt;A 26 MB WireGuard + netstack per tab, against a socket-level relay that adds
+no network stack to the engine (performance of both is unmeasured).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Decision: hybrid (option C).&lt;/strong&gt; Our relay stays the classroom data plane and
+firewall; identity and certificates come from go-authn; client failover
+follows DERP&amp;rsquo;s ordered-relay pattern. A later option, not planned: &lt;code&gt;tsnet&lt;/code&gt; in
+the teacher&amp;rsquo;s relay to reach native machines on an existing tailnet.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="8-roadmap-and-what-the-engine-must-expose"&gt;8. Roadmap and what the engine must expose&lt;span class="hx:absolute hx:-mt-20" id="8-roadmap-and-what-the-engine-must-expose"&gt;&lt;/span&gt;
 &lt;a href="#8-roadmap-and-what-the-engine-must-expose" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3 data-hextra-search-id="the-engines-networkdriver"&gt;The engine&amp;rsquo;s &lt;code&gt;NetworkDriver&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="the-engines-networkdriver"&gt;&lt;/span&gt;
 &lt;a href="#the-engines-networkdriver" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The engine maps the socket host functions onto a driver; the in-browser network
@@ -924,17 +1317,22 @@ relay&amp;rsquo;s tests need no browser.&lt;/p&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;strong&gt;M-relay-2&lt;/strong&gt;&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;wctr-relay&lt;/code&gt; binary: WebSocket transport, control API (connect-go), cobra CLI, persistence, flow logs, quotas&lt;/td&gt;
-&lt;td&gt;native engines over loopback &lt;code&gt;wss&lt;/code&gt;; restart with state; rate limits; chaos on the native path&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;wctr-relay&lt;/code&gt; binary: WebSocket transport, control API (connect-go), cobra CLI, persistence, flow logs, quotas; TLS from servercert (files or ACME) or the internal CA; OpenID Connect verification (go-authn/oidc) and the internet hardening&lt;/td&gt;
+&lt;td&gt;native engines over loopback &lt;code&gt;wss&lt;/code&gt;; restart with state; rate limits; a test identity provider; chaos on the native path&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-2b&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;the live flow map: &lt;code&gt;WatchFlowMap&lt;/code&gt; (aggregated, coalesced); the graph, legend, filter, detail and sparkline widgets added to go-widgets (their own releases); the page served by the relay; teacher and per-student views&lt;/td&gt;
+&lt;td&gt;Playwright (Chromium, Firefox) on real flows through an in-process relay; update latency and CPU at 40 sessions&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;strong&gt;M-relay-3&lt;/strong&gt;&lt;/td&gt;
-&lt;td&gt;browser driver in the Web Worker; deployment (b): the relay serves the playground, classroom CA&lt;/td&gt;
+&lt;td&gt;browser driver in the Web Worker; deployment (b): the relay serves the playground; join-flow detection&lt;/td&gt;
 &lt;td&gt;Chrome, Firefox and WebKit driven by Playwright against a local relay; secure-context check after a certificate warning&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;strong&gt;M-relay-4&lt;/strong&gt;&lt;/td&gt;
-&lt;td&gt;deployment (a) from GitHub Pages; WebTransport with certificate hashes; teacher dashboard over gRPC-Web/Connect&lt;/td&gt;
+&lt;td&gt;deployment (a) from GitHub Pages; WebTransport with certificate hashes; teacher dashboard over gRPC-Web/Connect; &lt;code&gt;wctr-relay login&lt;/code&gt; (go-authn/rp loopback); DNS-01 in servercert&lt;/td&gt;
 &lt;td&gt;the Local Network Access prompt in each browser; transport fallback&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
@@ -942,20 +1340,18 @@ relay&amp;rsquo;s tests need no browser.&lt;/p&gt;
 &lt;td&gt;&lt;code&gt;wctr_net.icmp_echo&lt;/code&gt; and a &lt;code&gt;ping&lt;/code&gt; image; chaos campaign; performance in a real classroom&lt;/td&gt;
 &lt;td&gt;the chaos table above; the performance table above&lt;/td&gt;
 &lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-HA&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Raft-replicated &lt;code&gt;Store&lt;/code&gt; (etcd &lt;code&gt;raft&lt;/code&gt;), per-class epoch leases, signed class descriptor with ordered relays, client failover&lt;/td&gt;
+&lt;td&gt;the high-availability chaos plan&lt;/td&gt;
+&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 data-hextra-search-id="open-questions"&gt;Open questions&lt;span class="hx:absolute hx:-mt-20" id="open-questions"&gt;&lt;/span&gt;
 &lt;a href="#open-questions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;Is &lt;code&gt;10.42.0.0/16&lt;/code&gt; acceptable as the default class network, or must it be
-chosen per school to avoid clashing with the LAN?&lt;/li&gt;
-&lt;li&gt;Default class template: Neutron&amp;rsquo;s &lt;code&gt;default&lt;/code&gt; (students reach each other) or
-&lt;strong&gt;isolated&lt;/strong&gt; (they must open ports)?&lt;/li&gt;
-&lt;li&gt;Can the schools install a classroom CA on managed machines? If not,
-deployment (a) is the main path, not the fallback.&lt;/li&gt;
-&lt;li&gt;Is IPv6 needed in labs? The model carries &lt;code&gt;ethertype&lt;/code&gt;; the first milestones
-allocate IPv4 only.&lt;/li&gt;
-&lt;li&gt;Should the teacher&amp;rsquo;s own containers join as a session (&lt;code&gt;teacher&lt;/code&gt;), so a
-lesson can run a shared service for the whole class?&lt;/li&gt;
+&lt;li&gt;Which DNS providers must servercert&amp;rsquo;s DNS-01 support first (schools'
+registrars; RFC 2136 for a school&amp;rsquo;s own DNS server)?&lt;/li&gt;
+&lt;li&gt;The witness site for a two-datacenter deployment: who runs it?&lt;/li&gt;
 &lt;/ol&gt;
 &lt;h2 data-hextra-search-id="references"&gt;References&lt;span class="hx:absolute hx:-mt-20" id="references"&gt;&lt;/span&gt;
 &lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Opened for this design (October 2026):&lt;/p&gt;
@@ -979,6 +1375,17 @@ lesson can run a shared service for the whole class?&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://connectrpc.com/docs/protocol/" target="_blank" rel="noopener"&gt;Connect protocol&lt;/a&gt; and &lt;a href="https://github.com/connectrpc/connect-go" target="_blank" rel="noopener"&gt;connect-go&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/quic-go/webtransport-go" target="_blank" rel="noopener"&gt;quic-go/webtransport-go&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/FiloSottile/mkcert" target="_blank" rel="noopener"&gt;mkcert&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/go-widgets/toolkit" target="_blank" rel="noopener"&gt;go-widgets/toolkit&lt;/a&gt;, &lt;a href="https://github.com/go-widgets/webcanvas" target="_blank" rel="noopener"&gt;go-widgets/webcanvas&lt;/a&gt; and &lt;a href="https://github.com/go-gfx/qr" target="_blank" rel="noopener"&gt;go-gfx/qr&lt;/a&gt; (the fleet&amp;rsquo;s rendering pieces, for the flow map)&lt;/li&gt;
+&lt;li&gt;Caddy, &lt;a href="https://caddyserver.com/docs/automatic-https" target="_blank" rel="noopener"&gt;Automatic HTTPS&lt;/a&gt; (DNS challenge, internal CA, IP certificates, on-demand TLS), &lt;a href="https://caddyserver.com/docs/caddyfile/directives/acme_server" target="_blank" rel="noopener"&gt;&lt;code&gt;acme_server&lt;/code&gt;&lt;/a&gt; and &lt;a href="https://caddyserver.com/docs/command-line" target="_blank" rel="noopener"&gt;&lt;code&gt;caddy trust&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/caddyserver/certmagic" target="_blank" rel="noopener"&gt;CertMagic&lt;/a&gt;: the library behind Caddy&amp;rsquo;s automatic HTTPS (DNS-01 through libdns; no internal issuer)&lt;/li&gt;
+&lt;li&gt;IETF, &lt;a href="https://www.rfc-editor.org/rfc/rfc8555" target="_blank" rel="noopener"&gt;RFC 8555, ACME&lt;/a&gt;, §8.4 (DNS-01)&lt;/li&gt;
+&lt;li&gt;Let&amp;rsquo;s Encrypt, &lt;a href="https://letsencrypt.org/2026/01/15/6day-and-ip-general-availability/" target="_blank" rel="noopener"&gt;Short-lived and IP address certificates generally available&lt;/a&gt; (15 January 2026)&lt;/li&gt;
+&lt;li&gt;go-authn: &lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;servercert&lt;/a&gt;, &lt;a href="https://github.com/go-authn/oidc" target="_blank" rel="noopener"&gt;oidc&lt;/a&gt;, &lt;a href="https://github.com/go-authn/rp" target="_blank" rel="noopener"&gt;rp&lt;/a&gt;, &lt;a href="https://github.com/go-authn/bridge" target="_blank" rel="noopener"&gt;bridge&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;D. Ongaro, J. Ousterhout, &lt;a href="https://raft.github.io/raft.pdf" target="_blank" rel="noopener"&gt;In Search of an Understandable Consensus Algorithm (Raft, extended version)&lt;/a&gt;, and &lt;a href="https://github.com/etcd-io/raft" target="_blank" rel="noopener"&gt;etcd-io/raft&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Tailscale: &lt;a href="https://tailscale.com/kb/1232/derp-servers" target="_blank" rel="noopener"&gt;DERP servers&lt;/a&gt;, &lt;a href="https://tailscale.com/kb/1018/acls" target="_blank" rel="noopener"&gt;ACLs&lt;/a&gt;, &lt;a href="https://pkg.go.dev/tailscale.com/tsnet" target="_blank" rel="noopener"&gt;&lt;code&gt;tsnet&lt;/code&gt;&lt;/a&gt;, &lt;a href="https://github.com/tailscale/tailscale/tree/main/cmd/tsconnect" target="_blank" rel="noopener"&gt;&lt;code&gt;cmd/tsconnect&lt;/code&gt;&lt;/a&gt; and its &lt;a href="https://github.com/tailscale/tailscale/blob/main/cmd/tsconnect/wasm/wasm_js.go" target="_blank" rel="noopener"&gt;&lt;code&gt;wasm_js.go&lt;/code&gt;&lt;/a&gt;, &lt;a href="https://github.com/tailscale/tailscale/blob/main/derp/derphttp/websocket.go" target="_blank" rel="noopener"&gt;&lt;code&gt;derphttp/websocket.go&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/juanfont/headscale" target="_blank" rel="noopener"&gt;headscale&lt;/a&gt;: &lt;a href="https://headscale.net/stable/about/faq/" target="_blank" rel="noopener"&gt;FAQ&lt;/a&gt; and &lt;a href="https://headscale.net/stable/about/features/" target="_blank" rel="noopener"&gt;features&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NetBird: &lt;a href="https://github.com/netbirdio/netbird" target="_blank" rel="noopener"&gt;repository&lt;/a&gt; (licences) and &lt;a href="https://docs.netbird.io/manage/peers/browser-client/architecture" target="_blank" rel="noopener"&gt;browser client architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/slackhq/nebula" target="_blank" rel="noopener"&gt;Nebula&lt;/a&gt;, &lt;a href="https://github.com/zerotier/ZeroTierOne" target="_blank" rel="noopener"&gt;ZeroTierOne&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</description></item><item><title>Design</title><link>https://go-wasmcontainers.github.io/docs/0.1/design/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.1/design/</guid><description>
 &lt;p&gt;A design document decides how a planned part will be built, and why, before
 its code exists. Each one lists the references it was written against. Nothing
