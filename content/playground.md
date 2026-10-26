@@ -46,6 +46,17 @@ $ wctr run --rm -e NAME=you greet
 | `age:1.3.2`, `go-md2man:2.0.7`, `shfmt:3.14.1` | [pkgx](https://github.com/go-pkgx) `wasip1` bottles |
 
 Images and pulls survive a reload: they are kept in the browser's IndexedDB.
+So do the containers (engine v0.4.0): state, exit code, logs and written files.
+A container that was running comes back exited with code 137, and a `--rm` one
+is removed.
+
+## Offline and updates
+
+The playground works offline. A new version installs in the background and
+applies when you choose "Reload to update". Only one tab runs the engine at a
+time; another tab can take over with "Use it here". The engine was ready in
+130–190 ms on a first visit in Chromium, 80–115 ms after a reload, and 75 ms
+offline.
 
 ## Limits per container
 
