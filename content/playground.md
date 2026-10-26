@@ -45,6 +45,10 @@ $ wctr run --rm -e NAME=you greet
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
 | `age:1.3.2`, `go-md2man:2.0.7`, `shfmt:3.14.1` | [pkgx](https://github.com/go-pkgx) `wasip1` bottles |
 
+go-pkgx now also builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2
+with minigzip). They are planned for this catalogue with engine v0.9.0 and are
+**not live yet**.
+
 Images and pulls survive a reload: they are kept in the browser's IndexedDB.
 So do the containers (engine v0.4.0): state, exit code, logs and written files.
 A container that was running comes back exited with code 137, and a `--rm` one
