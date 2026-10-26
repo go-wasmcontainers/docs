@@ -18,4 +18,4 @@ governs.
 | [Docker Engine API](https://docs.docker.com/reference/api/engine/) (v1.47) | the endpoints and schemas the `docker` CLI speaks |
 | [Wasm OCI artifact layout](https://tag-runtime.cncf.io/wgs/wasm/deliverables/wasm-oci-artifact/) (CNCF TAG-Runtime) | media types and config fields of a Wasm image |
 | [wazero](https://github.com/tetratelabs/wazero) (v1.12.0) | the runtime, its WASI preview1 imports and writable filesystem interface |
-| [WASI preview1](https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md) | the system interface a `wasip1` module is written against |
+| [WASI preview1](https://github.com/WebAssembly/WASI/blob/wasi-0.1/preview1/docs.md) | the system interface a `wasip1` module is written against |
