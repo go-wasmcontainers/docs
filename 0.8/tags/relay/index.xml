@@ -1,0 +1,433 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Relay</title><link>https://go-wasmcontainers.github.io/docs/0.8/tags/relay/</link><description>Recent content in Relay on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.8/tags/relay/index.xml" rel="self" type="application/rss+xml"/><item><title>wctr-relay commands</title><link>https://go-wasmcontainers.github.io/docs/0.8/relay/cli/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.8/relay/cli/</guid><description>
+&lt;p&gt;&lt;code&gt;wctr-relay&lt;/code&gt; is one binary: &lt;code&gt;serve&lt;/code&gt; runs the relay; every other command is a
+client of its control API. Locally they use the state directory&amp;rsquo;s admin socket
+(&lt;code&gt;0600&lt;/code&gt;: its permissions are the credential); for a remote relay, &lt;code&gt;--server URL --token-file FILE [--ca-file ROOT.pem]&lt;/code&gt;, where URL is the relay&amp;rsquo;s &lt;code&gt;--admin-listen&lt;/code&gt; address
+over https (the token is never a flag value). &lt;code&gt;--state-dir&lt;/code&gt; (default &lt;code&gt;&amp;lt;user config dir&amp;gt;/wctr-relay&lt;/code&gt;) applies to
+all, and so does &lt;code&gt;--admin-socket PATH&lt;/code&gt; (since v0.2.1): the admin socket&amp;rsquo;s
+path, &lt;code&gt;admin.sock&lt;/code&gt; in the state directory by default. A Unix socket path holds
+at most 103 bytes on macOS and 107 on Linux; a longer one is refused with that
+reason, so a deep state directory needs a short &lt;code&gt;--admin-socket&lt;/code&gt;, given to
+&lt;code&gt;serve&lt;/code&gt; and to the other commands alike.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Command&lt;/th&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;init [--name N] [--ip A]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;create the state directory (&lt;code&gt;0700&lt;/code&gt;): admin token, session-token signing keys, and the internal CA for those names and addresses&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;serve&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;run the relay&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;class create NAME&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a class; flags &lt;code&gt;--cidr&lt;/code&gt; (default &lt;code&gt;10.42.0.0/16&lt;/code&gt;), &lt;code&gt;--session-bits&lt;/code&gt; (24), &lt;code&gt;--domain&lt;/code&gt; (&lt;code&gt;class&lt;/code&gt;), &lt;code&gt;--template isolated|neutron&lt;/code&gt;, &lt;code&gt;--allow sub:…|email:…|group:…&lt;/code&gt;, &lt;code&gt;--require-identity&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;class list&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;classes and their join codes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;class sessions CLASS&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;sessions: label, name, subnet, connected&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;class kick CLASS SESSION&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;end a session: its connection, ports and tokens&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;class rotate-code CLASS&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a new join code; the old one stops admitting&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;class delete CLASS&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;delete the class and what the relay knows of its students&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;sg list --class C&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;groups and their rules&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;sg create NAME --class C [--stateless] [--description D]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;an empty group (it allows nothing)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;sg delete GROUP --class C&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a group no port uses&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rule add GROUP --class C --ingress|--egress [--proto tcp|udp|icmp|any] [--port 80|8000-8080] [--remote-ip PREFIX|--remote-group G]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;allow a flow&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rule delete RULE --class C&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;remove a rule; the flows only it allowed are reset&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;port list --class C [--student S]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;ports: name, address, groups&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;port set PORT --class C [--sg a,b] [--port-security on|off]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a port&amp;rsquo;s groups (replaces the list)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;flows --class C [--follow] [--deny-only] [--student S] [--backlog N]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the flow log&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;explain --class C SRC DST PROTO/PORT&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;what the firewall would decide, and which rules&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;ca export&lt;/code&gt;, &lt;code&gt;ca fingerprint&lt;/code&gt;, &lt;code&gt;ca rotate [--name] [--ip]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the internal CA&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;teacher-session --class C --out FILE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a session token (written &lt;code&gt;0600&lt;/code&gt;) for the teacher&amp;rsquo;s own containers&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;flowmap --class C --url URL&lt;/code&gt; (the relay&amp;rsquo;s https address)&lt;/td&gt;
+&lt;td&gt;the link to the class&amp;rsquo;s &lt;a href="https://go-wasmcontainers.github.io/docs/0.8/relay/flowmap/"&gt;live flow map&lt;/a&gt;, with a read-only 12-hour ticket in its fragment (v0.2.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;version&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the version&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;A port is named by its id, its DNS name (&lt;code&gt;web.alice.class&lt;/code&gt;) or
+&lt;code&gt;student/container&lt;/code&gt; (&lt;code&gt;alice/web&lt;/code&gt;).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="serve-flags"&gt;&lt;code&gt;serve&lt;/code&gt; flags&lt;span class="hx:absolute hx:-mt-20" id="serve-flags"&gt;&lt;/span&gt;
+&lt;a href="#serve-flags" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Flag&lt;/th&gt;
+&lt;th&gt;Default&lt;/th&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--listen&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;:8443&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the address students reach (data plane &lt;code&gt;/v1/data&lt;/code&gt;, join, &lt;code&gt;/v1/info&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--tls&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;internal&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;internal&lt;/code&gt;, &lt;code&gt;files&lt;/code&gt;, &lt;code&gt;acme&lt;/code&gt;, or &lt;code&gt;off&lt;/code&gt; (loopback only)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--cert&lt;/code&gt;, &lt;code&gt;--key&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;PEM files for &lt;code&gt;--tls files&lt;/code&gt;, re-read when they change&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--acme-domain&lt;/code&gt;, &lt;code&gt;--acme-email&lt;/code&gt;, &lt;code&gt;--acme-directory&lt;/code&gt;, &lt;code&gt;--acme-cache&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;ACME for &lt;code&gt;--tls acme&lt;/code&gt; (default CA: Let&amp;rsquo;s Encrypt)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--eab-kid&lt;/code&gt;, &lt;code&gt;--eab-hmac-file&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;External Account Binding (the HMAC key in a &lt;code&gt;0600&lt;/code&gt; file)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--acme-http&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;also answer &lt;code&gt;http-01&lt;/code&gt; on this address (e.g. &lt;code&gt;:80&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--origin&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;go-wasmcontainers.github.io&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;other origins allowed to open the data channel&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--host&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;Host names served; any other is refused&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--oidc-issuer&lt;/code&gt;, &lt;code&gt;--oidc-audience&lt;/code&gt;, &lt;code&gt;--oidc-type&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;OpenID Connect token verification&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--teacher-group&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;groups-claim value granting the teacher role on &lt;code&gt;--admin-listen&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--admin-listen&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;also serve the admin API on this address (TLS)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--session-ttl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;12h&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;session token lifetime&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--audit-retention&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;720h&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;how long the audit log keeps events&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--relay-id&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;host name&lt;/td&gt;
+&lt;td&gt;this relay&amp;rsquo;s id&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</description></item><item><title>The live flow map</title><link>https://go-wasmcontainers.github.io/docs/0.8/relay/flowmap/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.8/relay/flowmap/</guid><description>
+&lt;p&gt;Since relay &lt;strong&gt;v0.2.0&lt;/strong&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay flowmap --class &amp;lt;class&amp;gt; --url &amp;lt;the relay&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;s https address&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;prints a link; open it on the projector. Each student is a box holding their
+containers, coloured by security group. Each flow is a line between two
+containers whose width follows its throughput. A &lt;strong&gt;refused flow is a dashed
+red line&lt;/strong&gt;, and the event log beside the map says which rule was missing
+(&amp;ldquo;no ingress rule of … allows it&amp;rdquo;). Click a container for its address and
+groups, or a flow for its counters and the rules that allowed it; the arrow
+keys move from container to container. The filter box dims everything that
+does not match a student, a container or a group.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="who-can-see-what"&gt;Who can see what&lt;span class="hx:absolute hx:-mt-20" id="who-can-see-what"&gt;&lt;/span&gt;
+&lt;a href="#who-can-see-what" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Viewer&lt;/th&gt;
+&lt;th&gt;Credential&lt;/th&gt;
+&lt;th&gt;Sees&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;The teacher&lt;/td&gt;
+&lt;td&gt;the link from &lt;code&gt;wctr-relay flowmap&lt;/code&gt;: a read-only ticket in the URL fragment (never sent to a server, removed from the address bar when the page loads), valid 12 hours&lt;/td&gt;
+&lt;td&gt;the whole class&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;A student&lt;/td&gt;
+&lt;td&gt;their own session token (&lt;code&gt;#class=…&amp;amp;session=…&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;only the flows that touch their own containers, and the containers at the other end&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The ticket allows watching that class&amp;rsquo;s map and nothing else: it cannot
+change a rule, list the groups, or join the class.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="how-it-works"&gt;How it works&lt;span class="hx:absolute hx:-mt-20" id="how-it-works"&gt;&lt;/span&gt;
+&lt;a href="#how-it-works" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The relay aggregates its flow log per edge — source container, destination
+container, protocol and port — and streams one update per tick (4 per
+second) over &lt;code&gt;FlowLogService.WatchFlowMap&lt;/code&gt;, a server stream of the Connect
+protocol. A slow page gets the newest map, never a backlog. An update holds at
+most 400 containers, 2 000 flows and 200 events.&lt;/p&gt;
+&lt;p&gt;The page is a Go WebAssembly application built on
+&lt;a href="https://github.com/go-widgets/toolkit" target="_blank" rel="noopener"&gt;go-widgets&lt;/a&gt;&amp;rsquo; &lt;code&gt;GraphView&lt;/code&gt; (a
+node-link graph over a view model, added to go-widgets for this page and
+reusable elsewhere) and &lt;code&gt;LogView&lt;/code&gt;. The relay serves it itself, under a strict
+Content-Security-Policy: &lt;code&gt;default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'&lt;/code&gt; — no inline script, nothing loaded
+from anywhere else, so it works on a classroom LAN with no internet.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="getting-a-binary-that-has-it"&gt;Getting a binary that has it&lt;span class="hx:absolute hx:-mt-20" id="getting-a-binary-that-has-it"&gt;&lt;/span&gt;
+&lt;a href="#getting-a-binary-that-has-it" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The page&amp;rsquo;s WebAssembly is about 5 MB, so it is not in the repository: the
+binaries attached to each
+&lt;a href="https://github.com/go-wasmcontainers/relay/releases" target="_blank" rel="noopener"&gt;release&lt;/a&gt; carry it. From
+source:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go run ./internal/buildflowmap
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install -tags flowmap ./cmd/wctr-relay&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;A plain &lt;code&gt;go install …@latest&lt;/code&gt; serves the page, which then says the map is
+missing from that build.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
+&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Pause and replay of the last minutes; the relay keeps the last 1 000 events,
+the page shows the last 200.&lt;/p&gt;</description></item><item><title>Relay</title><link>https://go-wasmcontainers.github.io/docs/0.8/relay/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.8/relay/</guid><description>
+&lt;p&gt;&lt;code&gt;wctr-relay&lt;/code&gt; connects the WASI containers of a class&amp;rsquo;s browsers (or engines)
+through one relay that is also a &lt;strong&gt;firewall&lt;/strong&gt;, with security groups modelled
+on OpenStack Neutron. It runs on the teacher&amp;rsquo;s laptop for a classroom LAN, or
+on a server for remote students with OpenID Connect sign-in. Release
+&lt;strong&gt;v0.2.0&lt;/strong&gt; of &lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;
+covers milestones M-relay-1, M-relay-2 and M-relay-2b (the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.8/relay/flowmap/"&gt;live flow map&lt;/a&gt;) of the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.8/design/classroom-network/"&gt;design&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="hx:overflow-x-auto hx:mt-6 hx:flex hx:rounded-lg hx:border hx:py-2 hx:ltr:pr-4 hx:rtl:pl-4 hx:contrast-more:border-current hx:contrast-more:dark:border-current hx:border-blue-200 hx:bg-blue-100 hx:text-blue-900 hx:dark:border-blue-200/30 hx:dark:bg-blue-900/30 hx:dark:text-blue-200"&gt;
+&lt;div class="hx:ltr:pl-3 hx:ltr:pr-2 hx:rtl:pr-3 hx:rtl:pl-2"&gt;&lt;svg height=1.2em class="hx:inline-block hx:align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;&lt;/div&gt;
+&lt;div class="hx:w-full hx:min-w-0 hx:leading-7"&gt;
+&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;What works today&lt;/strong&gt;: the relay, its firewall, its control API, the
+&lt;code&gt;wctr-relay&lt;/code&gt; command and the live flow map, tested natively and, for the
+flow map, in Chromium and Firefox. The engine does not use the relay yet (its
+network driver is being written), so containers in the playground cannot
+reach each other through it yet.&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="install"&gt;Install&lt;span class="hx:absolute hx:-mt-20" id="install"&gt;&lt;/span&gt;
+&lt;a href="#install" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Download the binary for your system from the
+&lt;a href="https://github.com/go-wasmcontainers/relay/releases" target="_blank" rel="noopener"&gt;releases&lt;/a&gt; (it includes
+the flow map), or build it:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install github.com/go-wasmcontainers/relay/cmd/wctr-relay@v0.2.0 &lt;span class="c1"&gt;# without the flow map page&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Pure Go, &lt;code&gt;CGO_ENABLED=0&lt;/code&gt;; Linux, macOS and Windows.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="start-a-class-teacher"&gt;Start a class (teacher)&lt;span class="hx:absolute hx:-mt-20" id="start-a-class-teacher"&gt;&lt;/span&gt;
+&lt;a href="#start-a-class-teacher" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay init --name relay.local --ip 192.168.1.10 &lt;span class="c1"&gt;# state directory, admin token, internal CA&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay serve --listen :8443 &lt;span class="p"&gt;&amp;amp;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay class create &lt;span class="s2"&gt;&amp;#34;Networking 101&amp;#34;&lt;/span&gt; &lt;span class="c1"&gt;# prints the class id and the join code&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Students join with the code. Each gets a subnet (&lt;code&gt;10.42.&amp;lt;n&amp;gt;.0/24&lt;/code&gt;), each
+container an address and the name &lt;code&gt;&amp;lt;container&amp;gt;.&amp;lt;student&amp;gt;.class&lt;/code&gt;. A new class
+starts &lt;strong&gt;isolated&lt;/strong&gt;: no ingress, egress to the teacher&amp;rsquo;s subnet only. Opening
+flows is the lab:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay sg create web --class &amp;lt;class&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay rule add web --class &amp;lt;class&amp;gt; --ingress --proto tcp --port &lt;span class="m"&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay rule add default --class &amp;lt;class&amp;gt; --egress --proto tcp --port &lt;span class="m"&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay port &lt;span class="nb"&gt;set&lt;/span&gt; alice/web --class &amp;lt;class&amp;gt; --sg default,web
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay flows --class &amp;lt;class&amp;gt; --follow &lt;span class="c1"&gt;# every allow and deny, with the rule that decided&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay explain --class &amp;lt;class&amp;gt; bob/curl alice/web tcp/80&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Deleting a rule resets, at once, the flows only that rule allowed.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="certificates"&gt;Certificates&lt;span class="hx:absolute hx:-mt-20" id="certificates"&gt;&lt;/span&gt;
+&lt;a href="#certificates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Students&amp;rsquo; browsers must trust the relay&amp;rsquo;s certificate. In order of preference:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;a publicly trusted certificate for a name the school owns:
+&lt;code&gt;--tls acme --acme-domain class.example-school.fr&lt;/code&gt; (ACME through
+&lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;go-authn/servercert&lt;/a&gt;), or
+&lt;code&gt;--tls files --cert … --key …&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;the relay&amp;rsquo;s internal CA (the default, &lt;code&gt;--tls internal&lt;/code&gt;): install the root
+printed by &lt;code&gt;wctr-relay ca export&lt;/code&gt; on the class&amp;rsquo;s machines; it is
+name-constrained to the relay&amp;rsquo;s names and addresses;&lt;/li&gt;
+&lt;li&gt;behind Caddy or another TLS proxy: &lt;code&gt;--tls off --listen 127.0.0.1:8080&lt;/code&gt;
+(refused on any other address).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 data-hextra-search-id="pages"&gt;Pages&lt;span class="hx:absolute hx:-mt-20" id="pages"&gt;&lt;/span&gt;
+&lt;a href="#pages" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.8/relay/cli/"&gt;Command reference&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.8/relay/flowmap/"&gt;The live flow map&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.8/relay/security/"&gt;Security model&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Relay security model</title><link>https://go-wasmcontainers.github.io/docs/0.8/relay/security/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.8/relay/security/</guid><description>
+&lt;h2 data-hextra-search-id="principals"&gt;Principals&lt;span class="hx:absolute hx:-mt-20" id="principals"&gt;&lt;/span&gt;
+&lt;a href="#principals" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Who&lt;/th&gt;
+&lt;th&gt;Credential&lt;/th&gt;
+&lt;th&gt;Where&lt;/th&gt;
+&lt;th&gt;May&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Teacher, on the relay&amp;rsquo;s machine&lt;/td&gt;
+&lt;td&gt;the admin socket (&lt;code&gt;0600&lt;/code&gt; in a &lt;code&gt;0700&lt;/code&gt; state directory)&lt;/td&gt;
+&lt;td&gt;Unix socket&lt;/td&gt;
+&lt;td&gt;everything&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Teacher, remote&lt;/td&gt;
+&lt;td&gt;the admin token (&lt;code&gt;Authorization: Bearer&lt;/code&gt;) or an OpenID Connect token carrying &lt;code&gt;--teacher-group&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--admin-listen&lt;/code&gt; only, over TLS&lt;/td&gt;
+&lt;td&gt;everything&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Student&lt;/td&gt;
+&lt;td&gt;a session token from &lt;code&gt;Join&lt;/code&gt; (join code, plus an OpenID Connect identity when the class requires one)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--listen&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;their own ports and flow decisions; read the groups&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The public listener never grants the teacher role, whatever arrives on it
+(the admin token included).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-the-relay-refuses"&gt;What the relay refuses&lt;span class="hx:absolute hx:-mt-20" id="what-the-relay-refuses"&gt;&lt;/span&gt;
+&lt;a href="#what-the-relay-refuses" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Identity is the relay&amp;rsquo;s&lt;/strong&gt;: it assigns every address and port; a frame that
+names a port the session does not own is refused, a datagram from a source
+port the sender has not bound is dropped.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Authentication before the upgrade&lt;/strong&gt;: the session token is a WebSocket
+subprotocol (&lt;code&gt;bearer.&amp;lt;token&amp;gt;&lt;/code&gt;), checked before the upgrade and before any
+per-session state; it never appears in a URL. Unknown &lt;code&gt;Origin&lt;/code&gt; and &lt;code&gt;Host&lt;/code&gt;
+are refused.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Pre-authentication limits&lt;/strong&gt; per source address on joins and upgrades, a cap
+on concurrent handshakes, header timeouts and sizes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Bounds&lt;/strong&gt;: 16 KiB frames, 64 KiB stream windows, and per session: 256
+streams, 64 listeners, 10 ports, 32 pending connects, 2 MiB/s and 2 000
+frames/s; a connection whose send queue passes 4 MiB is closed. Per class:
+50 security groups and 500 rules (Neutron&amp;rsquo;s quotas).&lt;/li&gt;
+&lt;li&gt;A frame that does not decode, data beyond the window, or a frame out of
+place closes the connection.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tokens&lt;/strong&gt;: Ed25519, one fixed layout and one algorithm, checked against the
+relay&amp;rsquo;s clock; a kicked session&amp;rsquo;s tokens stop working at once.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="secrets"&gt;Secrets&lt;span class="hx:absolute hx:-mt-20" id="secrets"&gt;&lt;/span&gt;
+&lt;a href="#secrets" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The admin token, the signing keys, the CA key, an EAB key and the state file
+are &lt;code&gt;0600&lt;/code&gt; files of the relay&amp;rsquo;s user, refused if anyone else can read them,
+never on a command line, in an environment variable or in a URL. The internal
+CA is name-constrained: even its key cannot sign for another site.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-the-relay-keeps-about-students"&gt;What the relay keeps about students&lt;span class="hx:absolute hx:-mt-20" id="what-the-relay-keeps-about-students"&gt;&lt;/span&gt;
+&lt;a href="#what-the-relay-keeps-about-students" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Per session: the display name typed, a derived DNS label, and — with OpenID
+Connect — a pseudonymous hash of issuer and subject (never the token, the
+e-mail address or the groups, which are checked at join time and dropped).
+Flow logs hold addresses and ports, not contents. Deleting a class deletes all
+of it; the audit log (logins, refusals, kicks, rule changes) keeps 30 days by
+default. The teacher&amp;rsquo;s institution is the controller under the GDPR.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="tested"&gt;Tested&lt;span class="hx:absolute hx:-mt-20" id="tested"&gt;&lt;/span&gt;
+&lt;a href="#tested" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every point above has a test in the repository; the decoders of untrusted
+input (frames, tokens, join codes, labels, rule specifications, and the relay
+fed arbitrary frames) are fuzzed in CI, and &lt;code&gt;govulncheck&lt;/code&gt; runs on every change.&lt;/p&gt;</description></item></channel></rss>
