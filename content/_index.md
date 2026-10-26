@@ -35,6 +35,7 @@ they will at work.
 ## Pages
 
 - [Playground]({{< relref "playground" >}}): `wctr` in a browser tab
+- [Dashboard]({{< relref "dashboard" >}}): a graphical dashboard for the engine (v0.1.0)
 - [Getting started]({{< relref "getting-started" >}}): install, and a real session
 - [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
@@ -53,6 +54,7 @@ they will at work.
 | [engine](https://github.com/go-wasmcontainers/engine) | v0.3.0 released |
 | [relay](https://github.com/go-wasmcontainers/relay) | v0.1.0 released (M-relay-1, M-relay-2) |
 | [playground](https://github.com/go-wasmcontainers/playground) | live, in the browser |
+| [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.1.0 released; [live demo](https://go-wasmcontainers.github.io/dashboard/) |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
 | [go-wasmcontainers.github.io](https://github.com/go-wasmcontainers/go-wasmcontainers.github.io) | the landing page |
 | [brand](https://github.com/go-wasmcontainers/brand) | logo, icons and social images |
