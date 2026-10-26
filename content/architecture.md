@@ -13,7 +13,7 @@ This page describes the design. Where a part is not written yet it says
 ```text
 wctr CLI ──► /var/run/wctr.sock ──► wctrd ──► executor ──► a wasip1 module
               (Docker Engine API)     │           │
-                                      │           ├─ native: wazero         (M1, in progress)
+                                      │           ├─ native: wazero         (v0.1.0)
                                       │           └─ browser worker         (planned)
                                       └─ image store, root filesystem
 ```
@@ -41,7 +41,7 @@ command the labs teach.
 An executor runs one module with a root filesystem, arguments, an
 environment and a working directory.
 
-- **wazero** (M1, in progress): the native executor. wazero is a pure-Go
+- **wazero** (released in v0.1.0): the native executor. wazero is a pure-Go
   WebAssembly runtime with a WASI preview1 implementation, so the engine stays
   a single static binary. The container's root filesystem is adapted to wazero's
   writable filesystem interface; the image's `WorkingDir` is passed as `PWD`,
