@@ -6,8 +6,9 @@ tags: [design, networking, security]
 ---
 
 {{< callout type="info" >}}
-**Status: design, M-relay-1 being written.** The implementation lives in
-[go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay). This
+**Status: M-relay-1 and M-relay-2 shipped in relay v0.1.0** (see
+[Relay]({{< relref "relay" >}})); the rest is planned. The implementation lives
+in [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay). This
 page decides what is built and records why, so the code can be reviewed against
 it. Milestones are named `M-relay-1` and up.
 {{< /callout >}}

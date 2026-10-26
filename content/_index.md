@@ -40,6 +40,7 @@ they will at work.
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
 - [Performance]({{< relref "performance" >}}): what was measured
 - [Limitations]({{< relref "limitations" >}}): what the engine does not do
+- [Relay]({{< relref "relay" >}}): `wctr-relay`, the classroom relay and firewall (v0.1.0)
 - [Design]({{< relref "design" >}}): design documents for planned parts, such as the [classroom network]({{< relref "design/classroom-network" >}})
 - [Roadmap]({{< relref "roadmap" >}}): what is planned
 - [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
@@ -50,6 +51,7 @@ they will at work.
 | Repo | Status |
 | --- | --- |
 | [engine](https://github.com/go-wasmcontainers/engine) | v0.2.0 released |
+| [relay](https://github.com/go-wasmcontainers/relay) | v0.1.0 released (M-relay-1, M-relay-2) |
 | [playground](https://github.com/go-wasmcontainers/playground) | live, in the browser |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
 | [go-wasmcontainers.github.io](https://github.com/go-wasmcontainers/go-wasmcontainers.github.io) | the landing page |

@@ -23,7 +23,7 @@ Nothing below exists yet.
 | --- | --- |
 | Playground: stdin, a shell, networking | the playground has none of the three yet |
 | Networking | containers that listen and connect, through the WasmEdge socket ABI |
-| Classroom relay | students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the `wctr-relay` command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the [design]({{< relref "design/classroom-network" >}}) (milestones M-relay-1 to M-relay-5, M-relay-HA). M-relay-1 is being written in [go-wasmcontainers/relay](https://github.com/go-wasmcontainers/relay) |
+| Classroom relay | students' browsers reach each other's containers through a relay on the teacher's laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the `wctr-relay` command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the [design]({{< relref "design/classroom-network" >}}) (milestones M-relay-1 to M-relay-5, M-relay-HA). **M-relay-1 and M-relay-2 shipped in [relay v0.1.0]({{< relref "relay" >}})**; still planned: the engine's network driver and the browser path (M-relay-3, -4), the live flow map (M-relay-2b), ICMP (M-relay-5), high availability (M-relay-HA) |
 | Shell and `exec` | `wctr exec`, attach, and an interactive shell, through a WASIX subset |
 | Image build | building an image from a Dockerfile |
 | Compose | several containers described in one file |
