@@ -1,0 +1,38 @@
+/* go-wasmcontainers branding on Hextra (github.com/go-wasmcontainers/brand).
+ *
+ * The mark is the systems family's cyan, #22CCE2 -> #0079A8
+ * (branding/svg/color/go-wasmcontainers.svg). Hextra derives its whole primary
+ * scale (links, active sidebar entry, buttons) from these three variables.
+ *
+ * Light theme: #0079A8 = hsl(197 100% 33%), the gradient's dark end: 4.88:1 on
+ *              white, and the scale's text steps (primary-600 and darker) only
+ *              get darker: primary-600 is #006C97, 5.85:1.
+ * Dark theme:  #85E3EF = hsl(187 77% 73%), #22CCE2 mixed with 45 % white,
+ *              which is the landing's chipFgDark (landingkit's rule): 12.80:1
+ *              on #111. #22CCE2 itself would be 9.9:1 there, also fine; the
+ *              lighter step keeps the same value as the landing. */
+:root {
+  --primary-hue: 197deg;
+  --primary-saturation: 100%;
+  --primary-lightness: 33%;
+}
+.dark {
+  --primary-hue: 187deg;
+  --primary-saturation: 77%;
+  --primary-lightness: 73%;
+}
+
+/* Tables: their headers stand out in the brand colour (white on #0079A8,
+ * 4.88:1, in both themes) and their text is a size smaller than the prose. */
+.content table { font-size: 0.875em; }
+.content table th { background: #0079A8; color: #fff; }
+
+/* The version selector's list hangs from its button's right edge, so that it
+ * stays on screen at the end of the navbar. */
+.fs-version-select .hextra-nav-menu-items { left: auto !important; right: 0; transform: none !important; }
+
+/* The outdated-version banner (layouts/_partials/custom/content-begin.html). */
+.nd-outdated { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem;
+  border: 1px solid #f59e0b; background: #fffbeb; color: #78350f; }
+.dark .nd-outdated { background: #451a03; color: #fde68a; border-color: #b45309; }
+.nd-outdated a { text-decoration: underline; font-weight: 600; }
