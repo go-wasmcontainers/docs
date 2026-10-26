@@ -1,7 +1,7 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.8.0) and the playground do not do."
+description: "What the engine (v0.9.0) and the playground do not do."
 tags: [limits]
 ---
 
@@ -14,7 +14,7 @@ of logs, and 64 containers at once.
 
 ## Engine
 
-Engine v0.8.0 does **not** have:
+Engine v0.9.0 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;
@@ -23,6 +23,5 @@ Engine v0.8.0 does **not** have:
 - networking, `exec`, attach and build: no container networking, no `exec`, no
   attaching to a container (so an interactive `run`), and no image build; the
   [roadmap]({{< relref "roadmap" >}}) lists them as planned;
-- `tar+zstd` layers: they are not supported yet;
 - a distinct quota error: when a container exhausts its storage quota, the
   write surfaces to the module as `EIO`.

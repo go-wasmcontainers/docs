@@ -16,8 +16,8 @@ Open <https://go-wasmcontainers.github.io/playground/> and type
 Go 1.27.3 or later, no cgo:
 
 ```sh
-go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.8.0
-go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.8.0
+go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.9.0
+go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.9.0
 ```
 
 Shell completion for `wctr` (bash, zsh, fish or PowerShell), for example in

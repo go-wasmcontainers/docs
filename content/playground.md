@@ -9,7 +9,8 @@ tags: [playground]
 page running `wctr` against WASI containers. There is no server: the engine
 runs in the page (the browser executor, `runtime/browser`, new in engine
 v0.2.0). The playground's latest release is v0.1.0; the page since gained the
-completion and line editing below, which come from engine v0.3.0.
+completion and line editing below (engine v0.3.0), and it now runs engine
+v0.9.0.
 
 ## Completion and editing
 
@@ -28,8 +29,9 @@ engine: pure Go, usable by anyone who embeds the engine's CLI.
 ## What you can type
 
 `wctr pull`, `run`, `ps`, `logs`, `rm`, `rmi`, `images`, `inspect` and `kill`,
-plus `help` and `clear`. `run` takes `--rm`, `-d`, `--name`, `-e`, `-w`, `-m`
-and `--entrypoint`. Exit codes are the native engine's: the container's own,
+and, with engine v0.9.0, `start`, `stop`, `restart`, `diff`, `stats`, `events`,
+`volume` and `system df|prune`, plus `help` and `clear`. `run` takes `--rm`,
+`-d`, `--name`, `-e`, `-w`, `-m`, `--entrypoint` and `-v NAME:/path[:ro]`. Exit codes are the native engine's: the container's own,
 or 125, 126, 127, 134 and 137; see [Commands]({{< relref "commands" >}}).
 
 ```console
@@ -44,10 +46,11 @@ $ wctr run --rm -e NAME=you greet
 | `hello`, `greet` | the small demonstration modules |
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
 | `age:1.3.2`, `go-md2man:2.0.7`, `shfmt:3.14.1` | [pkgx](https://github.com/go-pkgx) `wasip1` bottles |
+| `lua` 5.4.9, `sqlite3` 3.53.4, `minigzip` (zlib 1.3.2) | C tools built by [go-pkgx](https://github.com/go-pkgx) for wasip1, live with engine v0.9.0 |
 
-go-pkgx now also builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2
-with minigzip). They are planned for this catalogue with engine v0.9.0 and are
-**not live yet**.
+Lua's errors, which use WebAssembly exception handling, work in Chromium,
+Firefox and natively. The first `lua` run took 69–108 ms in Chromium and 170 ms
+in Firefox, measured in CI.
 
 Images and pulls survive a reload: they are kept in the browser's IndexedDB.
 So do the containers (engine v0.4.0): state, exit code, logs and written files.
