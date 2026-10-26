@@ -11,28 +11,33 @@ description: "A container engine whose containers are WASI modules, compatible w
 `wasip1/wasm` module: the image is an OCI image whose platform is `os=wasip1`,
 `arch=wasm`, the `wctr` command line talks to the `wctrd` daemon over
 `/var/run/wctr.sock`, and the module runs in [wazero](https://wazero.io), a
-pure-Go WebAssembly runtime, instead of in a Linux kernel. `wctrd` is
-compatible with the Docker Engine API.
+pure-Go WebAssembly runtime, instead of in a Linux kernel. `wctrd` serves a
+subset of the Docker Engine API.
 
-{{< callout type="warning" >}}
-**Work in progress; nothing is released.** The engine's first milestone, M1
-(native, wazero executor: `wctr pull`, `run`, `ps`, `logs`, `rm`, `rmi`,
-`inspect`, `images`), is being written. Everything else is **planned** and is
-marked so on every page. These pages describe the `main` branch.
+{{< callout type="info" >}}
+**Engine v0.1.0 (milestone M1) is released.** It runs natively on Linux and
+macOS: `wctr pull`, `images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`,
+`kill` and `version`. No networking, `exec`, attach or build yet: see
+[Limitations]({{< relref "limitations" >}}). The browser playground and
+everything on the [roadmap]({{< relref "roadmap" >}}) are **planned**. These
+pages describe v0.1.0.
 {{< /callout >}}
 
 ## Why
 
 Teaching containers usually means a Linux machine per learner. A WASI module
-needs no kernel, so the same engine can run natively today (M1) and, in the
-plan, in a browser worker — which would make a training lab a web page. The
-learner types container commands the way they will at work.
+needs no kernel, so the same engine runs natively today and, in the plan, in a
+browser worker — which would make a training lab a web page. The learner types
+container commands the way they will at work.
 
 ## Pages
 
+- [Getting started]({{< relref "getting-started" >}}): install, and a real session
+- [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
-- [Getting started]({{< relref "getting-started" >}}): what exists today, and what M1 will give you
-- [Roadmap]({{< relref "roadmap" >}}): what is in progress and what is planned
+- [Performance]({{< relref "performance" >}}): what was measured
+- [Limitations]({{< relref "limitations" >}}): what v0.1.0 does not do
+- [Roadmap]({{< relref "roadmap" >}}): what is planned
 - [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
 - [References]({{< relref "references" >}}): the specifications the code is written against
 
@@ -40,7 +45,7 @@ learner types container commands the way they will at work.
 
 | Repo | Status |
 | --- | --- |
-| [engine](https://github.com/go-wasmcontainers/engine) | in progress (M1) |
+| [engine](https://github.com/go-wasmcontainers/engine) | v0.1.0 released (M1) |
 | [playground](https://github.com/go-wasmcontainers/playground) | planned; not started |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
 | [go-wasmcontainers.github.io](https://github.com/go-wasmcontainers/go-wasmcontainers.github.io) | the landing page |

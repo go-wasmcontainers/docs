@@ -1,51 +1,66 @@
 ---
 title: "Getting started"
-weight: 20
-description: "What exists today, and the session milestone M1 is being written to serve."
+weight: 10
+description: "Install wctr and wctrd v0.1.0 and run a WebAssembly container."
 tags: [start]
 ---
 
-{{< callout type="warning" >}}
-**There is nothing to install yet.** The engine has no release and no command
-to run: its image and root-filesystem packages are being written. This page
-says what M1 will let you do, and is updated when it does.
-{{< /callout >}}
+## Install
 
-## Building from source (today)
-
-The engine is a Go module that needs Go 1.27.3 or later:
+Go 1.27.3 or later, no cgo:
 
 ```sh
-git clone https://github.com/go-wasmcontainers/engine
-cd engine
-go build ./...
+go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.1.0
+go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.1.0
 ```
 
-That compiles the packages; there is no `wctrd` or `wctr` command to start until
-the daemon and its API are written.
+## A session
 
-## The session M1 is written to serve
+This is the output of the engine's acceptance test (`TestAcceptance` in
+`cmd/wctrd`), run against the real binaries in CI; nothing is edited. The
+default socket, `/var/run/wctr.sock`, needs write access to `/var/run`, so the
+session uses a socket in the home directory:
 
-**Planned for M1 (native, wazero executor).** Once `wctrd` is running and
-listening on `/var/run/wctr.sock`, `wctr` finds it by itself; `WCTR_HOST` points
-it elsewhere:
-
-```sh
-wctr pull <image>        # an OCI image with os=wasip1, arch=wasm
-wctr run <image>         # runs the module under wazero
-wctr ps                  # lists the containers
-wctr logs <container>    # its standard output and error
-wctr inspect <container> # its configuration and state
-wctr images              # lists the pulled images
-wctr rm <container>
-wctr rmi <image>
+```console
+$ export WCTR_HOST=unix://$HOME/wctr.sock
+$ wctrd -H "$WCTR_HOST" &
+wctrd v0.1.0 listening on unix:///home/me/wctr.sock (data root /home/me/.local/share/wasmcontainers)
 ```
 
-Anything else (`wctr exec`, building an image, Compose, published ports) is
-**planned, not part of M1**; see the [roadmap]({{< relref "roadmap" >}}).
+With an OCI image layout `./layout` holding three images (`hello`, `greet`,
+`probe`):
 
-## Where to follow it
+```console
+$ wctr pull oci:./layout:hello
+Pulling from oci:/home/me/layout:hello
+f0beefb89ff1: Pulling fs layer
+f0beefb89ff1: Pull complete
+Digest: sha256:da3eead2a4f462a53bebdee2f9dc5fcb94cc5a97ebe1680477f0ce0328ff67f0
+Status: Downloaded newer image for hello:latest
+$ wctr run --rm hello
+Hello from a WebAssembly container!
+$ wctr run --rm -e NAME=x greet
+Hello, x!
+$ wctr run --name failing probe exit 42
+bye
+$ echo $?
+42
+$ wctr ps -a
+CONTAINER ID   IMAGE   COMMAND                  CREATED        STATUS                               PORTS   NAMES
+2105748c99ce   probe   "/bin/probe.wasm exi…"   1 second ago   Exited (42) Less than a second ago           failing
+$ wctr logs failing
+bye
+$ wctr rm failing
+failing
+$ wctr images
+REPOSITORY   TAG      IMAGE ID       CREATED        SIZE
+greet        latest   068beee4f451   12 hours ago   2.45MB
+hello        latest   85c424cd2beb   12 hours ago   735kB
+probe        latest   ae7fb9d7cefb   12 hours ago   811kB
+```
 
-The engine's progress is in
-[go-wasmcontainers/engine](https://github.com/go-wasmcontainers/engine); the
-page you are reading describes its `main` branch.
+Registries work the same way (`wctr pull localhost:5000/lab/hello:v1`, or
+Docker Hub names such as `user/app:tag`); `wctr run` pulls an image it does not
+have. The full list of commands and flags is on the
+[Commands]({{< relref "commands" >}}) page; what v0.1.0 does not do is on
+[Limitations]({{< relref "limitations" >}}).
