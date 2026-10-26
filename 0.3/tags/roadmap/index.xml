@@ -24,6 +24,14 @@
 &lt;td&gt;&lt;strong&gt;Playground M1&lt;/strong&gt;: &lt;code&gt;wctr&lt;/code&gt; in a browser tab, no server&lt;/td&gt;
 &lt;td&gt;playground v0.1.0, live at &lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Classroom relay&lt;/strong&gt; M-relay-1 and M-relay-2: &lt;a href="https://go-wasmcontainers.github.io/docs/0.3/relay/"&gt;&lt;code&gt;wctr-relay&lt;/code&gt;&lt;/a&gt;, the relay and firewall with security groups modelled on OpenStack Neutron, its gRPC control API, TLS, OpenID Connect&lt;/td&gt;
+&lt;td&gt;relay v0.1.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Live flow map&lt;/strong&gt; (M-relay-2b): the relay&amp;rsquo;s page drawing the class&amp;rsquo;s flows, refused ones in red&lt;/td&gt;
+&lt;td&gt;relay v0.2.0&lt;/td&gt;
+&lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;p&gt;What the engine does not do is on &lt;a href="https://go-wasmcontainers.github.io/docs/0.3/limitations/"&gt;Limitations&lt;/a&gt;.&lt;/p&gt;
@@ -46,8 +54,8 @@
 &lt;td&gt;containers that listen and connect, through the WasmEdge socket ABI&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;Classroom relay&lt;/td&gt;
-&lt;td&gt;students&amp;rsquo; browsers reach each other&amp;rsquo;s containers through a relay on the teacher&amp;rsquo;s laptop that is also a firewall with security groups modelled on OpenStack Neutron, managed through a gRPC control API and the &lt;code&gt;wctr-relay&lt;/code&gt; command; also on the internet with OpenID Connect sign-in, and later highly available across relays; see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.3/design/classroom-network/"&gt;design&lt;/a&gt; (milestones M-relay-1 to M-relay-5, M-relay-HA). &lt;strong&gt;M-relay-1 and M-relay-2 shipped in &lt;a href="https://go-wasmcontainers.github.io/docs/0.3/relay/"&gt;relay v0.1.0&lt;/a&gt;&lt;/strong&gt;; still planned: the engine&amp;rsquo;s network driver and the browser path (M-relay-3, -4), the live flow map (M-relay-2b), ICMP (M-relay-5), high availability (M-relay-HA)&lt;/td&gt;
+&lt;td&gt;Classroom relay, the rest&lt;/td&gt;
+&lt;td&gt;students&amp;rsquo; containers reaching each other through the relay from the playground: the engine&amp;rsquo;s network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.3/design/classroom-network/"&gt;design&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Shell and &lt;code&gt;exec&lt;/code&gt;&lt;/td&gt;
