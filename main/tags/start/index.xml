@@ -24,18 +24,21 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;That compiles the packages; there is no &lt;code&gt;engine&lt;/code&gt; command to start until the
-daemon and the Docker API are written.&lt;/p&gt;
+&lt;p&gt;That compiles the packages; there is no &lt;code&gt;wctrd&lt;/code&gt; or &lt;code&gt;wctr&lt;/code&gt; command to start until
+the daemon and its API are written.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="the-session-m1-is-written-to-serve"&gt;The session M1 is written to serve&lt;span class="hx:absolute hx:-mt-20" id="the-session-m1-is-written-to-serve"&gt;&lt;/span&gt;
-&lt;a href="#the-session-m1-is-written-to-serve" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Planned for M1 (native, wazero executor).&lt;/strong&gt; Once the engine listens on
-&lt;code&gt;/var/run/docker.sock&lt;/code&gt;, the Docker CLI is used as it always is:&lt;/p&gt;
+&lt;a href="#the-session-m1-is-written-to-serve" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Planned for M1 (native, wazero executor).&lt;/strong&gt; Once &lt;code&gt;wctrd&lt;/code&gt; is running and
+listening on &lt;code&gt;/var/run/wctr.sock&lt;/code&gt;, &lt;code&gt;wctr&lt;/code&gt; finds it by itself; &lt;code&gt;WCTR_HOST&lt;/code&gt; points
+it elsewhere:&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
-&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker pull &amp;lt;image&amp;gt; &lt;span class="c1"&gt;# an OCI image with os=wasip1, arch=wasm&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker run &amp;lt;image&amp;gt; &lt;span class="c1"&gt;# runs the module under wazero&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker ps &lt;span class="c1"&gt;# lists the containers&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker logs &amp;lt;container&amp;gt; &lt;span class="c1"&gt;# its standard output and error&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker inspect &amp;lt;container&amp;gt; &lt;span class="c1"&gt;# its configuration and state&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker rm &amp;lt;container&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr pull &amp;lt;image&amp;gt; &lt;span class="c1"&gt;# an OCI image with os=wasip1, arch=wasm&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run &amp;lt;image&amp;gt; &lt;span class="c1"&gt;# runs the module under wazero&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr ps &lt;span class="c1"&gt;# lists the containers&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr logs &amp;lt;container&amp;gt; &lt;span class="c1"&gt;# its standard output and error&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr inspect &amp;lt;container&amp;gt; &lt;span class="c1"&gt;# its configuration and state&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr images &lt;span class="c1"&gt;# lists the pulled images&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr rm &amp;lt;container&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr rmi &amp;lt;image&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
 class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
 title="Copy code"
@@ -47,9 +50,8 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;Anything else a Docker user might try (&lt;code&gt;docker exec&lt;/code&gt;, &lt;code&gt;docker build&lt;/code&gt;,
-&lt;code&gt;docker compose&lt;/code&gt;, published ports) is &lt;strong&gt;planned, not part of M1&lt;/strong&gt;; see the
-&lt;a href="https://go-wasmcontainers.github.io/docs/main/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Anything else (&lt;code&gt;wctr exec&lt;/code&gt;, building an image, Compose, published ports) is
+&lt;strong&gt;planned, not part of M1&lt;/strong&gt;; see the &lt;a href="https://go-wasmcontainers.github.io/docs/main/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="where-to-follow-it"&gt;Where to follow it&lt;span class="hx:absolute hx:-mt-20" id="where-to-follow-it"&gt;&lt;/span&gt;
 &lt;a href="#where-to-follow-it" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The engine&amp;rsquo;s progress is in
 &lt;a href="https://github.com/go-wasmcontainers/engine" target="_blank" rel="noopener"&gt;go-wasmcontainers/engine&lt;/a&gt;; the

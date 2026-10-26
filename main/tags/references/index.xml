@@ -25,7 +25,7 @@ governs.&lt;/p&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;a href="https://docs.docker.com/reference/api/engine/" target="_blank" rel="noopener"&gt;Docker Engine API&lt;/a&gt; (v1.47)&lt;/td&gt;
-&lt;td&gt;the endpoints and schemas the &lt;code&gt;docker&lt;/code&gt; CLI speaks&lt;/td&gt;
+&lt;td&gt;the endpoints and schemas &lt;code&gt;wctrd&lt;/code&gt; is compatible with&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;a href="https://tag-runtime.cncf.io/wgs/wasm/deliverables/wasm-oci-artifact/" target="_blank" rel="noopener"&gt;Wasm OCI artifact layout&lt;/a&gt; (CNCF TAG-Runtime)&lt;/td&gt;
