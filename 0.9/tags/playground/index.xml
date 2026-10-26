@@ -2,9 +2,9 @@
 &lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a terminal in a web
 page running &lt;code&gt;wctr&lt;/code&gt; against WASI containers. There is no server: the engine
 runs in the page (the browser executor, &lt;code&gt;runtime/browser&lt;/code&gt;, new in engine
-v0.2.0). The playground&amp;rsquo;s latest release is v0.1.0; the page since gained the
-completion and line editing below (engine v0.3.0), and it now runs engine
-v0.9.0.&lt;/p&gt;
+v0.2.0). This is &lt;strong&gt;playground v0.2.0&lt;/strong&gt;: completion and line editing (below),
+persistence and offline use, the new commands and the images &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;
+and &lt;code&gt;minigzip&lt;/code&gt;, on engine v0.9.0.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="completion-and-editing"&gt;Completion and editing&lt;span class="hx:absolute hx:-mt-20" id="completion-and-editing"&gt;&lt;/span&gt;
 &lt;a href="#completion-and-editing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal completes with Tab, as a shell does: subcommands, flags, &lt;code&gt;-m&lt;/code&gt;
 sizes, local images (for &lt;code&gt;run&lt;/code&gt; and &lt;code&gt;rmi&lt;/code&gt;), the catalogue of images to pull,
