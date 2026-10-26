@@ -22,6 +22,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `inspect NAME\|ID...` | containers, then images |
 | `kill CONTAINER...` | |
 | `version` | |
+| `completion bash\|zsh\|fish\|powershell` | prints the completion script for that shell (v0.3.0) |
 
 `wctr run` pulls an image it does not have.
 
