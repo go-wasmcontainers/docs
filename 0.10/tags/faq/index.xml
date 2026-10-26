@@ -1,0 +1,22 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Faq</title><link>https://go-wasmcontainers.github.io/docs/0.10/tags/faq/</link><description>Recent content in Faq on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.10/tags/faq/index.xml" rel="self" type="application/rss+xml"/><item><title>FAQ</title><link>https://go-wasmcontainers.github.io/docs/0.10/faq/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.10/faq/</guid><description>
+&lt;h2 data-hextra-search-id="why-wctr"&gt;Why &lt;code&gt;wctr&lt;/code&gt;?&lt;span class="hx:absolute hx:-mt-20" id="why-wctr"&gt;&lt;/span&gt;
+&lt;a href="#why-wctr" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr&lt;/code&gt; is the command line and &lt;code&gt;wctrd&lt;/code&gt; the daemon that serves it. The name
+follows the convention of the container tools that came before it, &lt;code&gt;ctr&lt;/code&gt;,
+&lt;code&gt;nerdctl&lt;/code&gt; and &lt;code&gt;crictl&lt;/code&gt;: a short name ending in &lt;code&gt;ctr&lt;/code&gt;, for container. The &lt;code&gt;w&lt;/code&gt; is
+for &lt;strong&gt;wasm&lt;/strong&gt;: &lt;code&gt;wctr&lt;/code&gt; reads as &lt;em&gt;wasm container&lt;/em&gt;, and says that this is the
+WebAssembly variant.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="not-docker"&gt;Not &lt;code&gt;docker&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="not-docker"&gt;&lt;/span&gt;
+&lt;a href="#not-docker" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Docker is a product and a trademark of another organisation. This engine is
+not Docker and does not ship under its name: it is &lt;strong&gt;compatible with the Docker
+Engine API&lt;/strong&gt;, which is a statement of compatibility and nothing more. That is
+why its socket is &lt;code&gt;/var/run/wctr.sock&lt;/code&gt; and the address variable is
+&lt;code&gt;WCTR_HOST&lt;/code&gt;.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="not-ctr"&gt;Not &lt;code&gt;ctr&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="not-ctr"&gt;&lt;/span&gt;
+&lt;a href="#not-ctr" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;code&gt;ctr&lt;/code&gt; is the command line that containerd ships. Trainees meet it on
+Kubernetes nodes, where it means something different, so a lab teaching a
+&lt;code&gt;ctr&lt;/code&gt; of its own would teach the wrong tool in the place they will use it.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="does-anything-work-with-existing-docker-clients"&gt;Does anything work with existing Docker clients?&lt;span class="hx:absolute hx:-mt-20" id="does-anything-work-with-existing-docker-clients"&gt;&lt;/span&gt;
+&lt;a href="#does-anything-work-with-existing-docker-clients" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The API is meant to be compatible with the Docker Engine API (v1.47 is the
+reference the code is written against), so a client of that API can be pointed at
+&lt;code&gt;/var/run/wctr.sock&lt;/code&gt;. Only the subset M1 needs is planned first; see the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.10/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;</description></item></channel></rss>
