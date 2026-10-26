@@ -9,7 +9,7 @@ tags: [relay, flowmap]
 Since relay **v0.2.0**.
 
 ```sh
-wctr-relay flowmap --class <class> --url https://relay.local:8443
+wctr-relay flowmap --class <class> --url <the relay's https address>
 ```
 
 prints a link; open it on the projector. Each student is a box holding their

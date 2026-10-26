@@ -34,7 +34,7 @@ all.
 | `explain --class C SRC DST PROTO/PORT` | what the firewall would decide, and which rules |
 | `ca export`, `ca fingerprint`, `ca rotate [--name] [--ip]` | the internal CA |
 | `teacher-session --class C --out FILE` | a session token (written `0600`) for the teacher's own containers |
-| `flowmap --class C --url https://relay:port` | the link to the class's [live flow map]({{< relref "flowmap" >}}), with a read-only 12-hour ticket in its fragment (v0.2.0) |
+| `flowmap --class C --url URL` (the relay's https address) | the link to the class's [live flow map]({{< relref "flowmap" >}}), with a read-only 12-hour ticket in its fragment (v0.2.0) |
 | `version` | the version |
 
 A port is named by its id, its DNS name (`web.alice.class`) or
