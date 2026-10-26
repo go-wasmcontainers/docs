@@ -21,10 +21,27 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `rmi IMAGE...` | `-f/--force` |
 | `inspect NAME\|ID...` | containers, then images |
 | `kill CONTAINER...` | |
+| `start CONTAINER...` | `-a/--all` (v0.5.0) |
+| `stop CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
+| `restart CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
+| `diff CONTAINER` | (v0.4.0) |
+| `system df` | `-v` (v0.4.0) |
+| `system prune` | `-a`, `-f` (v0.4.0) |
 | `version` | |
 | `completion bash\|zsh\|fish\|powershell` | prints the completion script for that shell (v0.3.0) |
 
 `wctr run` pulls an image it does not have.
+
+A WebAssembly guest has no signals, so `wctr stop` kills the container at once:
+`-t` is accepted for compatibility and ignored. In the API, `/attach` is a plain
+streamed response, not a hijacked connection.
+
+## Persistence (v0.4.0)
+
+Containers survive a `wctrd` restart: they are kept under `--data-root` in
+`containers/` (state, exit code, logs and written files). A container that was
+running comes back `exited` with code 137, and a `--rm` container is removed. An
+entry that is corrupted is dropped and reported.
 
 ### Exit status of `wctr run`
 

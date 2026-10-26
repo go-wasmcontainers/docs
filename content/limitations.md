@@ -1,7 +1,7 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.3.0) and the playground do not do."
+description: "What the engine (v0.5.0) and the playground do not do."
 tags: [limits]
 ---
 
@@ -14,13 +14,11 @@ of logs, and 64 containers at once.
 
 ## Engine
 
-Engine v0.3.0 (the same limits as v0.1.0, per its README) does **not** have:
+Engine v0.5.0 does **not** have:
 
 - networking, `exec`, attach and build: no container networking, no `exec`, no
   attaching to a container (so an interactive `run`), and no image build; the
   [roadmap]({{< relref "roadmap" >}}) lists them as planned;
 - `tar+zstd` layers: they are not supported yet;
-- containers that survive a `wctrd` restart: containers live in the daemon's
-  memory and are lost when it restarts (images are kept);
 - a distinct quota error: when a container exhausts its storage quota, the
   write surfaces to the module as `EIO`.
