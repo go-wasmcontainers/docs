@@ -129,6 +129,13 @@ jobs:
               *img.shields.io*) continue ;;
               # Documented placeholders, not hosts.
               *example.com*|*example.org*|*example.net*|*localhost*|*127.0.0.1*|*.invalid*) continue ;;
+              # `http://web/...` is the Networking page's example of one
+              # container reaching another BY NAME on a wctr network: "web"
+              # is a container name that only the engine's DNS resolves, not
+              # a host on the internet. The extractor above reads the raw
+              # Markdown, so it cannot tell a code block from a link; this
+              # exclusion is deliberately that one host.
+              http://web/*) continue ;;
               # This site's own pages: they exist only once this workflow
               # has deployed them, and the offline check above already
               # proves every link inside the site.
