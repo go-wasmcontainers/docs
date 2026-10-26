@@ -45,6 +45,7 @@ opposed to the data plane that carries the containers' bytes).
 | 7 | Internet mode | The same relay can run on the internet for remote or hybrid students, with **OpenID Connect** sign-in verified by [go-authn/oidc](https://github.com/go-authn/oidc), logins through [go-authn/rp](https://github.com/go-authn/rp), and [go-authn/bridge](https://github.com/go-authn/bridge) as the identity provider for SAML-only universities. The LAN mode keeps working with a class code and no identity provider. |
 | 8 | High availability | The **control plane** (classes, groups, rules, addresses, signing keys, audit) is replicated with Raft across relays; the **data plane** (live flows, connection tracking) is not. One relay holds a class at a time, under a lease with an increasing **epoch**; clients follow an ordered list of relays and refuse an older epoch. |
 | 9 | Build or adopt | **Hybrid**: our relay stays the classroom data plane and firewall (relay-side enforcement and flow logs are the lesson); go-authn supplies identity and certificates; the client failover follows Tailscale's DERP pattern. See [Alternatives considered](#alternatives-considered). |
+| 10 | Seeing the network | The relay serves a **live flow map**: an SVG page fed by an aggregated, coalesced server stream over the Connect protocol; denied flows flash red with the refusing decision; teacher view of the class, per-student view of one's own flows. See [The live flow map](#the-live-flow-map). |
 
 Answers to the questions this page first left open (decided 2026-10-26):
 
@@ -378,6 +379,53 @@ matching rule or `no rule`, and at close the bytes each way and duration.
 Rules carry a `log` flag; denies are always logged. The teacher streams logs
 live (CLI, dashboard); a student sees the decisions about their own ports,
 which is the point of the exercise ("why can't I reach Bob's server?").
+
+### The live flow map
+
+The relay serves a page that draws the class's network **as it happens**:
+nodes are sessions (the students and the teacher) holding their containers,
+coloured by security group; edges are live flows, their width following
+throughput; **denied** flows flash red with the rule decision that refused
+them ("no ingress rule of bob/web allows tcp/80"), because seeing the refusal
+is the lesson.
+
+- **Data.** The page calls a server-streaming RPC,
+  `FlowLogService.WatchFlowMap`, over the Connect protocol (the reason
+  connect-go was chosen: "the other RPC types also support HTTP/1.1", server
+  streaming included, so a browser needs no proxy). The relay **aggregates**:
+  every tick (default 4 Hz) it sends one update holding the per-edge counters
+  (src port → dst port, protocol and port: bytes each way, flows opened, open,
+  denied) and the discrete events since the last tick (opened, closed, denied,
+  revoked, with the rule ids). A slow page gets **coalesced** updates — the
+  newest state replaces the unsent one — never an unbounded queue. A view is
+  capped (400 nodes, 2 000 edges; past that the update says what was left out).
+- **View.** A **stable layout**, not a force simulation: sessions are boxes on
+  a grid ordered by subnet (teacher first), containers inside them, so a node
+  does not move when traffic changes and 40 students × several containers stay
+  readable on a projector. Click a node or an edge for its details (groups,
+  the rules that matched, conntrack state, counters). Filters by student,
+  group and port. Light and dark themes. Pause and replay of the last minutes
+  are **deferred** (the ring of the last 1 000 events is already kept).
+- **Technique.** Plain **SVG** written by a small hand-written ES module served
+  by the relay (same origin), under a strict Content-Security-Policy
+  (`default-src 'self'`, no inline script, no `eval`), with no third-party
+  request: the relay runs without internet. The fleet was checked first:
+  [go-widgets/webcanvas](https://github.com/go-widgets/webcanvas) runs a
+  go-widgets scene by blitting "an RGBA framebuffer into the canvas" — no DOM,
+  so neither assistive technology nor DOM-level tests can read the graph, and
+  it needs a Go WebAssembly download; no fleet library draws a graph as SVG. The
+  join QR code is drawn from [go-gfx/qr](https://github.com/go-gfx/qr)'s module
+  matrix.
+- **Access.** The teacher's view of the whole class needs the admin role (the
+  admin token on loopback or the Unix socket, or the OpenID Connect teacher
+  role in internet mode). A student may open **their own** view: only the
+  flows that touch their own containers, with the other end named but no flow
+  between two other students — the privacy between students the class needs.
+- **Tests.** Playwright (Chromium and Firefox) drives real flows through an
+  in-process relay and asserts what the page's DOM says (edges present, a
+  denied flash with its rule, counters moving), not screenshots; the update
+  latency from a flow to the DOM and the relay's CPU at 40 sessions are
+  measured.
 
 ### Quotas
 
@@ -823,6 +871,7 @@ relay's tests need no browser.
 | --- | --- | --- |
 | **M-relay-1** | `NetworkDriver` in the engine (by the engine's owner); the relay as a Go library: framing, flow broker, firewall, DNS, conntrack | **in-process relay + two native engines** in one `go test`: TCP across, UDP, DNS, deny, revoke, stateless; fuzzed decoders; rule evaluation tables |
 | **M-relay-2** | `wctr-relay` binary: WebSocket transport, control API (connect-go), cobra CLI, persistence, flow logs, quotas; TLS from servercert (files or ACME) or the internal CA; OpenID Connect verification (go-authn/oidc) and the internet hardening | native engines over loopback `wss`; restart with state; rate limits; a test identity provider; chaos on the native path |
+| **M-relay-2b** | the live flow map: `WatchFlowMap` (aggregated, coalesced), the SVG page served by the relay, teacher and per-student views | Playwright (Chromium, Firefox) on real flows through an in-process relay; update latency and CPU at 40 sessions |
 | **M-relay-3** | browser driver in the Web Worker; deployment (b): the relay serves the playground; join-flow detection | Chrome, Firefox and WebKit driven by Playwright against a local relay; secure-context check after a certificate warning |
 | **M-relay-4** | deployment (a) from GitHub Pages; WebTransport with certificate hashes; teacher dashboard over gRPC-Web/Connect; `wctr-relay login` (go-authn/rp loopback); DNS-01 in servercert | the Local Network Access prompt in each browser; transport fallback |
 | **M-relay-5** | `wctr_net.icmp_echo` and a `ping` image; chaos campaign; performance in a real classroom | the chaos table above; the performance table above |
@@ -857,6 +906,7 @@ Opened for this design (October 2026):
 - [Connect protocol](https://connectrpc.com/docs/protocol/) and [connect-go](https://github.com/connectrpc/connect-go)
 - [quic-go/webtransport-go](https://github.com/quic-go/webtransport-go)
 - [mkcert](https://github.com/FiloSottile/mkcert)
+- [go-widgets/webcanvas](https://github.com/go-widgets/webcanvas) and [go-gfx/qr](https://github.com/go-gfx/qr) (fleet rendering pieces checked for the flow map)
 - Caddy, [Automatic HTTPS](https://caddyserver.com/docs/automatic-https) (DNS challenge, internal CA, IP certificates, on-demand TLS), [`acme_server`](https://caddyserver.com/docs/caddyfile/directives/acme_server) and [`caddy trust`](https://caddyserver.com/docs/command-line)
 - [CertMagic](https://github.com/caddyserver/certmagic): the library behind Caddy's automatic HTTPS (DNS-01 through libdns; no internal issuer)
 - IETF, [RFC 8555, ACME](https://www.rfc-editor.org/rfc/rfc8555), §8.4 (DNS-01)
