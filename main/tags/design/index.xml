@@ -1,0 +1,61 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Design</title><link>https://go-wasmcontainers.github.io/docs/main/tags/design/</link><description>Recent content in Design on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/main/tags/design/index.xml" rel="self" type="application/rss+xml"/><item><title>Architecture</title><link>https://go-wasmcontainers.github.io/docs/main/architecture/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/main/architecture/</guid><description>
+&lt;p&gt;This page describes the design. Where a part is not written yet it says
+&lt;strong&gt;planned&lt;/strong&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="the-pieces"&gt;The pieces&lt;span class="hx:absolute hx:-mt-20" id="the-pieces"&gt;&lt;/span&gt;
+&lt;a href="#the-pieces" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker CLI ──► /var/run/docker.sock ──► engine ──► executor ──► a wasip1 module
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; (Docker Engine API) │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ ├─ native: wazero (M1, in progress)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ browser worker (planned)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └─ image store, root filesystem&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3 data-hextra-search-id="the-engine"&gt;The engine&lt;span class="hx:absolute hx:-mt-20" id="the-engine"&gt;&lt;/span&gt;
+&lt;a href="#the-engine" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A Go program, pure Go, no cgo. It owns the images, the containers and their
+state, and serves the Docker Engine API. The API reference it is written
+against is Docker Engine API v1.47; the subset M1 covers is the one the
+commands &lt;code&gt;pull&lt;/code&gt;, &lt;code&gt;run&lt;/code&gt;, &lt;code&gt;ps&lt;/code&gt;, &lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt; and &lt;code&gt;inspect&lt;/code&gt; need:
+&lt;code&gt;GET /_ping&lt;/code&gt;, &lt;code&gt;POST /images/create&lt;/code&gt;, the container create, start, list,
+inspect, logs, wait and delete endpoints. Logs of a container without a TTY use
+Docker&amp;rsquo;s multiplexed stream framing.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-docker-cli"&gt;The Docker CLI&lt;span class="hx:absolute hx:-mt-20" id="the-docker-cli"&gt;&lt;/span&gt;
+&lt;a href="#the-docker-cli" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Unchanged. It speaks the Engine API over a Unix socket, &lt;code&gt;/var/run/docker.sock&lt;/code&gt;
+by default, so a learner types the commands they will type on a real host.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-executors"&gt;The executors&lt;span class="hx:absolute hx:-mt-20" id="the-executors"&gt;&lt;/span&gt;
+&lt;a href="#the-executors" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;An executor runs one module with a root filesystem, arguments, an
+environment and a working directory.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;wazero&lt;/strong&gt; (M1, in progress): the native executor. wazero is a pure-Go
+WebAssembly runtime with a WASI preview1 implementation, so the engine stays
+a single static binary. The container&amp;rsquo;s root filesystem is adapted to wazero&amp;rsquo;s
+writable filesystem interface; the image&amp;rsquo;s &lt;code&gt;WorkingDir&lt;/code&gt; is passed as &lt;code&gt;PWD&lt;/code&gt;,
+which is where a Go &lt;code&gt;wasip1&lt;/code&gt; program takes its initial directory from.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Browser worker&lt;/strong&gt; (planned): the same executor contract implemented over the
+browser&amp;rsquo;s WebAssembly, in a Web Worker, so the playground needs no server
+that runs containers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 data-hextra-search-id="the-images"&gt;The images&lt;span class="hx:absolute hx:-mt-20" id="the-images"&gt;&lt;/span&gt;
+&lt;a href="#the-images" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;An image is an OCI image whose manifest or index entry has &lt;code&gt;os=wasip1&lt;/code&gt; and
+&lt;code&gt;arch=wasm&lt;/code&gt;. The engine pulls from an OCI registry (the Distribution API, with
+Docker&amp;rsquo;s bearer-token authentication), selects the &lt;code&gt;wasip1/wasm&lt;/code&gt; entry of an
+index, verifies digests, and unpacks the layers in order — whiteouts included —
+into the container&amp;rsquo;s root filesystem. The Wasm OCI artifact layout of the CNCF
+TAG-Runtime (&lt;code&gt;application/wasm&lt;/code&gt; layer, &lt;code&gt;application/vnd.wasm.config.v0+json&lt;/code&gt;
+config) is also read.&lt;/p&gt;
+&lt;p&gt;Images are meant to be &lt;strong&gt;apt-like&lt;/strong&gt;: a small base plus the tools a lab needs,
+built from &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1&lt;/code&gt; bottles. go-pkgx is
+gaining a &lt;code&gt;wasip1/wasm&lt;/code&gt; target for this; until it ships, images come from
+whatever registry holds &lt;code&gt;wasip1&lt;/code&gt; images.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-is-not-in-this-design-yet"&gt;What is not in this design yet&lt;span class="hx:absolute hx:-mt-20" id="what-is-not-in-this-design-yet"&gt;&lt;/span&gt;
+&lt;a href="#what-is-not-in-this-design-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Networking (the WasmEdge socket ABI), &lt;code&gt;docker exec&lt;/code&gt; and a shell (a WASIX
+subset), &lt;code&gt;docker build&lt;/code&gt;, Compose and a mini-Kubernetes are on the
+&lt;a href="https://go-wasmcontainers.github.io/docs/main/roadmap/"&gt;roadmap&lt;/a&gt;; none of them exists.&lt;/p&gt;</description></item></channel></rss>
