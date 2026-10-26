@@ -2,7 +2,18 @@
 &lt;p&gt;&lt;strong&gt;A graphical dashboard for the engine — containers, images, volumes and a
 &lt;code&gt;wctr&lt;/code&gt; terminal — built with &lt;a href="https://github.com/go-widgets" target="_blank" rel="noopener"&gt;go-widgets&lt;/a&gt;,
 running in the browser on the same engine and API as &lt;code&gt;wctr&lt;/code&gt;. Every action
-shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.1.0.&lt;/p&gt;
+shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.2.0, which runs
+on engine v0.5.0.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-it-does"&gt;What it does&lt;span class="hx:absolute hx:-mt-20" id="what-it-does"&gt;&lt;/span&gt;
+&lt;a href="#what-it-does" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;The Start, Stop and Restart buttons use the engine&amp;rsquo;s &lt;code&gt;/start&lt;/code&gt;, &lt;code&gt;/stop&lt;/code&gt; and
+&lt;code&gt;/restart&lt;/code&gt;, and show the matching &lt;code&gt;wctr start|stop|restart NAME&lt;/code&gt; line in the
+footer and in the terminal. Stop returns once the container has exited.&lt;/li&gt;
+&lt;li&gt;The status bar shows the storage, from &lt;code&gt;GET /system/df&lt;/code&gt; (for example
+&lt;code&gt;IndexedDB 2MB of 1GB (persistent)&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Volumes, live events and stats appear automatically once the engine serves
+them.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Live demo: &lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/dashboard/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/dashboard/&lt;/a&gt;&lt;/strong&gt;. Source:
 &lt;a href="https://github.com/go-wasmcontainers/dashboard" target="_blank" rel="noopener"&gt;go-wasmcontainers/dashboard&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="the-terminal-widget"&gt;The terminal widget&lt;span class="hx:absolute hx:-mt-20" id="the-terminal-widget"&gt;&lt;/span&gt;
@@ -14,7 +25,9 @@ sequences are dropped.&lt;/p&gt;
 &lt;a href="#limitations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;The Volumes view waits for engine volumes, which the engine does not have yet.&lt;/li&gt;
 &lt;li&gt;The dashboard polls every 2 seconds until the engine serves &lt;code&gt;/events&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;The Start button shows the API call it makes until &lt;code&gt;wctr start&lt;/code&gt; exists.&lt;/li&gt;
+&lt;li&gt;The standalone demo keeps its state in memory: nothing persists across a
+reload. Persistence comes when the dashboard becomes the playground&amp;rsquo;s main UI
+(planned).&lt;/li&gt;
 &lt;li&gt;Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;dashboard.wasm&lt;/code&gt; is 20 MB uncompressed.&lt;/li&gt;
 &lt;li&gt;The end-to-end tests have not yet been run in Firefox.&lt;/li&gt;
