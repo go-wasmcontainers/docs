@@ -1424,6 +1424,7 @@ not live yet&lt;/strong&gt;: it is the next milestone. Everything below is the n
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
 &lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr network create lab
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d --name web --network lab netprobe serve &lt;span class="m"&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm --network lab netprobe get http://web/class
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
 class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
@@ -1436,7 +1437,7 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;A second container on the same network reaches &lt;code&gt;web&lt;/code&gt; by its name.&lt;/p&gt;
+&lt;p&gt;The second container reaches &lt;code&gt;web&lt;/code&gt; by its name, through the network&amp;rsquo;s DNS.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="sockets-for-guests"&gt;Sockets for guests&lt;span class="hx:absolute hx:-mt-20" id="sockets-for-guests"&gt;&lt;/span&gt;
 &lt;a href="#sockets-for-guests" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A guest opens sockets with the WasmEdge socket extension of
 &lt;code&gt;wasi_snapshot_preview1&lt;/code&gt; (its V2 form, as stealthrocket/wasi-go serves it) and
