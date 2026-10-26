@@ -12,6 +12,11 @@ networking. Ctrl-C stops waiting for a container but leaves it running. Each
 container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB
 of logs, and 64 containers at once.
 
+The default UI, the dashboard, makes the page slower to be ready than the
+terminal page (728 ms against 1070 ms in Chromium on the live site), because
+`dashboard.wasm` is 20.45 MB raw (5.32 MB gzipped). A size reduction is in
+progress (planned). The terminal-only page is at `?ui=terminal`.
+
 ## Engine
 
 Engine v0.9.0 does **not** have:

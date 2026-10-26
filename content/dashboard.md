@@ -42,13 +42,15 @@ sequences are dropped.
 ## Limitations
 
 - The standalone demo keeps its state in memory: nothing persists across a
-  reload. Persistence comes when the dashboard becomes the playground's main UI
-  (planned).
+  reload. In the [playground]({{< relref "playground" >}}) the dashboard runs
+  on the persistent engine worker instead.
 - Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.
-- `dashboard.wasm` is 20 MB uncompressed.
+- `dashboard.wasm` is 20.45 MB raw and 5.32 MB gzipped; a size reduction of
+  go-widgets is in progress (planned).
 
-## Next
+## In the playground
 
-The dashboard is planned to become the playground's main UI. That has not
-happened: the [playground]({{< relref "playground" >}}) is still the terminal
-page.
+The dashboard is now the playground's default UI on the live site (Containers,
+Images, Volumes, Terminal). The terminal-only page stays at `?ui=terminal`.
+This is deployed on the playground's main branch and is not in a playground tag
+yet: the latest tag is v0.2.0.
