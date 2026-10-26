@@ -2,8 +2,8 @@
 &lt;p&gt;&lt;strong&gt;A graphical dashboard for the engine — containers, images, volumes and a
 &lt;code&gt;wctr&lt;/code&gt; terminal — built with &lt;a href="https://github.com/go-widgets" target="_blank" rel="noopener"&gt;go-widgets&lt;/a&gt;,
 running in the browser on the same engine and API as &lt;code&gt;wctr&lt;/code&gt;. Every action
-shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.2.0, which runs
-on engine v0.5.0.&lt;/p&gt;
+shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.3.0, which runs
+on engine v0.8.0.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="what-it-does"&gt;What it does&lt;span class="hx:absolute hx:-mt-20" id="what-it-does"&gt;&lt;/span&gt;
 &lt;a href="#what-it-does" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;The Start, Stop and Restart buttons use the engine&amp;rsquo;s &lt;code&gt;/start&lt;/code&gt;, &lt;code&gt;/stop&lt;/code&gt; and
@@ -11,8 +11,16 @@ on engine v0.5.0.&lt;/p&gt;
 footer and in the terminal. Stop returns once the container has exited.&lt;/li&gt;
 &lt;li&gt;The status bar shows the storage, from &lt;code&gt;GET /system/df&lt;/code&gt; (for example
 &lt;code&gt;IndexedDB 2MB of 1GB (persistent)&lt;/code&gt;).&lt;/li&gt;
-&lt;li&gt;Volumes, live events and stats appear automatically once the engine serves
-them.&lt;/li&gt;
+&lt;li&gt;It follows &lt;code&gt;GET /events&lt;/code&gt; instead of polling. When the stream drops, it
+refreshes and reconnects from the last event.&lt;/li&gt;
+&lt;li&gt;The Volumes view shows each volume&amp;rsquo;s size and use count, and can create,
+inspect, remove (with force) and prune; each action shows its
+&lt;code&gt;wctr volume …&lt;/code&gt; line.&lt;/li&gt;
+&lt;li&gt;A container&amp;rsquo;s detail shows its mounts and a Stats tab: a memory gauge against
+the limit, a sparkline of recent readings, bytes written, log size and pids.
+CPU is shown as &lt;code&gt;--&lt;/code&gt; because it is not measured.&lt;/li&gt;
+&lt;li&gt;The run dialog accepts &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;It was tested live in Chromium and Firefox.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Live demo: &lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/dashboard/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/dashboard/&lt;/a&gt;&lt;/strong&gt;. Source:
 &lt;a href="https://github.com/go-wasmcontainers/dashboard" target="_blank" rel="noopener"&gt;go-wasmcontainers/dashboard&lt;/a&gt;.&lt;/p&gt;
@@ -23,14 +31,11 @@ channel (nothing the output prints is ever sent back), and OSC, DCS and APC
 sequences are dropped.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="limitations"&gt;Limitations&lt;span class="hx:absolute hx:-mt-20" id="limitations"&gt;&lt;/span&gt;
 &lt;a href="#limitations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;The Volumes view and the live events appear once the engine serves them; the
-dashboard polls every 2 seconds until the engine serves &lt;code&gt;/events&lt;/code&gt;.&lt;/li&gt;
 &lt;li&gt;The standalone demo keeps its state in memory: nothing persists across a
 reload. Persistence comes when the dashboard becomes the playground&amp;rsquo;s main UI
 (planned).&lt;/li&gt;
 &lt;li&gt;Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;dashboard.wasm&lt;/code&gt; is 20 MB uncompressed.&lt;/li&gt;
-&lt;li&gt;The end-to-end tests have not yet been run in Firefox.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 data-hextra-search-id="next"&gt;Next&lt;span class="hx:absolute hx:-mt-20" id="next"&gt;&lt;/span&gt;
 &lt;a href="#next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The dashboard is planned to become the playground&amp;rsquo;s main UI. That has not
