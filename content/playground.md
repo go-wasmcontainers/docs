@@ -81,7 +81,8 @@ containers at once.
 
 ## Not yet
 
-No stdin, no shell, no networking. Ctrl-C stops waiting for a container but
+No stdin, no shell, and **no networking: engine v0.10.0's networking is not live
+in the playground yet** (the next milestone). Ctrl-C stops waiting for a container but
 leaves it running. See [Limitations]({{< relref "limitations" >}}) and the
 [roadmap]({{< relref "roadmap" >}}).
 
