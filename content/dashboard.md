@@ -8,8 +8,8 @@ tags: [dashboard]
 **A graphical dashboard for the engine — containers, images, volumes and a
 `wctr` terminal — built with [go-widgets](https://github.com/go-widgets),
 running in the browser on the same engine and API as `wctr`. Every action
-shows the `wctr` command it stands for.** This is dashboard v0.2.0, which runs
-on engine v0.5.0.
+shows the `wctr` command it stands for.** This is dashboard v0.3.0, which runs
+on engine v0.8.0.
 
 ## What it does
 
@@ -18,8 +18,16 @@ on engine v0.5.0.
   footer and in the terminal. Stop returns once the container has exited.
 - The status bar shows the storage, from `GET /system/df` (for example
   `IndexedDB 2MB of 1GB (persistent)`).
-- Volumes, live events and stats appear automatically once the engine serves
-  them.
+- It follows `GET /events` instead of polling. When the stream drops, it
+  refreshes and reconnects from the last event.
+- The Volumes view shows each volume's size and use count, and can create,
+  inspect, remove (with force) and prune; each action shows its
+  `wctr volume …` line.
+- A container's detail shows its mounts and a Stats tab: a memory gauge against
+  the limit, a sparkline of recent readings, bytes written, log size and pids.
+  CPU is shown as `--` because it is not measured.
+- The run dialog accepts `-v NAME:/path[:ro]`.
+- It was tested live in Chromium and Firefox.
 
 Live demo: **<https://go-wasmcontainers.github.io/dashboard/>**. Source:
 [go-wasmcontainers/dashboard](https://github.com/go-wasmcontainers/dashboard).
@@ -33,14 +41,11 @@ sequences are dropped.
 
 ## Limitations
 
-- The Volumes view and the live events appear once the engine serves them; the
-  dashboard polls every 2 seconds until the engine serves `/events`.
 - The standalone demo keeps its state in memory: nothing persists across a
   reload. Persistence comes when the dashboard becomes the playground's main UI
   (planned).
 - Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.
 - `dashboard.wasm` is 20 MB uncompressed.
-- The end-to-end tests have not yet been run in Firefox.
 
 ## Next
 
