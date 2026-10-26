@@ -1,0 +1,1400 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Design</title><link>https://go-wasmcontainers.github.io/docs/0.2/tags/design/</link><description>Recent content in Design on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.2/tags/design/index.xml" rel="self" type="application/rss+xml"/><item><title>Architecture</title><link>https://go-wasmcontainers.github.io/docs/0.2/architecture/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.2/architecture/</guid><description>
+&lt;p&gt;This page describes the design. Where a part is not written yet it says
+&lt;strong&gt;planned&lt;/strong&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="the-pieces"&gt;The pieces&lt;span class="hx:absolute hx:-mt-20" id="the-pieces"&gt;&lt;/span&gt;
+&lt;a href="#the-pieces" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr CLI ──► /var/run/wctr.sock ──► wctrd ──► executor ──► a wasip1 module
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; (Docker Engine API) │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ ├─ native: wazero (v0.1.0)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └─ browser: runtime/browser (v0.2.0)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └─ image store, root filesystem&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3 data-hextra-search-id="the-daemon-wctrd"&gt;The daemon, &lt;code&gt;wctrd&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="the-daemon-wctrd"&gt;&lt;/span&gt;
+&lt;a href="#the-daemon-wctrd" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A Go program, pure Go, no cgo. It owns the images, the containers and their
+state, and serves an HTTP API on the Unix socket &lt;code&gt;/var/run/wctr.sock&lt;/code&gt;. The API
+is compatible with the Docker Engine API: the reference it is written against
+is Docker Engine API v1.47, and the subset M1 covers is the one the commands
+&lt;code&gt;pull&lt;/code&gt;, &lt;code&gt;run&lt;/code&gt;, &lt;code&gt;ps&lt;/code&gt;, &lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt;, &lt;code&gt;rmi&lt;/code&gt;, &lt;code&gt;inspect&lt;/code&gt; and &lt;code&gt;images&lt;/code&gt; need:
+&lt;code&gt;GET /_ping&lt;/code&gt;, &lt;code&gt;POST /images/create&lt;/code&gt;, the image list and delete endpoints, and the
+container create, start, list, inspect, logs, wait and delete endpoints. Logs of
+a container without a TTY use the API&amp;rsquo;s multiplexed stream framing.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-command-line-wctr"&gt;The command line, &lt;code&gt;wctr&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="the-command-line-wctr"&gt;&lt;/span&gt;
+&lt;a href="#the-command-line-wctr" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The client. It finds the daemon at &lt;code&gt;/var/run/wctr.sock&lt;/code&gt;, or at the address in
+the &lt;code&gt;WCTR_HOST&lt;/code&gt; environment variable. Because the API is Docker-Engine
+compatible, other clients of that API can talk to &lt;code&gt;wctrd&lt;/code&gt; as well; &lt;code&gt;wctr&lt;/code&gt; is the
+command the labs teach.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-executors"&gt;The executors&lt;span class="hx:absolute hx:-mt-20" id="the-executors"&gt;&lt;/span&gt;
+&lt;a href="#the-executors" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;An executor runs one module with a root filesystem, arguments, an
+environment and a working directory.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;wazero&lt;/strong&gt; (released in v0.1.0): the native executor. wazero is a pure-Go
+WebAssembly runtime with a WASI preview1 implementation, so the engine stays
+a single static binary. The container&amp;rsquo;s root filesystem is adapted to wazero&amp;rsquo;s
+writable filesystem interface; the image&amp;rsquo;s &lt;code&gt;WorkingDir&lt;/code&gt; is passed as &lt;code&gt;PWD&lt;/code&gt;,
+which is where a Go &lt;code&gt;wasip1&lt;/code&gt; program takes its initial directory from.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Browser&lt;/strong&gt; (&lt;code&gt;runtime/browser&lt;/code&gt;, engine v0.2.0): the same executor contract
+implemented over the browser&amp;rsquo;s WebAssembly, with the WASI host shared with the
+native side (&lt;code&gt;wasi&lt;/code&gt;) and the API served in-process (&lt;code&gt;api/inproc&lt;/code&gt;), so the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.2/playground/"&gt;playground&lt;/a&gt; needs no server that runs
+containers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 data-hextra-search-id="the-images"&gt;The images&lt;span class="hx:absolute hx:-mt-20" id="the-images"&gt;&lt;/span&gt;
+&lt;a href="#the-images" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;An image is an OCI image whose manifest or index entry has &lt;code&gt;os=wasip1&lt;/code&gt; and
+&lt;code&gt;arch=wasm&lt;/code&gt;. The engine pulls from an OCI registry (the Distribution API, with
+the registry&amp;rsquo;s bearer-token authentication), selects the &lt;code&gt;wasip1/wasm&lt;/code&gt; entry of
+an index, verifies digests, and unpacks the layers in order — whiteouts
+included — into the container&amp;rsquo;s root filesystem. The Wasm OCI artifact layout of
+the CNCF TAG-Runtime (&lt;code&gt;application/wasm&lt;/code&gt; layer,
+&lt;code&gt;application/vnd.wasm.config.v0+json&lt;/code&gt; config) is also read.&lt;/p&gt;
+&lt;p&gt;Images are meant to be &lt;strong&gt;apt-like&lt;/strong&gt;: a small base plus the tools a lab needs,
+built from &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1&lt;/code&gt; bottles. go-pkgx is
+gaining a &lt;code&gt;wasip1/wasm&lt;/code&gt; target for this; until it ships, images come from
+whatever registry holds &lt;code&gt;wasip1&lt;/code&gt; images.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-is-not-in-this-design-yet"&gt;What is not in this design yet&lt;span class="hx:absolute hx:-mt-20" id="what-is-not-in-this-design-yet"&gt;&lt;/span&gt;
+&lt;a href="#what-is-not-in-this-design-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Networking (the WasmEdge socket ABI), &lt;code&gt;wctr exec&lt;/code&gt; and a shell (a WASIX subset),
+building an image from a Dockerfile, Compose and a mini-Kubernetes are on the
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.2/roadmap/"&gt;roadmap&lt;/a&gt;; none of them exists.&lt;/p&gt;</description></item><item><title>Classroom network</title><link>https://go-wasmcontainers.github.io/docs/0.2/design/classroom-network/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.2/design/classroom-network/</guid><description>
+&lt;div class="hx:overflow-x-auto hx:mt-6 hx:flex hx:rounded-lg hx:border hx:py-2 hx:ltr:pr-4 hx:rtl:pl-4 hx:contrast-more:border-current hx:contrast-more:dark:border-current hx:border-blue-200 hx:bg-blue-100 hx:text-blue-900 hx:dark:border-blue-200/30 hx:dark:bg-blue-900/30 hx:dark:text-blue-200"&gt;
+&lt;div class="hx:ltr:pl-3 hx:ltr:pr-2 hx:rtl:pr-3 hx:rtl:pl-2"&gt;&lt;svg height=1.2em class="hx:inline-block hx:align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/&gt;&lt;/svg&gt;&lt;/div&gt;
+&lt;div class="hx:w-full hx:min-w-0 hx:leading-7"&gt;
+&lt;div class="hx:mt-6 hx:leading-7 hx:first:mt-0"&gt;&lt;strong&gt;Status: M-relay-1 and M-relay-2 shipped in relay v0.1.0&lt;/strong&gt; (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.2/relay/"&gt;Relay&lt;/a&gt;); the rest is planned. The implementation lives
+in &lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;. This
+page decides what is built and records why, so the code can be reviewed against
+it. Milestones are named &lt;code&gt;M-relay-1&lt;/code&gt; and up.&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="the-problem"&gt;The problem&lt;span class="hx:absolute hx:-mt-20" id="the-problem"&gt;&lt;/span&gt;
+&lt;a href="#the-problem" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A teacher has a laptop on the classroom LAN, possibly with no internet access.
+Ten to forty students each open the playground in their own browser (Chrome,
+Firefox or Safari, sometimes on a school-managed machine). Each browser runs
+WASI containers in Web Workers. Inside one browser, containers already share a
+virtual network. The lab now needs &lt;strong&gt;student A&amp;rsquo;s container to reach student
+B&amp;rsquo;s container&lt;/strong&gt;, for example a web server on one side and &lt;code&gt;curl&lt;/code&gt; on the other,
+and the teacher needs to &lt;strong&gt;decide and show which flows are allowed&lt;/strong&gt;, the way a
+cloud&amp;rsquo;s security groups do.&lt;/p&gt;
+&lt;p&gt;The answer on this page: every browser opens &lt;strong&gt;one secure WebSocket&lt;/strong&gt; to a
+&lt;strong&gt;relay&lt;/strong&gt; that runs on the teacher&amp;rsquo;s laptop. The relay brokers socket-level
+(L4) flows between containers, and it is also a &lt;strong&gt;firewall&lt;/strong&gt;: every flow is
+checked against &lt;strong&gt;security groups&lt;/strong&gt; whose model is OpenStack Neutron&amp;rsquo;s. The
+teacher manages them through a &lt;strong&gt;gRPC control API&lt;/strong&gt;. The brief called it the
+&amp;ldquo;c-api&amp;rdquo;; this page reads that as &lt;strong&gt;control API&lt;/strong&gt; (the control plane, as
+opposed to the data plane that carries the containers&amp;rsquo; bytes).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="decisions"&gt;Decisions&lt;span class="hx:absolute hx:-mt-20" id="decisions"&gt;&lt;/span&gt;
+&lt;a href="#decisions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;#&lt;/th&gt;
+&lt;th&gt;Question&lt;/th&gt;
+&lt;th&gt;Decision&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;Browser to relay transport&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;WebSocket over TLS (&lt;code&gt;wss&lt;/code&gt;)&lt;/strong&gt;, one per browser, multiplexing every container&amp;rsquo;s flows. WebTransport is the second transport, added later. WebRTC is not used.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Where the page comes from&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Both paths are first-class&lt;/strong&gt;: the relay serves the playground itself over HTTPS on the LAN, and the page on GitHub Pages connects to the relay. Whether a school can install a CA is not known in advance, so the join flow &lt;strong&gt;detects&lt;/strong&gt; which works (see &lt;a href="#join-flow-detection"&gt;Join-flow detection&lt;/a&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2b&lt;/td&gt;
+&lt;td&gt;Where the TLS certificate comes from&lt;/td&gt;
+&lt;td&gt;In this order: &lt;strong&gt;(1) a publicly trusted certificate from ACME&lt;/strong&gt; through &lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;go-authn/servercert&lt;/a&gt; (a school-owned name such as &lt;code&gt;class.&amp;lt;school-domain&amp;gt;&lt;/code&gt; pointing at the relay; DNS-01 for a LAN-only relay is to be added to servercert); &lt;strong&gt;(2) the relay&amp;rsquo;s internal CA&lt;/strong&gt;, whose root a school installs; &lt;strong&gt;(3) WebTransport certificate hashes&lt;/strong&gt; from the GitHub Pages page. Caddy in front of the relay is the documented alternative.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;Network model&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;L4 flows&lt;/strong&gt;: the relay brokers &lt;code&gt;connect&lt;/code&gt;/&lt;code&gt;listen&lt;/code&gt;/datagrams between container endpoints, each with a virtual IP and a DNS name. No packet-level (L3) network stack in the engine.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;Firewall model&lt;/td&gt;
+&lt;td&gt;Neutron&amp;rsquo;s &lt;strong&gt;networks, ports, security groups and rules&lt;/strong&gt;, allow-only, stateful by default, enforced at both ends of every flow, with flow logs.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;Control API&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;gRPC services&lt;/strong&gt;, served with Connect so the same handler answers gRPC, gRPC-Web and Connect; the teacher&amp;rsquo;s CLI is a &lt;strong&gt;separate cobra binary, &lt;code&gt;wctr-relay&lt;/code&gt;&lt;/strong&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;Identity&lt;/td&gt;
+&lt;td&gt;The relay assigns every address; nothing a browser sends about its own identity is trusted. Teacher: an admin token. Students: a class code exchanged for a short-lived session token.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;7&lt;/td&gt;
+&lt;td&gt;Internet mode&lt;/td&gt;
+&lt;td&gt;The same relay can run on the internet for remote or hybrid students, with &lt;strong&gt;OpenID Connect&lt;/strong&gt; sign-in verified by &lt;a href="https://github.com/go-authn/oidc" target="_blank" rel="noopener"&gt;go-authn/oidc&lt;/a&gt;, logins through &lt;a href="https://github.com/go-authn/rp" target="_blank" rel="noopener"&gt;go-authn/rp&lt;/a&gt;, and &lt;a href="https://github.com/go-authn/bridge" target="_blank" rel="noopener"&gt;go-authn/bridge&lt;/a&gt; as the identity provider for SAML-only universities. The LAN mode keeps working with a class code and no identity provider.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;td&gt;High availability&lt;/td&gt;
+&lt;td&gt;The &lt;strong&gt;control plane&lt;/strong&gt; (classes, groups, rules, addresses, signing keys, audit) is replicated with Raft across relays; the &lt;strong&gt;data plane&lt;/strong&gt; (live flows, connection tracking) is not. One relay holds a class at a time, under a lease with an increasing &lt;strong&gt;epoch&lt;/strong&gt;; clients follow an ordered list of relays and refuse an older epoch.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;td&gt;Build or adopt&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Hybrid&lt;/strong&gt;: our relay stays the classroom data plane and firewall (relay-side enforcement and flow logs are the lesson); go-authn supplies identity and certificates; the client failover follows Tailscale&amp;rsquo;s DERP pattern. See &lt;a href="#alternatives-considered"&gt;Alternatives considered&lt;/a&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;10&lt;/td&gt;
+&lt;td&gt;Seeing the network&lt;/td&gt;
+&lt;td&gt;The relay serves a &lt;strong&gt;live flow map&lt;/strong&gt;: a go-widgets page (Go &lt;code&gt;js/wasm&lt;/code&gt; on a canvas) fed by an aggregated, coalesced server stream over the Connect protocol; denied flows flash red with the refusing decision; teacher view of the class, per-student view of one&amp;rsquo;s own flows. See &lt;a href="#the-live-flow-map"&gt;The live flow map&lt;/a&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Answers to the questions this page first left open (decided 2026-10-26):&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Question&lt;/th&gt;
+&lt;th&gt;Answer&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Default class network&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;10.42.0.0/16&lt;/code&gt;, configurable per class with &lt;code&gt;wctr-relay class create --cidr&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;How a new class starts&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;isolated&lt;/strong&gt;: no ingress, egress to the teacher&amp;rsquo;s subnet only. Opening flows is part of the lab. Neutron&amp;rsquo;s default group is a template the teacher can choose.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Can schools install a classroom CA?&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Unknown per school&lt;/strong&gt;, so both TLS paths stay first-class and the join flow detects which works&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;IPv6&lt;/td&gt;
+&lt;td&gt;later; the model carries &lt;code&gt;ethertype&lt;/code&gt;, the first milestones allocate IPv4 only&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;The teacher&amp;rsquo;s containers&lt;/td&gt;
+&lt;td&gt;they join as a session (subnet 0, label &lt;code&gt;teacher&lt;/code&gt;), so the teacher can publish shared services&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The docs repository has no ADR convention, so these tables are the decision record.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="topology"&gt;Topology&lt;span class="hx:absolute hx:-mt-20" id="topology"&gt;&lt;/span&gt;
+&lt;a href="#topology" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div role="img" aria-label="Diagram"&gt;
+&lt;pre class="mermaid hx:mt-6"&gt;
+flowchart LR
+subgraph A[&amp;#34;Student A&amp;#39;s browser&amp;#34;]
+A1[&amp;#34;container web&amp;lt;br/&amp;gt;10.42.1.2&amp;#34;]
+A2[&amp;#34;container db&amp;lt;br/&amp;gt;10.42.1.3&amp;#34;]
+AE[&amp;#34;engine&amp;lt;br/&amp;gt;(relay network driver)&amp;#34;]
+A1 --- AE
+A2 --- AE
+end
+subgraph B[&amp;#34;Student B&amp;#39;s browser&amp;#34;]
+B1[&amp;#34;container curl&amp;lt;br/&amp;gt;10.42.2.2&amp;#34;]
+BE[&amp;#34;engine&amp;lt;br/&amp;gt;(relay network driver)&amp;#34;]
+B1 --- BE
+end
+subgraph T[&amp;#34;Teacher&amp;#39;s laptop&amp;#34;]
+R[&amp;#34;wctr-relay&amp;lt;br/&amp;gt;relay + firewall + DNS&amp;#34;]
+API[&amp;#34;control API&amp;lt;br/&amp;gt;(gRPC / gRPC-Web / Connect)&amp;#34;]
+CLI[&amp;#34;wctr-relay CLI&amp;lt;br/&amp;gt;teacher dashboard&amp;#34;]
+R --- API
+CLI --&amp;gt; API
+end
+AE &amp;lt;-- &amp;#34;wss: one connection,&amp;lt;br/&amp;gt;multiplexed flows&amp;#34; --&amp;gt; R
+BE &amp;lt;-- &amp;#34;wss&amp;#34; --&amp;gt; R
+&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;Traffic between two containers of the &lt;strong&gt;same&lt;/strong&gt; browser does not leave it; the
+engine checks it against the same rules (see &lt;a href="#where-rules-are-enforced"&gt;Where rules are
+enforced&lt;/a&gt;). Traffic between &lt;strong&gt;different&lt;/strong&gt; browsers
+always crosses the relay: a star, so the firewall sees every flow.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="1-transport-between-the-browser-and-the-relay"&gt;1. Transport between the browser and the relay&lt;span class="hx:absolute hx:-mt-20" id="1-transport-between-the-browser-and-the-relay"&gt;&lt;/span&gt;
+&lt;a href="#1-transport-between-the-browser-and-the-relay" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Three candidates were compared.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;WebSocket (&lt;code&gt;wss&lt;/code&gt;)&lt;/th&gt;
+&lt;th&gt;WebTransport&lt;/th&gt;
+&lt;th&gt;WebRTC data channels&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Support&lt;/td&gt;
+&lt;td&gt;every browser the labs target&lt;/td&gt;
+&lt;td&gt;Chrome 97, Firefox 114, Safari 26.4 (iOS 26.4) per MDN&amp;rsquo;s compatibility data, and &lt;code&gt;serverCertificateHashes&lt;/code&gt; from Chrome 100, Firefox 125, Safari 26.4; MDN marks it Baseline 2026 (&amp;ldquo;since March 2026&amp;rdquo;)&lt;/td&gt;
+&lt;td&gt;Baseline widely available since January 2020 (MDN)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;In a Web Worker&lt;/td&gt;
+&lt;td&gt;yes&lt;/td&gt;
+&lt;td&gt;yes (MDN: the constructor is available in workers)&lt;/td&gt;
+&lt;td&gt;not established by MDN (an &lt;code&gt;RTCDataChannel&lt;/code&gt; is transferable, which is not the same)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Certificate without a public CA&lt;/td&gt;
+&lt;td&gt;must be trusted by the browser&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;serverCertificateHashes&lt;/code&gt;: no CA needed, but strict constraints (below)&lt;/td&gt;
+&lt;td&gt;DTLS fingerprints from signalling&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Multiplexing&lt;/td&gt;
+&lt;td&gt;ours, in the frames&lt;/td&gt;
+&lt;td&gt;native streams and datagrams (QUIC), no head-of-line blocking between streams&lt;/td&gt;
+&lt;td&gt;native channels&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Firewall sees the traffic&lt;/td&gt;
+&lt;td&gt;yes, it terminates at the relay&lt;/td&gt;
+&lt;td&gt;yes&lt;/td&gt;
+&lt;td&gt;only if forced through the relay, which removes the reason to use it&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;serverCertificateHashes&lt;/code&gt;&lt;/strong&gt; lets a page connect to a server whose certificate
+no CA signed, by giving the SHA-256 of the certificate. The W3C WebTransport
+Candidate Recommendation (30 July 2026) and MDN set the constraints:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the certificate &lt;strong&gt;must be X.509v3&lt;/strong&gt;, its total validity period &lt;strong&gt;must not
+exceed two weeks&lt;/strong&gt;, and the current time must be inside it;&lt;/li&gt;
+&lt;li&gt;the accepted key algorithms are implementation-defined but &lt;strong&gt;must include
+ECDSA P-256 (secp256r1)&lt;/strong&gt; and &lt;strong&gt;must not include RSA&lt;/strong&gt;;&lt;/li&gt;
+&lt;li&gt;the hash is &lt;strong&gt;&lt;code&gt;sha-256&lt;/code&gt;&lt;/strong&gt;, over the DER encoding of the leaf certificate;&lt;/li&gt;
+&lt;li&gt;the option only works on a dedicated connection (&lt;code&gt;allowPooling: false&lt;/code&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The relay can meet these: it generates an ECDSA P-256 certificate valid for at
+most 13 days (a margin under 14) when a class starts, and hands its hash to
+students in the join link. A class that lasts longer gets a new certificate
+and a new link.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;WebRTC is rejected.&lt;/strong&gt; Its value is a direct peer-to-peer path; the firewall
+must see every flow, so the topology would be a star through the relay anyway,
+and WebRTC would only add ICE, DTLS and SCTP to a connection the relay
+terminates. It is also not established that it can be used from the Web Worker
+that runs the engine.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Decision.&lt;/strong&gt; WebSocket is the first transport because it works in every
+target browser, in a worker, and through the simplest server code. It carries
+everything over one TCP connection, so one lost Wi-Fi frame stalls every flow
+of that browser (head-of-line blocking); WebTransport removes that and is the
+second transport (M-relay-4), selected per browser by feature detection, with
+the same framing on its streams.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="2-reaching-a-lan-host-from-a-web-page"&gt;2. Reaching a LAN host from a web page&lt;span class="hx:absolute hx:-mt-20" id="2-reaching-a-lan-host-from-a-web-page"&gt;&lt;/span&gt;
+&lt;a href="#2-reaching-a-lan-host-from-a-web-page" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A page that talks to the teacher&amp;rsquo;s laptop runs into four browser rules.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Mixed content.&lt;/strong&gt; An &lt;code&gt;https&lt;/code&gt; page cannot open &lt;code&gt;ws://&lt;/code&gt;; MDN classes any
+non-upgradable insecure request as blockable, and the Local Network Access
+draft states that WebSocket has no &lt;code&gt;RequestInit&lt;/code&gt;, so &lt;code&gt;ws://&lt;/code&gt; URLs cannot
+use its mixed-content exemption either. The relay must speak &lt;strong&gt;&lt;code&gt;wss&lt;/code&gt;&lt;/strong&gt;, so it
+needs a certificate the browser accepts.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Local Network Access&lt;/strong&gt; (formerly Private Network Access). The WICG draft
+(7 August 2026) classifies addresses as &lt;em&gt;loopback&lt;/em&gt;, &lt;em&gt;local&lt;/em&gt; (RFC 1918,
+link-local, &lt;code&gt;fc00::/7&lt;/code&gt;) and &lt;em&gt;public&lt;/em&gt;; a request from a document to a &lt;strong&gt;less
+public&lt;/strong&gt; address space needs the &lt;code&gt;local-network&lt;/code&gt; permission, only from a
+secure context. The WebSocket handshake is a fetch, so it is covered;
+WebTransport inherits the rule through fetch. Chrome&amp;rsquo;s announcement says the
+permission &lt;strong&gt;prompt launches in Chrome 142&lt;/strong&gt;, and in June 2025 it still
+listed WebSocket, WebTransport and WebRTC as not yet gated. The design
+assumes they are gated: a page on GitHub Pages (public) that opens a socket
+to &lt;code&gt;192.168.x.y&lt;/code&gt; (local) triggers the prompt, and a school&amp;rsquo;s enterprise
+policy may pre-deny it. A page served &lt;strong&gt;from the relay itself&lt;/strong&gt; is in the
+local address space, so its connections back to the relay are not &amp;ldquo;less
+public&amp;rdquo; and need no permission.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cross-origin isolation.&lt;/strong&gt; The executor uses &lt;code&gt;SharedArrayBuffer&lt;/code&gt;, which MDN
+allows only in a &lt;strong&gt;secure context&lt;/strong&gt; that is &lt;strong&gt;cross-origin isolated&lt;/strong&gt;. On
+GitHub Pages, which cannot set response headers, the playground gets this
+from coi-serviceworker; a relay serving the page sets
+&lt;code&gt;Cross-Origin-Opener-Policy&lt;/code&gt; and &lt;code&gt;Cross-Origin-Embedder-Policy&lt;/code&gt; itself.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Certificate trust.&lt;/strong&gt; A WebSocket has no certificate-error interstitial
+to click through: either the browser already trusts the certificate, or the
+connection fails.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 data-hextra-search-id="two-deployments"&gt;Two deployments&lt;span class="hx:absolute hx:-mt-20" id="two-deployments"&gt;&lt;/span&gt;
+&lt;a href="#two-deployments" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;(a) Page on GitHub Pages, relay on the LAN&lt;/th&gt;
+&lt;th&gt;(b) Relay serves the page over HTTPS&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Works without internet&lt;/td&gt;
+&lt;td&gt;no (the page and its assets come from GitHub Pages)&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;yes&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Local Network Access prompt&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;yes&lt;/strong&gt;, on every student browser; may be blocked by policy&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;no&lt;/strong&gt; (same origin, same address space)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Cross-origin isolation&lt;/td&gt;
+&lt;td&gt;coi-serviceworker&lt;/td&gt;
+&lt;td&gt;response headers, no service worker&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Certificate&lt;/td&gt;
+&lt;td&gt;WebTransport hashes (no trust needed), or a trusted certificate for &lt;code&gt;wss&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a certificate every student browser trusts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Version skew&lt;/td&gt;
+&lt;td&gt;page and relay released separately&lt;/td&gt;
+&lt;td&gt;the relay embeds one playground release: no skew&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Both are first-class.&lt;/strong&gt; Whether a school can install a CA on its machines is
+not known in advance, so neither deployment is a fallback for the other.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="where-the-certificate-comes-from-in-order-of-preference"&gt;Where the certificate comes from, in order of preference&lt;span class="hx:absolute hx:-mt-20" id="where-the-certificate-comes-from-in-order-of-preference"&gt;&lt;/span&gt;
+&lt;a href="#where-the-certificate-comes-from-in-order-of-preference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;A publicly trusted certificate from ACME.&lt;/strong&gt; A school-owned name (say
+&lt;code&gt;class.example-school.fr&lt;/code&gt;) resolves to the relay&amp;rsquo;s address — a private LAN
+address is fine — and a public CA issues its certificate: no student
+installs anything. Caddy&amp;rsquo;s automatic-HTTPS documentation states the key
+point for a LAN-only relay: with the DNS challenge, &amp;ldquo;the server requesting a
+certificate does not need to be externally accessible&amp;rdquo;; it needs credentials
+for the DNS provider. The DNS-01 challenge (RFC 8555 §8.4) proves control of
+the name with a TXT record at &lt;code&gt;_acme-challenge.&amp;lt;name&amp;gt;&lt;/code&gt; whose value is the
+base64url SHA-256 of the key authorization. The relay takes its certificate
+from &lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;go-authn/servercert&lt;/a&gt;, the
+fleet&amp;rsquo;s shared source of TLS server certificates: files reloaded on change,
+or ACME through autocert with External Account Binding. servercert answers
+&lt;code&gt;tls-alpn-01&lt;/code&gt; and &lt;code&gt;http-01&lt;/code&gt; only (&amp;ldquo;No &lt;code&gt;dns-01&lt;/code&gt;&amp;rdquo;), which covers a relay on
+the internet; it also covers a LAN-only relay whose organisation has a
+&lt;strong&gt;GÉANT TCS / HARICA&lt;/strong&gt; account with pre-validated domains, which issues &amp;ldquo;with
+no ACME challenge at all&amp;rdquo;. For every other LAN-only relay, &lt;strong&gt;DNS-01 is added
+to servercert&lt;/strong&gt; (shared code, not a copy in the relay). An IP-address
+certificate is not an option for a LAN relay: Let&amp;rsquo;s Encrypt issues them
+(generally available since 15 January 2026, short-lived profile only, 160
+hours), but servercert refuses IP names, and whether a public CA would
+validate a private LAN address was not established here; a name is the
+path.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The relay&amp;rsquo;s internal CA&lt;/strong&gt;, when no name or no internet at issuance is
+available. &lt;code&gt;wctr-relay init&lt;/code&gt; creates a root (ECDSA P-256), &lt;strong&gt;name-constrained&lt;/strong&gt;
+to the classroom&amp;rsquo;s names and addresses, which a school installs on managed
+machines by the same policy channel that installs any CA. mkcert&amp;rsquo;s README
+states the risk of any such CA: its key &amp;ldquo;gives complete power to intercept
+secure requests&amp;rdquo; from a machine that trusts it — hence the name
+constraints, a &lt;code&gt;0600&lt;/code&gt; key that is never exported, and &lt;code&gt;wctr-relay ca rotate&lt;/code&gt;.
+Caddy&amp;rsquo;s internal issuer is the same idea (a local CA it tries to add to the
+system trust store, which &amp;ldquo;isn&amp;rsquo;t guaranteed to work&amp;rdquo; without privileges),
+but it lives in Caddy&amp;rsquo;s PKI app, not in CertMagic (which has no internal
+issuer), so embedding it would mean embedding Caddy.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;WebTransport certificate hashes&lt;/strong&gt; from the GitHub Pages page (deployment
+(a)): no trust needed, under the constraints of
+&lt;a href="#1-transport-between-the-browser-and-the-relay"&gt;§1&lt;/a&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Caddy as a front&lt;/strong&gt; is the documented alternative for a teacher who already
+runs it: &lt;code&gt;wctr-relay serve --tls off --listen 127.0.0.1:8080&lt;/code&gt; (the relay
+refuses &lt;code&gt;--tls off&lt;/code&gt; on any non-loopback address) behind Caddy&amp;rsquo;s
+&lt;code&gt;reverse_proxy&lt;/code&gt;, with Caddy&amp;rsquo;s own ACME or &lt;code&gt;tls internal&lt;/code&gt; and &lt;code&gt;caddy trust&lt;/code&gt;.
+The relay still checks &lt;code&gt;Origin&lt;/code&gt; and &lt;code&gt;Host&lt;/code&gt; itself. If on-demand TLS is used it
+&amp;ldquo;must be both enabled and restricted&amp;rdquo; (Caddy&amp;rsquo;s words), with an &lt;code&gt;ask&lt;/code&gt; endpoint.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Secrets&lt;/strong&gt;: a DNS provider&amp;rsquo;s API token, an EAB HMAC key and the CA key are
+read from &lt;strong&gt;files&lt;/strong&gt; (&lt;code&gt;0600&lt;/code&gt;, owned by the relay&amp;rsquo;s user), never from a command
+line, an environment variable or a URL.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="join-flow-detection"&gt;Join-flow detection&lt;span class="hx:absolute hx:-mt-20" id="join-flow-detection"&gt;&lt;/span&gt;
+&lt;a href="#join-flow-detection" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The join link (printed and shown as a QR code by &lt;code&gt;wctr-relay class create&lt;/code&gt;)
+carries, in its URL &lt;strong&gt;fragment&lt;/strong&gt; (never sent to a server): the relay&amp;rsquo;s LAN URL,
+its GitHub Pages fallback, the join code, and the WebTransport certificate hash
+when there is one. The page:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;fetches &lt;code&gt;https://&amp;lt;relay&amp;gt;/v1/info&lt;/code&gt; (a small public JSON document: version,
+relay id, TLS mode) with a 3 s timeout; if it answers, the certificate is
+trusted (public ACME or an installed internal CA) and the browser is sent to
+the playground &lt;strong&gt;served by the relay&lt;/strong&gt; (deployment (b));&lt;/li&gt;
+&lt;li&gt;otherwise, if the page is on GitHub Pages and the browser has WebTransport
+with &lt;code&gt;serverCertificateHashes&lt;/code&gt;, it connects with the hash (deployment (a));&lt;/li&gt;
+&lt;li&gt;otherwise it tells the student exactly what is missing (install the CA,
+accept the Local Network Access prompt, or use another browser), rather than
+failing silently.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Whether a page loaded after a certificate warning is still a secure context
+in each browser is &lt;strong&gt;not established&lt;/strong&gt; by the references opened here; M-relay-3
+measures it in the three browsers before any path relies on a click-through.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="3-network-model-l4-flows-not-l3-packets"&gt;3. Network model: L4 flows, not L3 packets&lt;span class="hx:absolute hx:-mt-20" id="3-network-model-l4-flows-not-l3-packets"&gt;&lt;/span&gt;
+&lt;a href="#3-network-model-l4-flows-not-l3-packets" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The containers&amp;rsquo; sockets use the WasmEdge socket extension in the module
+&lt;code&gt;wasi_snapshot_preview1&lt;/code&gt;, as &lt;code&gt;github.com/stealthrocket/net&lt;/code&gt; imports it:
+&lt;code&gt;sock_open&lt;/code&gt;, &lt;code&gt;sock_bind&lt;/code&gt;, &lt;code&gt;sock_listen&lt;/code&gt;, &lt;code&gt;sock_connect&lt;/code&gt;, &lt;code&gt;sock_recv_from&lt;/code&gt;,
+&lt;code&gt;sock_send_to&lt;/code&gt;, &lt;code&gt;sock_getaddrinfo&lt;/code&gt;, &lt;code&gt;sock_shutdown&lt;/code&gt;, plus &lt;code&gt;sock_getsockopt&lt;/code&gt;,
+&lt;code&gt;sock_setsockopt&lt;/code&gt;, &lt;code&gt;sock_getlocaladdr&lt;/code&gt; and &lt;code&gt;sock_getpeeraddr&lt;/code&gt;. Its socket
+types are &lt;strong&gt;&lt;code&gt;SOCK_STREAM&lt;/code&gt; and &lt;code&gt;SOCK_DGRAM&lt;/code&gt; only&lt;/strong&gt;; there is no raw socket. The
+engine therefore sees &lt;em&gt;a container connecting to 10.42.2.2:80&lt;/em&gt;, never a packet.&lt;/p&gt;
+&lt;p&gt;The alternative is what container2wasm does: an L3 network stack based on
+gVisor&amp;rsquo;s netstack (&lt;code&gt;c2w-net&lt;/code&gt;, built on gvisor-tap-vsock) that carries Ethernet
+frames, forwarded over WebSocket in its &lt;code&gt;delegate=ws://...&lt;/code&gt; mode.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;L4 flows (chosen)&lt;/th&gt;
+&lt;th&gt;L3 packets (gVisor netstack)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Fits the socket ABI&lt;/td&gt;
+&lt;td&gt;directly: one host call is one flow operation&lt;/td&gt;
+&lt;td&gt;needs a TCP/IP stack between the ABI and the wire&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Firewall&lt;/td&gt;
+&lt;td&gt;sees connect, listen, port, peer: what a rule names&lt;/td&gt;
+&lt;td&gt;must reassemble flows from packets to say the same&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Cost&lt;/td&gt;
+&lt;td&gt;one frame per write&lt;/td&gt;
+&lt;td&gt;TCP inside the container&amp;rsquo;s stack, carried over the relay&amp;rsquo;s TCP: TCP over TCP, retransmission on two levels, per-packet framing&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Size in the browser&lt;/td&gt;
+&lt;td&gt;none beyond the driver&lt;/td&gt;
+&lt;td&gt;a whole network stack compiled into the engine&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;UDP&lt;/td&gt;
+&lt;td&gt;datagram frames&lt;/td&gt;
+&lt;td&gt;native&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ICMP / ping&lt;/td&gt;
+&lt;td&gt;not expressible by the ABI (see below)&lt;/td&gt;
+&lt;td&gt;possible, but gvisor-tap-vsock says ICMP is not forwarded outside its network&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Decision: L4.&lt;/strong&gt; Addressing is still IP-shaped, because the lab teaches it:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;one &lt;strong&gt;network&lt;/strong&gt; per class, default &lt;code&gt;10.42.0.0/16&lt;/code&gt;; student &lt;em&gt;n&lt;/em&gt; gets
+&lt;code&gt;10.42.n.0/24&lt;/code&gt;, the teacher &lt;code&gt;10.42.0.0/24&lt;/code&gt;; the relay allocates every
+address (as Neutron allocates &lt;code&gt;fixed_ips&lt;/code&gt;), the browser never chooses one;&lt;/li&gt;
+&lt;li&gt;DNS: &lt;code&gt;&amp;lt;container&amp;gt;.&amp;lt;student&amp;gt;.class&lt;/code&gt; resolves to the container&amp;rsquo;s address,
+through &lt;code&gt;sock_getaddrinfo&lt;/code&gt;, answered by the relay; a container&amp;rsquo;s bare name
+still resolves inside its own browser;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;TCP&lt;/strong&gt;: &lt;code&gt;listen&lt;/code&gt; registers the address and port at the relay; &lt;code&gt;connect&lt;/code&gt; is a
+request to the relay, which checks the rules and opens a stream to the
+listener&amp;rsquo;s browser, or refuses (the caller gets &lt;code&gt;ECONNREFUSED&lt;/code&gt;, or a timeout
+if the teacher chose &amp;ldquo;drop&amp;rdquo; for teaching);&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;UDP&lt;/strong&gt;: each &lt;code&gt;sock_send_to&lt;/code&gt; is one datagram frame with a source and
+destination, at most 8 KiB; the relay checks it and forwards or drops it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Ping.&lt;/strong&gt; The ABI cannot send ICMP, so ping is taught through a small extension
+the engine provides later (M-relay-5): an import module &lt;code&gt;wctr_net&lt;/code&gt; with one
+function, &lt;code&gt;icmp_echo(addr, seq, payload)&lt;/code&gt;, which the driver turns into an echo
+frame. The relay answers it on behalf of the destination port if its rules
+allow ICMP echo ingress (&lt;code&gt;protocol: icmp&lt;/code&gt;, &lt;code&gt;port_range_min: 8&lt;/code&gt;, type 8). A
+&lt;code&gt;ping&lt;/code&gt; image built against it gives the expected pedagogy: allowed, the
+student sees replies; removed, the pings time out, and the flow log shows the
+drop.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="4-firewall-model-mapped-from-neutron"&gt;4. Firewall model, mapped from Neutron&lt;span class="hx:absolute hx:-mt-20" id="4-firewall-model-mapped-from-neutron"&gt;&lt;/span&gt;
+&lt;a href="#4-firewall-model-mapped-from-neutron" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The Neutron API reference defines a &lt;strong&gt;security group rule&lt;/strong&gt; by &lt;code&gt;direction&lt;/code&gt;
+(ingress or egress), &lt;code&gt;ethertype&lt;/code&gt; (IPv4 or IPv6), &lt;code&gt;protocol&lt;/code&gt; (&lt;code&gt;tcp&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;,
+&lt;code&gt;icmp&lt;/code&gt;, &amp;hellip;, or &lt;code&gt;any&lt;/code&gt;), &lt;code&gt;port_range_min&lt;/code&gt; and &lt;code&gt;port_range_max&lt;/code&gt; (for ICMP: the
+ICMP type and code), and one of &lt;code&gt;remote_ip_prefix&lt;/code&gt;, &lt;code&gt;remote_group_id&lt;/code&gt; or
+&lt;code&gt;remote_address_group_id&lt;/code&gt;. A &lt;strong&gt;security group&lt;/strong&gt; has a &lt;code&gt;stateful&lt;/code&gt; flag: a
+stateless group &amp;ldquo;bypasses connection tracking&amp;rdquo;, so both directions of a flow
+need rules. Nova&amp;rsquo;s guide states the overall policy: &amp;ldquo;Security groups deny
+everything by default, so rules indicate what is allowed&amp;rdquo;, and adding a rule
+is additive. A &lt;strong&gt;port&lt;/strong&gt; carries &lt;code&gt;security_groups&lt;/code&gt;, &lt;code&gt;fixed_ips&lt;/code&gt;,
+&lt;code&gt;port_security_enabled&lt;/code&gt; (&amp;ldquo;security group rules and anti-spoofing rules are
+applied&amp;rdquo;) and &lt;code&gt;allowed_address_pairs&lt;/code&gt;. Neutron creates, for each project&amp;rsquo;s
+&lt;code&gt;default&lt;/code&gt; group, four rules (all IPv4/IPv6 egress, and ingress from ports in the
+same group), and for other new groups only the two egress rules; a template of
+those rules is configurable (&lt;code&gt;used_in_default_sg&lt;/code&gt;, &lt;code&gt;used_in_non_default_sg&lt;/code&gt;,
+&lt;code&gt;remote_group_id: PARENT&lt;/code&gt;). Quotas count &lt;code&gt;security_group&lt;/code&gt; and
+&lt;code&gt;security_group_rule&lt;/code&gt; per project.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="our-resources"&gt;Our resources&lt;span class="hx:absolute hx:-mt-20" id="our-resources"&gt;&lt;/span&gt;
+&lt;a href="#our-resources" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Resource&lt;/th&gt;
+&lt;th&gt;Fields&lt;/th&gt;
+&lt;th&gt;Neutron counterpart&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;Class&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;id, name, join code, state, quotas&lt;/td&gt;
+&lt;td&gt;project&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;Network&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;id, class, &lt;code&gt;cidr&lt;/code&gt;, &lt;code&gt;dns_domain&lt;/code&gt; (&lt;code&gt;class&lt;/code&gt;), per-student prefix length&lt;/td&gt;
+&lt;td&gt;network + subnet&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;Session&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;id, student display name, label (&lt;code&gt;alice&lt;/code&gt;), prefix, state, last seen&lt;/td&gt;
+&lt;td&gt;(none: a user)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;Port&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;id, network, session, container name, &lt;code&gt;fixed_ip&lt;/code&gt;, &lt;code&gt;security_groups&lt;/code&gt;, &lt;code&gt;port_security_enabled&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;port&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;SecurityGroup&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;id, class, name, description, &lt;code&gt;stateful&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;security group&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;SecurityGroupRule&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;id, group, &lt;code&gt;direction&lt;/code&gt;, &lt;code&gt;ethertype&lt;/code&gt;, &lt;code&gt;protocol&lt;/code&gt;, &lt;code&gt;port_range_min&lt;/code&gt;, &lt;code&gt;port_range_max&lt;/code&gt;, &lt;code&gt;remote_ip_prefix&lt;/code&gt; or &lt;code&gt;remote_group_id&lt;/code&gt;, description, &lt;code&gt;log&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;security group rule&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;DefaultRule&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the same fields, plus &lt;code&gt;used_in_default_sg&lt;/code&gt;, &lt;code&gt;used_in_non_default_sg&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;default security group rule&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;A port is created when a container attaches to the class network and is
+deleted with it. Only the teacher can set &lt;code&gt;port_security_enabled: false&lt;/code&gt;.
+There is no &lt;code&gt;allowed_address_pairs&lt;/code&gt;: a container has exactly one address,
+which the relay assigned.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="policy-and-evaluation"&gt;Policy and evaluation&lt;span class="hx:absolute hx:-mt-20" id="policy-and-evaluation"&gt;&lt;/span&gt;
+&lt;a href="#policy-and-evaluation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Default deny.&lt;/strong&gt; A flow is allowed only if a rule allows it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Both ends.&lt;/strong&gt; A flow from port S to port D is allowed iff &lt;strong&gt;S&amp;rsquo;s egress rules&lt;/strong&gt;
+allow it &lt;strong&gt;and D&amp;rsquo;s ingress rules&lt;/strong&gt; allow it, as Neutron filters at each port.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Order-free.&lt;/strong&gt; Rules only allow, groups on a port are a union, so there is no
+order to get wrong: the result is the same whatever order rules were added
+in. The decision names the rule that allowed it, or &amp;ldquo;no rule&amp;rdquo; if none did.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Default groups.&lt;/strong&gt; Each class gets a &lt;code&gt;default&lt;/code&gt; group with Neutron&amp;rsquo;s four
+rules (egress allowed, ingress from the same group), and the teacher can
+switch the class template to &lt;strong&gt;isolated&lt;/strong&gt; (egress only to the teacher&amp;rsquo;s
+subnet, no ingress), which is the better start for a lesson on opening ports.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;remote_group_id&lt;/code&gt;&lt;/strong&gt; matches the current addresses of every port in that
+group, so a rule &amp;ldquo;ingress tcp 5432 from group &lt;code&gt;web&lt;/code&gt;&amp;rdquo; follows containers as
+students start and stop them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 data-hextra-search-id="statefulness"&gt;Statefulness&lt;span class="hx:absolute hx:-mt-20" id="statefulness"&gt;&lt;/span&gt;
+&lt;a href="#statefulness" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Statefulness is &lt;strong&gt;connection tracking of L4 flows&lt;/strong&gt;, which the relay has for
+free because it brokers every flow:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;TCP (stateful group):&lt;/strong&gt; the rules are checked once, at &lt;code&gt;connect&lt;/code&gt;; the stream
+then carries both directions until either side closes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;UDP (stateful group):&lt;/strong&gt; an allowed datagram creates a conntrack entry keyed
+by the 5-tuple; replies match it; it expires after 30 s without traffic.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Stateless group:&lt;/strong&gt; for TCP, the reverse direction (D&amp;rsquo;s egress, S&amp;rsquo;s ingress)
+must be allowed too, or the connect is refused; for UDP, every datagram is
+checked both ways. This is Neutron&amp;rsquo;s &amp;ldquo;two rules for a TCP flow&amp;rdquo;, visible to
+students.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Rule changes:&lt;/strong&gt; after any change, the relay re-evaluates open flows and
+&lt;strong&gt;resets&lt;/strong&gt; the ones no longer allowed, logging them as &lt;code&gt;revoked&lt;/code&gt;. A firewall
+that silently keeps old connections confuses a lesson.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 data-hextra-search-id="where-rules-are-enforced"&gt;Where rules are enforced&lt;span class="hx:absolute hx:-mt-20" id="where-rules-are-enforced"&gt;&lt;/span&gt;
+&lt;a href="#where-rules-are-enforced" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Between browsers, at the &lt;strong&gt;relay&lt;/strong&gt;: it is authoritative. Inside one browser,
+the &lt;strong&gt;engine&lt;/strong&gt; applies the same rules, pushed by the relay with the session, so
+that a lesson works the same with two containers of one student. That copy is
+advisory: a student who modifies their own page only affects their own
+containers, which they control anyway.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="flow-logs"&gt;Flow logs&lt;span class="hx:absolute hx:-mt-20" id="flow-logs"&gt;&lt;/span&gt;
+&lt;a href="#flow-logs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Every decision can be logged: time, class, source and destination session,
+port, address and port, protocol, verdict (&lt;code&gt;allow&lt;/code&gt;, &lt;code&gt;deny&lt;/code&gt;, &lt;code&gt;revoked&lt;/code&gt;), the
+matching rule or &lt;code&gt;no rule&lt;/code&gt;, and at close the bytes each way and duration.
+Rules carry a &lt;code&gt;log&lt;/code&gt; flag; denies are always logged. The teacher streams logs
+live (CLI, dashboard); a student sees the decisions about their own ports,
+which is the point of the exercise (&amp;ldquo;why can&amp;rsquo;t I reach Bob&amp;rsquo;s server?&amp;rdquo;).&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-live-flow-map"&gt;The live flow map&lt;span class="hx:absolute hx:-mt-20" id="the-live-flow-map"&gt;&lt;/span&gt;
+&lt;a href="#the-live-flow-map" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The relay serves a page that draws the class&amp;rsquo;s network &lt;strong&gt;as it happens&lt;/strong&gt;:
+nodes are sessions (the students and the teacher) holding their containers,
+coloured by security group; edges are live flows, their width following
+throughput; &lt;strong&gt;denied&lt;/strong&gt; flows flash red with the rule decision that refused
+them (&amp;ldquo;no ingress rule of bob/web allows tcp/80&amp;rdquo;), because seeing the refusal
+is the lesson.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Data.&lt;/strong&gt; The page calls a server-streaming RPC,
+&lt;code&gt;FlowLogService.WatchFlowMap&lt;/code&gt;, over the Connect protocol (the reason
+connect-go was chosen: &amp;ldquo;the other RPC types also support HTTP/1.1&amp;rdquo;, server
+streaming included, so a browser needs no proxy). The relay &lt;strong&gt;aggregates&lt;/strong&gt;:
+every tick (default 4 Hz) it sends one update holding the per-edge counters
+(src port → dst port, protocol and port: bytes each way, flows opened, open,
+denied) and the discrete events since the last tick (opened, closed, denied,
+revoked, with the rule ids). A slow page gets &lt;strong&gt;coalesced&lt;/strong&gt; updates — the
+newest state replaces the unsent one — never an unbounded queue. A view is
+capped (400 nodes, 2 000 edges; past that the update says what was left out).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;View.&lt;/strong&gt; A &lt;strong&gt;stable, incremental layout&lt;/strong&gt;, not a force simulation (no full
+relayout per tick): sessions are boxes on
+a grid ordered by subnet (teacher first), containers inside them, so a node
+does not move when traffic changes and 40 students × several containers stay
+readable on a projector. Click a node or an edge for its details (groups,
+the rules that matched, conntrack state, counters). Filters by student,
+group and port. Light and dark themes. Pause and replay of the last minutes
+are &lt;strong&gt;deferred&lt;/strong&gt; (the ring of the last 1 000 events is already kept).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Technique (decided 2026-10-26): the fleet&amp;rsquo;s own toolkit.&lt;/strong&gt; The page is a
+Go &lt;code&gt;js/wasm&lt;/code&gt; application built on
+&lt;a href="https://github.com/go-widgets/toolkit" target="_blank" rel="noopener"&gt;go-widgets/toolkit&lt;/a&gt; and run in a
+&lt;code&gt;&amp;lt;canvas&amp;gt;&lt;/code&gt; by &lt;a href="https://github.com/go-widgets/webcanvas" target="_blank" rel="noopener"&gt;go-widgets/webcanvas&lt;/a&gt;,
+which blits &amp;ldquo;an RGBA framebuffer into the canvas and routes DOM pointer and
+keyboard events back into the scene&amp;rdquo;. The widgets a flow map needs and the
+toolkit lacks — a node-link &lt;strong&gt;graph view&lt;/strong&gt; with groups, animated edges and
+incremental layout, a legend, a filter bar, a detail panel, a sparkline —
+are added &lt;strong&gt;to go-widgets&lt;/strong&gt;, generic and reusable, under its conventions
+(MVVM, Theme, keyboard navigation, its coverage gate), each in its own pull
+request and minor release; the relay imports them. Everything is served by
+the relay (same origin, the &lt;code&gt;.wasm&lt;/code&gt; included), under a strict
+Content-Security-Policy: &lt;code&gt;default-src 'self'; script-src 'self' 'wasm-unsafe-eval'&lt;/code&gt; (the narrowest allowance WebAssembly compilation needs),
+no inline script, no third-party request — the relay runs without internet.
+The join QR code is drawn from &lt;a href="https://github.com/go-gfx/qr" target="_blank" rel="noopener"&gt;go-gfx/qr&lt;/a&gt;&amp;rsquo;s
+module matrix. Because a canvas has no DOM to assert on, the page&amp;rsquo;s tests
+read the &lt;strong&gt;view model&lt;/strong&gt; (MVVM&amp;rsquo;s testable layer), which the page exposes to
+the test harness.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Access.&lt;/strong&gt; The teacher&amp;rsquo;s view of the whole class needs the admin role (the
+admin token on loopback or the Unix socket, or the OpenID Connect teacher
+role in internet mode). A student may open &lt;strong&gt;their own&lt;/strong&gt; view: only the
+flows that touch their own containers, with the other end named but no flow
+between two other students — the privacy between students the class needs.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tests.&lt;/strong&gt; Playwright (Chromium and Firefox) drives real flows through an
+in-process relay and asserts what the page&amp;rsquo;s view model says (edges present,
+a denied flash with its rule, counters moving), not screenshots; the update
+latency from a flow to the screen, the frame time at about 200 nodes and
+1 000 edges on one core, and the relay&amp;rsquo;s CPU at 40 sessions are measured.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 data-hextra-search-id="quotas"&gt;Quotas&lt;span class="hx:absolute hx:-mt-20" id="quotas"&gt;&lt;/span&gt;
+&lt;a href="#quotas" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Per class, as Neutron&amp;rsquo;s: &lt;code&gt;security_group&lt;/code&gt; (default 50), &lt;code&gt;security_group_rule&lt;/code&gt;
+(default 500), and &lt;code&gt;port&lt;/code&gt; (default 40 × 10). Per session, for safety rather
+than pedagogy: see the &lt;a href="#6-security-audit"&gt;security audit&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="5-control-api"&gt;5. Control API&lt;span class="hx:absolute hx:-mt-20" id="5-control-api"&gt;&lt;/span&gt;
+&lt;a href="#5-control-api" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3 data-hextra-search-id="services"&gt;Services&lt;span class="hx:absolute hx:-mt-20" id="services"&gt;&lt;/span&gt;
+&lt;a href="#services" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The control API is gRPC, described in one &lt;code&gt;.proto&lt;/code&gt;; the relay serves it with
+connect-go, whose handlers support gRPC, gRPC-Web and the Connect protocol and
+mount on a plain &lt;code&gt;net/http&lt;/code&gt; server. The Connect protocol uses no HTTP trailers
+and supports server streaming over HTTP/1.1 (bidirectional streaming needs
+HTTP/2), so a &lt;strong&gt;browser dashboard&lt;/strong&gt; can call the same API, including the live
+flow log, without a proxy. Nothing in the API needs bidirectional streaming.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-protobuf" data-lang="protobuf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;syntax&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;proto3&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;package&lt;/span&gt; &lt;span class="nn"&gt;wasmcontainers.relay.v1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;service&lt;/span&gt; &lt;span class="n"&gt;ClassService&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;CreateClass&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CreateClassRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Class&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// teacher
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;GetClass&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;GetClassRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Class&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;RotateJoinCode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;RotateJoinCodeRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Class&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// teacher
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;Join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JoinRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JoinResponse&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// student: code -&amp;gt; session token
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;ListSessions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListSessionsRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListSessionsResponse&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;KickSession&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;KickSessionRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Empty&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// teacher
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;service&lt;/span&gt; &lt;span class="n"&gt;NetworkService&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;GetNetwork&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;GetNetworkRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Network&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;ListPorts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListPortsRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListPortsResponse&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// student: own ports only
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;UpdatePort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;UpdatePortRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Port&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// security_groups, port_security_enabled
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;service&lt;/span&gt; &lt;span class="n"&gt;SecurityGroupService&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;ListSecurityGroups&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListSecurityGroupsRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListSecurityGroupsResponse&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;CreateSecurityGroup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CreateSecurityGroupRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SecurityGroup&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;UpdateSecurityGroup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;UpdateSecurityGroupRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SecurityGroup&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;DeleteSecurityGroup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DeleteSecurityGroupRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Empty&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;CreateRule&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CreateRuleRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SecurityGroupRule&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;DeleteRule&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DeleteRuleRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Empty&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;ListDefaultRules&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListDefaultRulesRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ListDefaultRulesResponse&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;// Dry run: which rule, if any, would allow this flow, and at which end.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;ExplainFlow&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ExplainFlowRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;FlowDecision&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;service&lt;/span&gt; &lt;span class="n"&gt;FlowLogService&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;rpc&lt;/span&gt; &lt;span class="n"&gt;WatchFlows&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;WatchFlowsRequest&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;returns&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;FlowEvent&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// server streaming
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;message&lt;/span&gt; &lt;span class="nc"&gt;SecurityGroupRule&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;security_group_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Direction&lt;/span&gt; &lt;span class="n"&gt;direction&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// INGRESS, EGRESS
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;EtherType&lt;/span&gt; &lt;span class="n"&gt;ethertype&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// IPV4, IPV6
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Protocol&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// ANY, TCP, UDP, ICMP
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;optional&lt;/span&gt; &lt;span class="kt"&gt;uint32&lt;/span&gt; &lt;span class="n"&gt;port_range_min&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// ICMP: type
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;optional&lt;/span&gt; &lt;span class="kt"&gt;uint32&lt;/span&gt; &lt;span class="n"&gt;port_range_max&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// ICMP: code
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kd"&gt;oneof&lt;/span&gt; &lt;span class="n"&gt;remote&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;remote_ip_prefix&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;remote_group_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;description&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;message&lt;/span&gt; &lt;span class="nc"&gt;FlowEvent&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;google.protobuf.Timestamp&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;src_session&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;src_port_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;src&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// &amp;#34;10.42.1.2:51234&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;dst_session&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;dst_port_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;dst&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Protocol&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Verdict&lt;/span&gt; &lt;span class="n"&gt;verdict&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// ALLOW, DENY, REVOKED, CLOSED
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="n"&gt;rule_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// empty: no rule matched
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;uint64&lt;/span&gt; &lt;span class="n"&gt;bytes_out&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="kt"&gt;uint64&lt;/span&gt; &lt;span class="n"&gt;bytes_in&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The &lt;strong&gt;data plane&lt;/strong&gt; is not gRPC: it is the binary framing on the WebSocket
+(below), because it carries every byte the containers exchange and its cost
+per frame matters.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="authentication-and-authorization"&gt;Authentication and authorization&lt;span class="hx:absolute hx:-mt-20" id="authentication-and-authorization"&gt;&lt;/span&gt;
+&lt;a href="#authentication-and-authorization" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Principal&lt;/th&gt;
+&lt;th&gt;Credential&lt;/th&gt;
+&lt;th&gt;Can&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Teacher (local)&lt;/td&gt;
+&lt;td&gt;the Unix socket, mode &lt;code&gt;0600&lt;/code&gt;, or the admin token over loopback&lt;/td&gt;
+&lt;td&gt;everything&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Teacher (dashboard on another machine)&lt;/td&gt;
+&lt;td&gt;the admin token, as &lt;code&gt;Authorization: Bearer&lt;/code&gt;, over TLS; opt-in with &lt;code&gt;--admin-listen&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;everything&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Student&lt;/td&gt;
+&lt;td&gt;a session token from &lt;code&gt;Join&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;own ports, own flow decisions, read the groups that apply to them&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;strong&gt;admin token&lt;/strong&gt; is 256 random bits generated by &lt;code&gt;wctr-relay init&lt;/code&gt;, stored
+&lt;code&gt;0600&lt;/code&gt; under &lt;code&gt;os.UserConfigDir()&lt;/code&gt;, compared in constant time, never printed
+except by an explicit &lt;code&gt;wctr-relay token show&lt;/code&gt;, never in a URL.&lt;/li&gt;
+&lt;li&gt;The &lt;strong&gt;class code&lt;/strong&gt; (10 characters, from an alphabet without look-alikes) is
+shown on the teacher&amp;rsquo;s screen and in a QR code. &lt;code&gt;Join&lt;/code&gt; exchanges it with a
+display name for a &lt;strong&gt;session token&lt;/strong&gt;: signed by the relay (Ed25519), bound to
+the class and the session id, valid 12 hours, revoked by &lt;code&gt;KickSession&lt;/code&gt; or by
+rotating the code.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;mTLS is not used for students&lt;/strong&gt;: provisioning client certificates into 40
+browsers is the problem the class code solves. A teacher may require mTLS on
+&lt;code&gt;--admin-listen&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Authorization is checked in the handler from the token&amp;rsquo;s claims, never from a
+field of the request (a student cannot pass another session&amp;rsquo;s id).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 data-hextra-search-id="the-teachers-command-line"&gt;The teacher&amp;rsquo;s command line&lt;span class="hx:absolute hx:-mt-20" id="the-teachers-command-line"&gt;&lt;/span&gt;
+&lt;a href="#the-teachers-command-line" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A &lt;strong&gt;separate binary, &lt;code&gt;wctr-relay&lt;/code&gt;&lt;/strong&gt;, in its own repository
+(&lt;a href="https://github.com/go-wasmcontainers/relay" target="_blank" rel="noopener"&gt;go-wasmcontainers/relay&lt;/a&gt;), built with cobra like the rest of
+the fleet. It is the relay daemon and its client, as &lt;code&gt;wctrd&lt;/code&gt; and &lt;code&gt;wctr&lt;/code&gt; are for
+the engine, but in one binary because a teacher installs one thing. It stays out
+of &lt;code&gt;wctr&lt;/code&gt;, whose surface is compatible with the Docker Engine API and is what
+students learn.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay init # classroom CA, admin token, state directory
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay serve [--listen :8443] [--admin-listen 127.0.0.1:8444]
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay class create &amp;#34;Networking 101&amp;#34; # prints the join link and QR code
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay class sessions | kick &amp;lt;student&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay sg list | create &amp;lt;name&amp;gt; [--stateless] | delete &amp;lt;name&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay rule add &amp;lt;sg&amp;gt; --ingress --proto tcp --port 80 --remote-group web
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay rule del &amp;lt;rule-id&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay port list [--student alice] | set &amp;lt;port&amp;gt; --sg web,db
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay flows [--follow] [--deny-only] [--student alice]
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay explain alice/web bob/curl tcp/80
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay ca export | ca rotate&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="data-plane-framing"&gt;Data plane framing&lt;span class="hx:absolute hx:-mt-20" id="data-plane-framing"&gt;&lt;/span&gt;
+&lt;a href="#data-plane-framing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One WebSocket per browser, binary messages, one frame per message:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; 0 1 2 6 10
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; +------+------+--------------+--------------+----------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; | type | flags| stream id | length | payload ... |
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; | u8 | u8 | u32 BE | u32 BE | &amp;lt;= 16 KiB |
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; +------+------+--------------+--------------+----------------+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Frame types (version 1, numbered in the protocol): &lt;code&gt;HELLO&lt;/code&gt;, &lt;code&gt;WELCOME&lt;/code&gt;,
+&lt;code&gt;ATTACH&lt;/code&gt;, &lt;code&gt;ATTACHED&lt;/code&gt;, &lt;code&gt;DETACH&lt;/code&gt;, &lt;code&gt;LISTEN&lt;/code&gt;, &lt;code&gt;LISTENING&lt;/code&gt;, &lt;code&gt;UNLISTEN&lt;/code&gt;, &lt;code&gt;CONNECT&lt;/code&gt;,
+&lt;code&gt;ACCEPT&lt;/code&gt;, &lt;code&gt;REFUSE&lt;/code&gt;, &lt;code&gt;DATA&lt;/code&gt;, &lt;code&gt;WINDOW&lt;/code&gt;, &lt;code&gt;CLOSE&lt;/code&gt;, &lt;code&gt;RESET&lt;/code&gt;, &lt;code&gt;DATAGRAM&lt;/code&gt;, &lt;code&gt;RESOLVE&lt;/code&gt;,
+&lt;code&gt;RESOLVED&lt;/code&gt;, &lt;code&gt;RESULT&lt;/code&gt;, &lt;code&gt;REAUTH&lt;/code&gt;, &lt;code&gt;GOAWAY&lt;/code&gt;; &lt;code&gt;ECHO&lt;/code&gt; comes with ICMP in M-relay-5.
+The client allocates odd stream ids and the relay even ones. The session token
+is checked &lt;strong&gt;before&lt;/strong&gt; the WebSocket upgrade: a browser cannot set an
+&lt;code&gt;Authorization&lt;/code&gt; header on a WebSocket, so the token travels as a second
+subprotocol (&lt;code&gt;Sec-WebSocket-Protocol: wctr-relay.v1, bearer.&amp;lt;token&amp;gt;&lt;/code&gt;) — a
+header, never a URL. &lt;code&gt;REAUTH&lt;/code&gt; hands the relay a fresh token on the open
+connection. Control payloads are protobuf messages from the same &lt;code&gt;.proto&lt;/code&gt;;
+&lt;code&gt;DATA&lt;/code&gt; payloads are raw bytes. Flow control is credit-based per stream (64 KiB initial window,
+&lt;code&gt;WINDOW&lt;/code&gt; frames return credit) and per connection (1 MiB), so one fast sender
+cannot fill the relay&amp;rsquo;s memory for a slow reader. The relay rewrites every
+source address: a frame names a stream or a port the session owns, never an
+address the browser chose.&lt;/p&gt;
+&lt;div role="img" aria-label="Diagram"&gt;
+&lt;pre class="mermaid hx:mt-6"&gt;
+sequenceDiagram
+participant A as alice/curl (engine A)
+participant R as wctr-relay
+participant B as bob/web (engine B)
+B-&amp;gt;&amp;gt;R: LISTEN port bob/web tcp/80
+R--&amp;gt;&amp;gt;B: OK (10.42.2.2:80)
+A-&amp;gt;&amp;gt;R: RESOLVE web.bob.class
+R--&amp;gt;&amp;gt;A: 10.42.2.2
+A-&amp;gt;&amp;gt;R: CONNECT stream 7, port alice/curl, 10.42.2.2:80
+Note over R: egress(alice/curl) and ingress(bob/web)?&amp;lt;br/&amp;gt;conntrack + flow log
+R-&amp;gt;&amp;gt;B: CONNECT stream 3 from 10.42.1.2:51234
+B--&amp;gt;&amp;gt;R: ACCEPT stream 3
+R--&amp;gt;&amp;gt;A: ACCEPT stream 7
+A-&amp;gt;&amp;gt;R: DATA stream 7
+R-&amp;gt;&amp;gt;B: DATA stream 3
+&lt;/pre&gt;
+&lt;/div&gt;&lt;h2 data-hextra-search-id="internet-mode-openid-connect"&gt;Internet mode: OpenID Connect&lt;span class="hx:absolute hx:-mt-20" id="internet-mode-openid-connect"&gt;&lt;/span&gt;
+&lt;a href="#internet-mode-openid-connect" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The same star can run on a server on the internet, for remote or hybrid
+classes. It must then not be open to everyone, so it signs people in with
+&lt;strong&gt;OpenID Connect&lt;/strong&gt;, using the fleet&amp;rsquo;s own libraries:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Piece&lt;/th&gt;
+&lt;th&gt;Library&lt;/th&gt;
+&lt;th&gt;What it does here&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;verifying tokens&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-authn/oidc" target="_blank" rel="noopener"&gt;go-authn/oidc&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;the relay verifies the token that comes with &lt;code&gt;Join&lt;/code&gt;, &lt;code&gt;RefreshSession&lt;/code&gt; and the teacher&amp;rsquo;s calls: issuer compared exactly, audience required, expiry required, an allowlist of signature algorithms (no &lt;code&gt;none&lt;/code&gt;, no HMAC), key-set refetches bounded. With &lt;code&gt;Type: &amp;quot;at+jwt&amp;quot;&lt;/code&gt; it refuses an ID token presented as an access token (RFC 9068 §4, which the library cites).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;logging people in&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-authn/rp" target="_blank" rel="noopener"&gt;go-authn/rp&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;the browser login (authorization code with PKCE S256, state and nonce) and the teacher&amp;rsquo;s &lt;code&gt;wctr-relay login&lt;/code&gt;, a &lt;strong&gt;loopback login&lt;/strong&gt; (RFC 8252) that listens on 127.0.0.1 only and opens the system browser&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;universities&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-authn/bridge" target="_blank" rel="noopener"&gt;go-authn/bridge&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;an OpenID provider in front of a SAML federation: people &amp;ldquo;log in at their own university, through RENATER&amp;rsquo;s Fédération Éducation-Recherche or eduGAIN&amp;rdquo;. &lt;strong&gt;The recommended identity provider for academia&lt;/strong&gt;, since many university IdPs speak SAML only.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Authorization model.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Issuer and audience pinned&lt;/strong&gt; in the relay&amp;rsquo;s configuration (&lt;code&gt;--oidc-issuer&lt;/code&gt;,
+&lt;code&gt;--oidc-audience&lt;/code&gt;); one issuer per relay.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Class membership&lt;/strong&gt;: an identity alone admits nobody. A student still joins
+a class with its &lt;strong&gt;join code&lt;/strong&gt;; the class may also list who may join —
+&lt;code&gt;sub:&amp;lt;subject&amp;gt;&lt;/code&gt;, &lt;code&gt;email:&amp;lt;address&amp;gt;&lt;/code&gt; (only an address the issuer marked
+verified: go-authn/oidc&amp;rsquo;s &lt;code&gt;Username&lt;/code&gt; falls back to &lt;code&gt;email&lt;/code&gt; only when
+&lt;code&gt;email_verified&lt;/code&gt; is true, for the same reason) or &lt;code&gt;group:&amp;lt;group&amp;gt;&lt;/code&gt; — and may
+&lt;strong&gt;require&lt;/strong&gt; an identity (&lt;code&gt;--require-identity&lt;/code&gt;), which a relay on the internet
+sets on every class.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Teacher role&lt;/strong&gt;: a configured group claim (&lt;code&gt;--teacher-group&lt;/code&gt;) gives the
+admin role, but only on the &lt;strong&gt;admin listener&lt;/strong&gt;, never on the public one.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;One identity, one session per class&lt;/strong&gt;: joining again returns the same
+session (same addresses), and the per-session quotas are therefore
+&lt;strong&gt;per identity&lt;/strong&gt;, not per IP address — a class behind one NAT is not one
+student.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Long connections and short tokens.&lt;/strong&gt; A data connection lasts a lesson; an
+access token lasts minutes. The relay&amp;rsquo;s own session token is what the data
+connection holds, bound to the session; before it expires the page calls
+&lt;code&gt;RefreshSession&lt;/code&gt; (with a fresh OIDC token, from the refresh grant go-authn/rp
+handles) and sends the new session token in a &lt;code&gt;REAUTH&lt;/code&gt; frame. No flow is
+dropped. A connection whose token expires without &lt;code&gt;REAUTH&lt;/code&gt; gets &lt;code&gt;GOAWAY&lt;/code&gt; and
+closes. &lt;strong&gt;Logout and revocation&lt;/strong&gt;: the teacher&amp;rsquo;s &lt;code&gt;KickSession&lt;/code&gt;, or deleting the
+class, ends the session and its tokens at once (the relay checks that the
+session exists on every authentication, not only the signature).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Internet hardening.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Authenticate before upgrading&lt;/strong&gt;: the session token is checked before the
+WebSocket upgrade, and before any per-session state is allocated; an
+unauthenticated request costs a header parse and a signature check.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Per-IP limits before authentication&lt;/strong&gt;: token buckets on &lt;code&gt;Join&lt;/code&gt; and on
+upgrade attempts per source address, and a cap on concurrent unauthenticated
+handshakes. &lt;code&gt;ReadHeaderTimeout&lt;/code&gt; (5 s), &lt;code&gt;MaxHeaderBytes&lt;/code&gt; (16 KiB) and idle
+timeouts against slowloris.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Max sessions per identity&lt;/strong&gt; (one per class) and per class (its subnets).&lt;/li&gt;
+&lt;li&gt;Frame and flow bounds as on the LAN (&lt;a href="#6-security-audit"&gt;security audit&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No admin API on the public listener&lt;/strong&gt;: the admin API stays on the Unix
+socket and loopback, or on a separate &lt;code&gt;--admin-listen&lt;/code&gt; that requires the
+teacher role (or the admin token).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Audit log&lt;/strong&gt; (JSON lines, &lt;code&gt;0600&lt;/code&gt;): logins, refusals, kicks, class and rule
+changes, with pseudonymous identities.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Privacy (GDPR).&lt;/strong&gt; Students are data subjects, often minors. The relay stores,
+per session: a display name the student typed, a derived DNS label, and — with
+OpenID Connect — a &lt;strong&gt;pseudonymous identifier&lt;/strong&gt; (a hash of issuer and subject),
+never the token, the e-mail address or the groups (they are checked at the
+moment of joining and dropped). Flow logs hold addresses and ports, not
+contents. Retention: everything about a class is deleted with the class
+(&lt;code&gt;wctr-relay class delete&lt;/code&gt;); the audit log is pruned after 30 days by default
+(&lt;code&gt;--audit-retention&lt;/code&gt;). The teacher&amp;rsquo;s institution is the controller and should
+say so in the course&amp;rsquo;s information notice.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="6-security-audit"&gt;6. Security audit&lt;span class="hx:absolute hx:-mt-20" id="6-security-audit"&gt;&lt;/span&gt;
+&lt;a href="#6-security-audit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The relay is a network service on a LAN full of untrusted clients, parsing
+their frames. Every row is a requirement for the implementation and a test.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Threat&lt;/th&gt;
+&lt;th&gt;Mitigation&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;A student impersonates another (identity, address)&lt;/td&gt;
+&lt;td&gt;Session token bound to the session; ports and addresses assigned by the relay; source addresses in frames ignored and rewritten; a port id in a frame must belong to the session (Neutron&amp;rsquo;s anti-spoofing, without &lt;code&gt;allowed_address_pairs&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;A student claims another&amp;rsquo;s DNS name&lt;/td&gt;
+&lt;td&gt;Names are &lt;code&gt;&amp;lt;container&amp;gt;.&amp;lt;student-label&amp;gt;.class&lt;/code&gt;, the label fixed by the relay at &lt;code&gt;Join&lt;/code&gt;; label collisions get a suffix.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Display names injected into the dashboard&lt;/td&gt;
+&lt;td&gt;Display names are data: length-limited (40), control characters removed, escaped by the dashboard; the label is derived, ASCII.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Brute-forcing the class code&lt;/td&gt;
+&lt;td&gt;10 characters from 32 symbols (50 bits); &lt;code&gt;Join&lt;/code&gt; rate-limited per source IP (5 per minute) and per class; the code expires with the class or on rotation.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Flooding and resource exhaustion&lt;/td&gt;
+&lt;td&gt;Per session: 256 open streams, 64 listeners, 32 pending connects, 10 ports, token buckets on frames per second (2 000) and bytes per second (2 MiB/s, burst 8 MiB), all configurable by the teacher. Per connection: 1 MiB of buffered data. Global: a cap on sessions (&lt;code&gt;port&lt;/code&gt; quota) and on unauthenticated connections (32, 10 s to authenticate).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Oversized or malformed frames&lt;/td&gt;
+&lt;td&gt;WebSocket read limit of 16 KiB + header per message; a frame whose &lt;code&gt;length&lt;/code&gt; disagrees with the message is a protocol error that closes the connection; every decoder fuzzed (&lt;code&gt;go test -fuzz&lt;/code&gt;, corpus committed).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Slow readers (memory held)&lt;/td&gt;
+&lt;td&gt;Credit-based windows; a stream with no credit for 60 s is reset; WebSocket ping every 15 s, close after 45 s without a pong.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;A malicious public page attacks the relay through a student&amp;rsquo;s browser&lt;/td&gt;
+&lt;td&gt;Every API call and the WebSocket need a token in a header or in the first frame, never a cookie, so no ambient authority exists to ride (no CSRF). The WebSocket upgrade checks &lt;code&gt;Origin&lt;/code&gt; against the relay&amp;rsquo;s own origin and &lt;code&gt;https://go-wasmcontainers.github.io&lt;/code&gt;. The &lt;code&gt;Host&lt;/code&gt; header must be one of the relay&amp;rsquo;s names or addresses (DNS rebinding). Local Network Access prompts are a second barrier, not the first.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;The admin API reachable from the LAN&lt;/td&gt;
+&lt;td&gt;Off by default: the admin side listens on the Unix socket and loopback only; &lt;code&gt;--admin-listen&lt;/code&gt; is explicit and can require mTLS.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Secrets&lt;/td&gt;
+&lt;td&gt;Admin token, CA key and token-signing key: &lt;code&gt;0600&lt;/code&gt; files under &lt;code&gt;os.UserConfigDir()&lt;/code&gt;, never in a URL, a command line, an environment variable or a log; logs redact anything token-shaped. Join links carry the code and the certificate hash in the URL fragment. The CA is name-constrained.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;A compromised relay&lt;/td&gt;
+&lt;td&gt;It sees all classroom traffic by design. It runs as the teacher&amp;rsquo;s user, needs no privilege (port 8443), and holds no credential beyond its own.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Supply chain&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;govulncheck&lt;/code&gt; in CI; dependencies limited to connect-go, protobuf, a WebSocket library and, later, quic-go/webtransport-go (which implements draft-16 of WebTransport over HTTP/3, not an RFC: pinned and re-checked when the draft moves).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 data-hextra-search-id="chaos-cases"&gt;Chaos cases&lt;span class="hx:absolute hx:-mt-20" id="chaos-cases"&gt;&lt;/span&gt;
+&lt;a href="#chaos-cases" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Fault&lt;/th&gt;
+&lt;th&gt;Expected behaviour&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;A student reloads the page&lt;/td&gt;
+&lt;td&gt;The page reconnects with its session token; within a &lt;strong&gt;120 s grace period&lt;/strong&gt; the relay keeps the session&amp;rsquo;s ports and addresses; open streams are reset (the container sees a connection reset, as after a network cut); listeners are re-registered by the engine.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;The teacher&amp;rsquo;s laptop sleeps&lt;/td&gt;
+&lt;td&gt;Every WebSocket drops. On wake, browsers reconnect with exponential backoff and jitter (1 s to 30 s), so 40 browsers do not reconnect in the same millisecond; sessions older than the grace period are re-joined silently with the token.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;The relay restarts or crashes&lt;/td&gt;
+&lt;td&gt;Classes, sessions, groups, rules, ports and address allocations are persisted (written to a temporary file, then renamed) after every change; tokens stay valid because the signing key is on disk. Flows do not survive: they are reset and logged as such.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Clock skew between machines&lt;/td&gt;
+&lt;td&gt;Tokens are checked against the relay&amp;rsquo;s clock only; the browser&amp;rsquo;s clock is never trusted.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Wi-Fi loss&lt;/td&gt;
+&lt;td&gt;Detected by the ping/pong timeout, handled as a reload.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Mixed versions (page and relay)&lt;/td&gt;
+&lt;td&gt;The first frame carries a protocol version; the relay refuses an unknown major version with a message the page shows. In deployment (b), skew cannot happen.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Two teachers&amp;rsquo; relays on one LAN&lt;/td&gt;
+&lt;td&gt;Each class has its own code, certificate and CA; a join link names one relay.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The chaos campaign (M-relay-5) injects these faults into a test classroom of
+real browsers and records what breaks.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="7-performance"&gt;7. Performance&lt;span class="hx:absolute hx:-mt-20" id="7-performance"&gt;&lt;/span&gt;
+&lt;a href="#7-performance" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Budget.&lt;/strong&gt; The relay must not be what limits a lab. The assumptions to
+measure, not results:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;40 students on one access point share its airtime; a lab&amp;rsquo;s traffic is small
+(HTTP requests, a database query, a chat), a few hundred kB/s per student,
+so the aggregate stays far below what one Go process forwards;&lt;/li&gt;
+&lt;li&gt;container-to-container round trip ≈ two Wi-Fi round trips (A to relay, relay
+to B) plus the relay&amp;rsquo;s processing, which must stay &lt;strong&gt;under 1 ms&lt;/strong&gt; at the
+99th percentile;&lt;/li&gt;
+&lt;li&gt;framing cost: our 10-byte header, the WebSocket header (2 to 10 bytes, plus a
+4-byte masking key from client to server, RFC 6455) and the TLS record: under
+0.3 % for a full 16 KiB frame, significant only for very small writes, which
+the engine coalesces within one event-loop turn;&lt;/li&gt;
+&lt;li&gt;head-of-line blocking on the single TCP connection is the main latency risk
+on a lossy Wi-Fi; WebTransport&amp;rsquo;s independent streams are the remedy.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;What to measure, against what.&lt;/strong&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Measure&lt;/th&gt;
+&lt;th&gt;Reference&lt;/th&gt;
+&lt;th&gt;Target&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;relay forwarding throughput, one core, 16 KiB frames&lt;/td&gt;
+&lt;td&gt;a direct TCP connection between the same two processes on loopback&lt;/td&gt;
+&lt;td&gt;at least 50 % of it&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;relay frames per second, one core, 64-byte frames&lt;/td&gt;
+&lt;td&gt;the same&lt;/td&gt;
+&lt;td&gt;reported, then optimised&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;added latency per hop (p50, p99) at 40 sessions × 10 streams&lt;/td&gt;
+&lt;td&gt;direct loopback TCP&lt;/td&gt;
+&lt;td&gt;p99 &amp;lt; 1 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;memory per idle session&lt;/td&gt;
+&lt;td&gt;none&lt;/td&gt;
+&lt;td&gt;&amp;lt; 64 KiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;rule evaluation per connect, 500 rules&lt;/td&gt;
+&lt;td&gt;linear scan&lt;/td&gt;
+&lt;td&gt;constant per flow after the first lookup, indexed by protocol and port&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;end to end in a real classroom (40 browsers)&lt;/td&gt;
+&lt;td&gt;the same lab with all containers in one browser&lt;/td&gt;
+&lt;td&gt;reported&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Measurements follow the fleet&amp;rsquo;s rule: interleaved rounds, single core, never on
+a loaded machine. Masking and unmasking WebSocket payloads is a byte loop on
+the hot path: it goes to a shared SIMD kernel (go-simd) if it shows in the
+profile, not into the relay.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="high-availability"&gt;High availability&lt;span class="hx:absolute hx:-mt-20" id="high-availability"&gt;&lt;/span&gt;
+&lt;a href="#high-availability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;The problem.&lt;/strong&gt; A class runs on relays in a datacenter; if that relay stops
+answering, the class must move to another one without losing its setup.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;What state exists.&lt;/strong&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Plane&lt;/th&gt;
+&lt;th&gt;State&lt;/th&gt;
+&lt;th&gt;On failover&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;control&lt;/td&gt;
+&lt;td&gt;classes, join codes, members and their identities&amp;rsquo; hashes, security groups and rules, port and address/DNS assignments, session-token signing keys, audit log&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;replicated&lt;/strong&gt;: survives&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;data&lt;/td&gt;
+&lt;td&gt;live streams, UDP connection tracking, listeners&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;not replicated&lt;/strong&gt;: flows are reset (containers see &lt;code&gt;ECONNRESET&lt;/code&gt;, which is teachable); listeners are re-registered by the engines when they reconnect; addresses, names and rules are the same&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Replication: Raft, not a CRDT.&lt;/strong&gt; The control plane is a replicated state
+machine (the Raft paper, §2: servers &amp;ldquo;compute identical copies of the same
+state&amp;rdquo; and are &amp;ldquo;fully functional (available) as long as any majority of the servers
+are operational&amp;rdquo;; &amp;ldquo;they do not depend on timing to ensure the consistency of the
+logs&amp;rdquo;). Security rules need that linearizability. A CRDT (go-crdt exists in the
+fleet) merges concurrent updates instead of ordering them: an add-wins set
+would bring back an allow-rule the teacher deleted on another replica during a
+partition. &lt;strong&gt;A deleted allow-rule must never reappear by merge&lt;/strong&gt;, so CRDTs are
+the wrong tool here. The library candidate is etcd&amp;rsquo;s &lt;code&gt;raft&lt;/code&gt; (the core
+algorithm only: &amp;ldquo;the application supplies its own network transport and
+persistent storage&amp;rdquo;; Apache-2.0; used by etcd, CockroachDB and TiDB). The
+relay already reaches its state through a &lt;code&gt;Store&lt;/code&gt; interface (&lt;code&gt;FileStore&lt;/code&gt; on a
+single relay), which the replicated store implements.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;One relay per class: an epoch lease.&lt;/strong&gt; The star needs a class to live on
+&lt;strong&gt;one&lt;/strong&gt; relay at a time. The replicated store holds, per class, a lease
+&lt;code&gt;(relay_id, epoch, expiry)&lt;/code&gt;; a relay takes or renews it through the log, and
+each new holder increments the &lt;strong&gt;epoch&lt;/strong&gt; (Raft&amp;rsquo;s terms are the model: &amp;ldquo;terms
+act as a logical clock&amp;rdquo;, and a server rejects a request with a stale term).
+The epoch is in &lt;code&gt;Welcome&lt;/code&gt; and in &lt;code&gt;Class&lt;/code&gt;; a client &lt;strong&gt;refuses a relay that shows
+an older epoch&lt;/strong&gt; than one it has seen (fencing), so a partitioned old holder
+cannot keep half a class. A relay that cannot renew its lease stops serving
+the class before the lease expires, with a margin for clock drift.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Quorum.&lt;/strong&gt; A majority quorum of 2 datacenters does not survive the loss of
+either (2 of 2 needed). Three sites are needed: two datacenters and a small
+&lt;strong&gt;witness&lt;/strong&gt; (a third voter that serves no class). The trade-off is written
+down rather than hidden: without the witness, a two-site deployment is
+active/passive with manual failover.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Client-side failover, after DERP.&lt;/strong&gt; Tailscale&amp;rsquo;s DERP documentation describes
+the pattern: each client gets a map of relays, picks one by latency, &amp;ldquo;selects
+the next closest region&amp;rdquo; when its region is unreachable, and saves the list so
+it works while the coordination server is down. Ours: the join link carries a
+&lt;strong&gt;signed class descriptor&lt;/strong&gt; listing the relays in order (not DNS-only failover:
+resolvers cache past a TTL). A client health-checks, reconnects with
+exponential backoff and jitter, and resumes with its &lt;strong&gt;session token, valid on
+any relay&lt;/strong&gt; of the cluster (signing keys are in the replicated store and
+rotated through it; OpenID Connect tokens stay valid because issuer and
+audience are the cluster&amp;rsquo;s). Each relay has its own certificate from
+servercert.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Phase 2: federation.&lt;/strong&gt; Relay-to-relay links would let one class span relays
+(geographic proximity, partial failure), the firewall still enforced at both
+ends. Not before the single-holder design is shipped and measured.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Chaos plan&lt;/strong&gt; (M-relay-HA): kill the lease holder in the middle of a lab;
+partition one datacenter; skew the clocks of the lease holder; run mixed relay
+versions during a rolling upgrade; make every student reconnect at once
+(thundering herd: jitter, and admission control that answers &amp;ldquo;retry after&amp;rdquo;
+rather than accepting more than it can serve).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="alternatives-considered"&gt;Alternatives considered&lt;span class="hx:absolute hx:-mt-20" id="alternatives-considered"&gt;&lt;/span&gt;
+&lt;a href="#alternatives-considered" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before writing the relay, existing overlay networks were evaluated (October
+2026) against what a lab needs: running in a browser tab with nothing
+installed, inside the engine&amp;rsquo;s Go &lt;code&gt;js/wasm&lt;/code&gt;, a firewall the teacher controls,
+flow logs, a LAN mode without internet, and high availability.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Browser client&lt;/th&gt;
+&lt;th&gt;Firewall and where&lt;/th&gt;
+&lt;th&gt;HA&lt;/th&gt;
+&lt;th&gt;Licence&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Tailscale&lt;/strong&gt; building blocks: DERP, &lt;code&gt;tsnet&lt;/code&gt;, &lt;code&gt;cmd/tsconnect&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;yes: &lt;code&gt;cmd/tsconnect/wasm&lt;/code&gt; runs wireguard-go and gVisor&amp;rsquo;s netstack in the page, DERP over WebSocket (&lt;code&gt;derphttp/websocket.go&lt;/code&gt;, js build); the npm package&amp;rsquo;s &lt;code&gt;main.wasm&lt;/code&gt; is 26.4 MB (4.73 MB brotli); its JS API exposes &lt;code&gt;login&lt;/code&gt;, &lt;code&gt;ssh&lt;/code&gt; and &lt;code&gt;fetch&lt;/code&gt; (&lt;a href="https://app.unpkg.com/@tailscale/connect" target="_blank" rel="noopener"&gt;&lt;code&gt;@tailscale/connect&lt;/code&gt; files&lt;/a&gt;); it ships logs to Tailscale&amp;rsquo;s log service by default&lt;/td&gt;
+&lt;td&gt;ACLs, deny by default, directional, enforced &lt;strong&gt;on the receiving device&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;DERP regions with client failover; the control server is Tailscale&amp;rsquo;s&lt;/td&gt;
+&lt;td&gt;BSD-3-Clause&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;headscale&lt;/strong&gt; (open control server)&lt;/td&gt;
+&lt;td&gt;uses Tailscale&amp;rsquo;s clients&lt;/td&gt;
+&lt;td&gt;Tailscale ACLs; &amp;ldquo;OIDC groups cannot be used in ACLs&amp;rdquo;; flow logs only an open issue&lt;/td&gt;
+&lt;td&gt;single instance; SQLite recommended, PostgreSQL &amp;ldquo;in maintenance mode&amp;rdquo;; scope: homelabs, &amp;ldquo;not enterprise software&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;BSD-3-Clause&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;NetBird&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;a browser client exists (Go to WASM, wireguard-go, WebSocket relay), as a dashboard feature for SSH and RDP, logged in with the admin&amp;rsquo;s credentials&lt;/td&gt;
+&lt;td&gt;groups and rules&lt;/td&gt;
+&lt;td&gt;no HA statement found&lt;/td&gt;
+&lt;td&gt;management, signal and relay &lt;strong&gt;AGPLv3&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Nebula&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;none (UDP only)&lt;/td&gt;
+&lt;td&gt;groups in certificates&lt;/td&gt;
+&lt;td&gt;lighthouses&lt;/td&gt;
+&lt;td&gt;MIT&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;ZeroTier&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;none found&lt;/td&gt;
+&lt;td&gt;a rules engine&lt;/td&gt;
+&lt;td&gt;—&lt;/td&gt;
+&lt;td&gt;MPL-2.0 plus non-free parts&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;What decided it.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;With end-to-end WireGuard, &lt;strong&gt;the relay sees nothing&lt;/strong&gt;: good for privacy, but
+there is no relay-side enforcement and no relay-side flow log. Filtering at
+the receiver is sound against untrusted students (a student can only weaken
+their own node), but egress rules cannot be enforced on a node the student
+controls, and logs kept by the endpoints can be forged by the student whose
+flows they describe. The relay-side log is the lesson.&lt;/li&gt;
+&lt;li&gt;Neutron&amp;rsquo;s model only partly translates to Tailscale ACLs: ingress rules map
+to tags and ports; egress rules and stateless groups do not.&lt;/li&gt;
+&lt;li&gt;headscale has no HA, so adopting it would not remove the Raft work.&lt;/li&gt;
+&lt;li&gt;A 26 MB WireGuard + netstack per tab, against a socket-level relay that adds
+no network stack to the engine (performance of both is unmeasured).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Decision: hybrid (option C).&lt;/strong&gt; Our relay stays the classroom data plane and
+firewall; identity and certificates come from go-authn; client failover
+follows DERP&amp;rsquo;s ordered-relay pattern. A later option, not planned: &lt;code&gt;tsnet&lt;/code&gt; in
+the teacher&amp;rsquo;s relay to reach native machines on an existing tailnet.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="8-roadmap-and-what-the-engine-must-expose"&gt;8. Roadmap and what the engine must expose&lt;span class="hx:absolute hx:-mt-20" id="8-roadmap-and-what-the-engine-must-expose"&gt;&lt;/span&gt;
+&lt;a href="#8-roadmap-and-what-the-engine-must-expose" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3 data-hextra-search-id="the-engines-networkdriver"&gt;The engine&amp;rsquo;s &lt;code&gt;NetworkDriver&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="the-engines-networkdriver"&gt;&lt;/span&gt;
+&lt;a href="#the-engines-networkdriver" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The engine maps the socket host functions onto a driver; the in-browser network
+it has today becomes the &lt;code&gt;local&lt;/code&gt; driver, and the relay is a second one:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-go" data-lang="go"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Package netdriver, in go-wasmcontainers/engine (planned).&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;type&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;NetworkDriver&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;interface&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// Attach gives a container an endpoint on a network; the driver&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// assigns its address and DNS name.&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Attach&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;context&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;c&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;ContainerRef&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;network&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;Endpoint&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Close&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;type&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;Endpoint&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;interface&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Addr&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;netip&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Addr&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Listen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;context&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;network&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;port&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;uint16&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;net&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Listener&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// &amp;#34;tcp&amp;#34;&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Dial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;context&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;network&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;addr&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;netip&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;AddrPort&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;net&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Conn&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// &amp;#34;tcp&amp;#34;, &amp;#34;udp&amp;#34;&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;ListenPacket&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;context&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;network&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;port&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;uint16&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;net&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;PacketConn&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// &amp;#34;udp&amp;#34;&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Resolve&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;ctx&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;context&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;name&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;([]&lt;/span&gt;&lt;span class="nx"&gt;netip&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;Addr&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;Detach&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kt"&gt;error&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The engine owns this interface; the relay&amp;rsquo;s client library implements it, so
+native engines (wazero) and browser engines use the same driver code, and the
+relay&amp;rsquo;s tests need no browser.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="milestones"&gt;Milestones&lt;span class="hx:absolute hx:-mt-20" id="milestones"&gt;&lt;/span&gt;
+&lt;a href="#milestones" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Milestone&lt;/th&gt;
+&lt;th&gt;Content&lt;/th&gt;
+&lt;th&gt;Tests&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-1&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;NetworkDriver&lt;/code&gt; in the engine (by the engine&amp;rsquo;s owner); the relay as a Go library: framing, flow broker, firewall, DNS, conntrack&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;in-process relay + two native engines&lt;/strong&gt; in one &lt;code&gt;go test&lt;/code&gt;: TCP across, UDP, DNS, deny, revoke, stateless; fuzzed decoders; rule evaluation tables&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-2&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;wctr-relay&lt;/code&gt; binary: WebSocket transport, control API (connect-go), cobra CLI, persistence, flow logs, quotas; TLS from servercert (files or ACME) or the internal CA; OpenID Connect verification (go-authn/oidc) and the internet hardening&lt;/td&gt;
+&lt;td&gt;native engines over loopback &lt;code&gt;wss&lt;/code&gt;; restart with state; rate limits; a test identity provider; chaos on the native path&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-2b&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;the live flow map: &lt;code&gt;WatchFlowMap&lt;/code&gt; (aggregated, coalesced); the graph, legend, filter, detail and sparkline widgets added to go-widgets (their own releases); the page served by the relay; teacher and per-student views&lt;/td&gt;
+&lt;td&gt;Playwright (Chromium, Firefox) on real flows through an in-process relay; update latency and CPU at 40 sessions&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-3&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;browser driver in the Web Worker; deployment (b): the relay serves the playground; join-flow detection&lt;/td&gt;
+&lt;td&gt;Chrome, Firefox and WebKit driven by Playwright against a local relay; secure-context check after a certificate warning&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-4&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;deployment (a) from GitHub Pages; WebTransport with certificate hashes; teacher dashboard over gRPC-Web/Connect; &lt;code&gt;wctr-relay login&lt;/code&gt; (go-authn/rp loopback); DNS-01 in servercert&lt;/td&gt;
+&lt;td&gt;the Local Network Access prompt in each browser; transport fallback&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-5&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;wctr_net.icmp_echo&lt;/code&gt; and a &lt;code&gt;ping&lt;/code&gt; image; chaos campaign; performance in a real classroom&lt;/td&gt;
+&lt;td&gt;the chaos table above; the performance table above&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;M-relay-HA&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Raft-replicated &lt;code&gt;Store&lt;/code&gt; (etcd &lt;code&gt;raft&lt;/code&gt;), per-class epoch leases, signed class descriptor with ordered relays, client failover&lt;/td&gt;
+&lt;td&gt;the high-availability chaos plan&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 data-hextra-search-id="open-questions"&gt;Open questions&lt;span class="hx:absolute hx:-mt-20" id="open-questions"&gt;&lt;/span&gt;
+&lt;a href="#open-questions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;Which DNS providers must servercert&amp;rsquo;s DNS-01 support first (schools'
+registrars; RFC 2136 for a school&amp;rsquo;s own DNS server)?&lt;/li&gt;
+&lt;li&gt;The witness site for a two-datacenter deployment: who runs it?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 data-hextra-search-id="references"&gt;References&lt;span class="hx:absolute hx:-mt-20" id="references"&gt;&lt;/span&gt;
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Opened for this design (October 2026):&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;W3C, &lt;a href="https://www.w3.org/TR/webtransport/" target="_blank" rel="noopener"&gt;WebTransport&lt;/a&gt;, Candidate Recommendation Snapshot, 30 July 2026: custom certificate requirements and certificate-hash verification&lt;/li&gt;
+&lt;li&gt;MDN, &lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/WebTransport/WebTransport" target="_blank" rel="noopener"&gt;&lt;code&gt;WebTransport()&lt;/code&gt; constructor&lt;/a&gt;: &lt;code&gt;serverCertificateHashes&lt;/code&gt;, secure context, availability in workers&lt;/li&gt;
+&lt;li&gt;MDN browser-compat-data, &lt;a href="https://github.com/mdn/browser-compat-data/blob/main/api/WebTransport.json" target="_blank" rel="noopener"&gt;&lt;code&gt;api/WebTransport.json&lt;/code&gt;&lt;/a&gt;: browser versions of the constructor and of &lt;code&gt;serverCertificateHashes&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;MDN, &lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel" target="_blank" rel="noopener"&gt;&lt;code&gt;RTCDataChannel&lt;/code&gt;&lt;/a&gt;: availability&lt;/li&gt;
+&lt;li&gt;MDN, &lt;a href="https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content" target="_blank" rel="noopener"&gt;Mixed content&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MDN, &lt;a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer" target="_blank" rel="noopener"&gt;&lt;code&gt;SharedArrayBuffer&lt;/code&gt;&lt;/a&gt;: secure context and cross-origin isolation&lt;/li&gt;
+&lt;li&gt;WICG, &lt;a href="https://wicg.github.io/local-network-access/" target="_blank" rel="noopener"&gt;Local Network Access&lt;/a&gt;, Draft Community Group Report, 7 August 2026&lt;/li&gt;
+&lt;li&gt;Chrome for Developers, &lt;a href="https://developer.chrome.com/blog/local-network-access" target="_blank" rel="noopener"&gt;New permission prompt for Local Network Access&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;IETF, &lt;a href="https://www.rfc-editor.org/rfc/rfc6455" target="_blank" rel="noopener"&gt;RFC 6455, The WebSocket Protocol&lt;/a&gt;: framing and masking&lt;/li&gt;
+&lt;li&gt;OpenStack, &lt;a href="https://docs.openstack.org/api-ref/network/v2/index.html" target="_blank" rel="noopener"&gt;Networking API v2.0 reference&lt;/a&gt;: ports, &lt;code&gt;port_security_enabled&lt;/code&gt;, &lt;code&gt;allowed_address_pairs&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;OpenStack neutron-lib API reference sources: &lt;a href="https://github.com/openstack/neutron-lib/blob/master/api-ref/source/v2/security-groups.inc" target="_blank" rel="noopener"&gt;security groups&lt;/a&gt; (stateful groups), &lt;a href="https://github.com/openstack/neutron-lib/blob/master/api-ref/source/v2/security-group-rules.inc" target="_blank" rel="noopener"&gt;security group rules&lt;/a&gt;, &lt;a href="https://github.com/openstack/neutron-lib/blob/master/api-ref/source/v2/parameters.yaml" target="_blank" rel="noopener"&gt;parameters&lt;/a&gt; (rule fields, quotas)&lt;/li&gt;
+&lt;li&gt;OpenStack Neutron spec, &lt;a href="https://specs.openstack.org/openstack/neutron-specs/specs/2023.2/configurable-default-sg-rules.html" target="_blank" rel="noopener"&gt;Configurable default security group rules&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;OpenStack Nova, &lt;a href="https://docs.openstack.org/nova/latest/user/security-groups.html" target="_blank" rel="noopener"&gt;Security groups&lt;/a&gt;: default deny, additive rules&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/stealthrocket/net" target="_blank" rel="noopener"&gt;stealthrocket/net&lt;/a&gt;, and its &lt;a href="https://github.com/stealthrocket/net/blob/main/wasip1/syscall_wasmedge_wasip1.go" target="_blank" rel="noopener"&gt;WasmEdge socket imports&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/ktock/container2wasm" target="_blank" rel="noopener"&gt;container2wasm&lt;/a&gt;: &lt;code&gt;c2w-net&lt;/code&gt; and browser networking&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/containers/gvisor-tap-vsock" target="_blank" rel="noopener"&gt;gvisor-tap-vsock&lt;/a&gt;: a netstack-based network for VMs&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://connectrpc.com/docs/protocol/" target="_blank" rel="noopener"&gt;Connect protocol&lt;/a&gt; and &lt;a href="https://github.com/connectrpc/connect-go" target="_blank" rel="noopener"&gt;connect-go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/quic-go/webtransport-go" target="_blank" rel="noopener"&gt;quic-go/webtransport-go&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/FiloSottile/mkcert" target="_blank" rel="noopener"&gt;mkcert&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/go-widgets/toolkit" target="_blank" rel="noopener"&gt;go-widgets/toolkit&lt;/a&gt;, &lt;a href="https://github.com/go-widgets/webcanvas" target="_blank" rel="noopener"&gt;go-widgets/webcanvas&lt;/a&gt; and &lt;a href="https://github.com/go-gfx/qr" target="_blank" rel="noopener"&gt;go-gfx/qr&lt;/a&gt; (the fleet&amp;rsquo;s rendering pieces, for the flow map)&lt;/li&gt;
+&lt;li&gt;Caddy, &lt;a href="https://caddyserver.com/docs/automatic-https" target="_blank" rel="noopener"&gt;Automatic HTTPS&lt;/a&gt; (DNS challenge, internal CA, IP certificates, on-demand TLS), &lt;a href="https://caddyserver.com/docs/caddyfile/directives/acme_server" target="_blank" rel="noopener"&gt;&lt;code&gt;acme_server&lt;/code&gt;&lt;/a&gt; and &lt;a href="https://caddyserver.com/docs/command-line" target="_blank" rel="noopener"&gt;&lt;code&gt;caddy trust&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/caddyserver/certmagic" target="_blank" rel="noopener"&gt;CertMagic&lt;/a&gt;: the library behind Caddy&amp;rsquo;s automatic HTTPS (DNS-01 through libdns; no internal issuer)&lt;/li&gt;
+&lt;li&gt;IETF, &lt;a href="https://www.rfc-editor.org/rfc/rfc8555" target="_blank" rel="noopener"&gt;RFC 8555, ACME&lt;/a&gt;, §8.4 (DNS-01)&lt;/li&gt;
+&lt;li&gt;Let&amp;rsquo;s Encrypt, &lt;a href="https://letsencrypt.org/2026/01/15/6day-and-ip-general-availability/" target="_blank" rel="noopener"&gt;Short-lived and IP address certificates generally available&lt;/a&gt; (15 January 2026)&lt;/li&gt;
+&lt;li&gt;go-authn: &lt;a href="https://github.com/go-authn/servercert" target="_blank" rel="noopener"&gt;servercert&lt;/a&gt;, &lt;a href="https://github.com/go-authn/oidc" target="_blank" rel="noopener"&gt;oidc&lt;/a&gt;, &lt;a href="https://github.com/go-authn/rp" target="_blank" rel="noopener"&gt;rp&lt;/a&gt;, &lt;a href="https://github.com/go-authn/bridge" target="_blank" rel="noopener"&gt;bridge&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;D. Ongaro, J. Ousterhout, &lt;a href="https://raft.github.io/raft.pdf" target="_blank" rel="noopener"&gt;In Search of an Understandable Consensus Algorithm (Raft, extended version)&lt;/a&gt;, and &lt;a href="https://github.com/etcd-io/raft" target="_blank" rel="noopener"&gt;etcd-io/raft&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Tailscale: &lt;a href="https://tailscale.com/kb/1232/derp-servers" target="_blank" rel="noopener"&gt;DERP servers&lt;/a&gt;, &lt;a href="https://tailscale.com/kb/1018/acls" target="_blank" rel="noopener"&gt;ACLs&lt;/a&gt;, &lt;a href="https://pkg.go.dev/tailscale.com/tsnet" target="_blank" rel="noopener"&gt;&lt;code&gt;tsnet&lt;/code&gt;&lt;/a&gt;, &lt;a href="https://github.com/tailscale/tailscale/tree/main/cmd/tsconnect" target="_blank" rel="noopener"&gt;&lt;code&gt;cmd/tsconnect&lt;/code&gt;&lt;/a&gt; and its &lt;a href="https://github.com/tailscale/tailscale/blob/main/cmd/tsconnect/wasm/wasm_js.go" target="_blank" rel="noopener"&gt;&lt;code&gt;wasm_js.go&lt;/code&gt;&lt;/a&gt;, &lt;a href="https://github.com/tailscale/tailscale/blob/main/derp/derphttp/websocket.go" target="_blank" rel="noopener"&gt;&lt;code&gt;derphttp/websocket.go&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/juanfont/headscale" target="_blank" rel="noopener"&gt;headscale&lt;/a&gt;: &lt;a href="https://headscale.net/stable/about/faq/" target="_blank" rel="noopener"&gt;FAQ&lt;/a&gt; and &lt;a href="https://headscale.net/stable/about/features/" target="_blank" rel="noopener"&gt;features&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NetBird: &lt;a href="https://github.com/netbirdio/netbird" target="_blank" rel="noopener"&gt;repository&lt;/a&gt; (licences) and &lt;a href="https://docs.netbird.io/manage/peers/browser-client/architecture" target="_blank" rel="noopener"&gt;browser client architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/slackhq/nebula" target="_blank" rel="noopener"&gt;Nebula&lt;/a&gt;, &lt;a href="https://github.com/zerotier/ZeroTierOne" target="_blank" rel="noopener"&gt;ZeroTierOne&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Design</title><link>https://go-wasmcontainers.github.io/docs/0.2/design/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.2/design/</guid><description>
+&lt;p&gt;A design document decides how a planned part will be built, and why, before
+its code exists. Each one lists the references it was written against. Nothing
+in this section has shipped.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.2/design/classroom-network/"&gt;Classroom network&lt;/a&gt;: how students&amp;rsquo; browsers
+reach each other&amp;rsquo;s containers through a relay and firewall on the teacher&amp;rsquo;s
+laptop, managed through a gRPC control API&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
