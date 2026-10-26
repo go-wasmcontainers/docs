@@ -14,7 +14,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 |---|---|
 | `pull IMAGE` | `IMAGE` is a registry reference or `oci:<dir>[:<ref.name>]` |
 | `images` | `-q` |
-| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory` |
+| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0) |
 | `ps` | `-a/--all`, `-q` |
 | `logs CONTAINER` | `-f/--follow` |
 | `rm CONTAINER...` | `-f/--force` |
@@ -25,6 +25,9 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `stop CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
 | `restart CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
 | `diff CONTAINER` | (v0.4.0) |
+| `events` | `--since`, `--until`, filters on type, event, container, image, volume and label (v0.6.0) |
+| `stats` | (v0.7.0) |
+| `volume create\|ls\|inspect\|rm\|prune` | (v0.8.0) |
 | `system df` | `-v` (v0.4.0) |
 | `system prune` | `-a`, `-f` (v0.4.0) |
 | `version` | |
@@ -35,6 +38,25 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 A WebAssembly guest has no signals, so `wctr stop` kills the container at once:
 `-t` is accepted for compatibility and ignored. In the API, `/attach` is a plain
 streamed response, not a hijacked connection.
+
+## Events (v0.6.0)
+
+`wctr events` and `GET /events` stream NDJSON. `--since` and `--until` bound
+the range, and the filters are type, event, container, image, volume and label.
+The last 1024 events are kept, and a reader that is too slow is cut off.
+
+## Stats (v0.7.0)
+
+`wctr stats` and the stats endpoint report memory against its limit, bytes
+written, layer and log size, and pids. **CPU is not measured**: a WebAssembly
+guest gives no CPU accounting, so it is shown as `--`.
+
+## Volumes (v0.8.0)
+
+`wctr volume create|ls|inspect|rm|prune`, and `wctr run -v NAME:/path[:ro]`.
+Only named volumes exist: a host path is refused. A volume is shared between
+containers, `:ro` is enforced, and volumes survive a restart and a page reload.
+They appear in `system df` and in `inspect`.
 
 ## Persistence (v0.4.0)
 

@@ -33,8 +33,8 @@ sequences are dropped.
 
 ## Limitations
 
-- The Volumes view waits for engine volumes, which the engine does not have yet.
-- The dashboard polls every 2 seconds until the engine serves `/events`.
+- The Volumes view and the live events appear once the engine serves them; the
+  dashboard polls every 2 seconds until the engine serves `/events`.
 - The standalone demo keeps its state in memory: nothing persists across a
   reload. Persistence comes when the dashboard becomes the playground's main UI
   (planned).
