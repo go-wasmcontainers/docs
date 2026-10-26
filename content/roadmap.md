@@ -18,6 +18,8 @@ tags: [roadmap]
 | **`wctr events`** / `GET /events` (NDJSON, `--since`, `--until`, filters) | engine v0.6.0 |
 | **`wctr stats`** (memory against its limit, bytes written, layer and log size, pids; CPU not measured) | engine v0.7.0 |
 | **Volumes**: `wctr volume create\|ls\|inspect\|rm\|prune`, `run -v NAME:/path[:ro]` | engine v0.8.0 |
+| **`tar+zstd` layers** (bounded, fuzzed); WebAssembly exception handling enabled natively | engine v0.9.0 |
+| **Playground on engine v0.9.0**: `start`, `stop`, `restart`, `diff`, `stats`, `events`, `volume`, `system df\|prune`, `run -v`; the images `lua` 5.4.9, `sqlite3` 3.53.4 and `minigzip` (zlib 1.3.2), C tools built by go-pkgx for wasip1 | live (the playground's tag is still v0.1.0) |
 | **Playground M1**: `wctr` in a browser tab, no server | playground v0.1.0, live at <https://go-wasmcontainers.github.io/playground/> |
 | **Classroom relay** M-relay-1 and M-relay-2: [`wctr-relay`]({{< relref "relay" >}}), the relay and firewall with security groups modelled on OpenStack Neutron, its gRPC control API, TLS, OpenID Connect | relay v0.1.0 |
 | **Live flow map** (M-relay-2b): the relay's page drawing the class's flows, refused ones in red | relay v0.2.0 |
@@ -37,8 +39,7 @@ Nothing below exists yet.
 | Image build | building an image from a Dockerfile |
 | Compose | several containers described in one file |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
-| apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx now builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip); they are **planned** for the playground's catalogue with engine v0.9.0 and are **not live yet** |
-| `tar+zstd` layers | image layers compressed with zstd |
+| apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip), which are now in the playground's catalogue; a base image plus tools is still planned |
 | A reference comparison | the benchmarks set against another WebAssembly runtime |
 
 An item moves to "shipped" with the release that carries it.
