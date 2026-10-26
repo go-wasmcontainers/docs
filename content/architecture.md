@@ -14,7 +14,7 @@ This page describes the design. Where a part is not written yet it says
 wctr CLI ──► /var/run/wctr.sock ──► wctrd ──► executor ──► a wasip1 module
               (Docker Engine API)     │           │
                                       │           ├─ native: wazero         (v0.1.0)
-                                      │           └─ browser worker         (planned)
+                                      │           └─ browser: runtime/browser (v0.2.0)
                                       └─ image store, root filesystem
 ```
 
@@ -46,9 +46,11 @@ environment and a working directory.
   a single static binary. The container's root filesystem is adapted to wazero's
   writable filesystem interface; the image's `WorkingDir` is passed as `PWD`,
   which is where a Go `wasip1` program takes its initial directory from.
-- **Browser worker** (planned): the same executor contract implemented over the
-  browser's WebAssembly, in a Web Worker, so the playground needs no server
-  that runs containers.
+- **Browser** (`runtime/browser`, engine v0.2.0): the same executor contract
+  implemented over the browser's WebAssembly, with the WASI host shared with the
+  native side (`wasi`) and the API served in-process (`api/inproc`), so the
+  [playground]({{< relref "playground" >}}) needs no server that runs
+  containers.
 
 ### The images
 
