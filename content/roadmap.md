@@ -11,7 +11,7 @@ tags: [roadmap]
 | --- | --- |
 | **Engine M1**: native, wazero executor; `wctr pull`, `images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`, `kill`, `version`; the `wctrd` daemon | engine v0.1.0 |
 | **Browser executor** (`runtime/browser`), the shared WASI host (`wasi`), `api/inproc`, the `cli` package, `RegistryOptions.Mirrors` | engine v0.2.0 |
-| **Playground M1**: `wctr` in a browser tab, no server | live at <https://go-wasmcontainers.github.io/playground/> (no release tag yet) |
+| **Playground M1**: `wctr` in a browser tab, no server | playground v0.1.0, live at <https://go-wasmcontainers.github.io/playground/> |
 
 What the engine does not do is on [Limitations]({{< relref "limitations" >}}).
 

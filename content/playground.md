@@ -8,7 +8,7 @@ tags: [playground]
 **<https://go-wasmcontainers.github.io/playground/>** is a terminal in a web
 page running `wctr` against WASI containers. There is no server: the engine
 runs in the page (the browser executor, `runtime/browser`, new in engine
-v0.2.0). The playground has no release tag yet.
+v0.2.0). This is playground v0.1.0.
 
 ## What you can type
 
