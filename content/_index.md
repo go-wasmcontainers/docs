@@ -32,6 +32,7 @@ learner types container commands the way they will at work.
 
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
 - [Getting started]({{< relref "getting-started" >}}): what exists today, and what M1 will give you
+- [Design]({{< relref "design" >}}): design documents for planned parts, such as the [classroom network]({{< relref "design/classroom-network" >}})
 - [Roadmap]({{< relref "roadmap" >}}): what is in progress and what is planned
 - [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
 - [References]({{< relref "references" >}}): the specifications the code is written against
