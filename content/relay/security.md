@@ -24,8 +24,8 @@ The public listener never grants the teacher role, whatever arrives on it
   port the sender has not bound is dropped.
 - **Authentication before the upgrade**: the session token is a WebSocket
   subprotocol (`bearer.<token>`), checked before the upgrade and before any
-  per-session state; it never appears in a URL. Unknown `Origin` and `Host`
-  are refused.
+  per-session state; it never appears in a URL. An `Origin` that is neither
+  the relay's own nor in `--cors-origin`, and an unknown `Host`, are refused.
 - **Pre-authentication limits** per source address on joins and upgrades, a cap
   on concurrent handshakes, header timeouts and sizes.
 - **Bounds**: 16 KiB frames, 64 KiB stream windows, and per session: 256
@@ -36,6 +36,41 @@ The public listener never grants the teacher role, whatever arrives on it
   place closes the connection.
 - **Tokens**: Ed25519, one fixed layout and one algorithm, checked against the
   relay's clock; a kicked session's tokens stop working at once.
+
+## Browsers on another origin (CORS)
+
+The playground runs on GitHub Pages and calls `Join` and `RefreshSession` on
+the relay from the browser. That is a cross-origin request, so the browser
+first sends a preflight, and the relay answers it only for the origins it is
+told to trust:
+
+```sh
+wctr-relay serve --cors-origin https://go-wasmcontainers.github.io
+```
+
+- **An allowlist, empty by default.** The relay's own origin is always
+  allowed. Add a page's origin once per origin (`scheme://host[:port]`, the
+  flag can be repeated). `*` and wildcards are refused. Without the flag, a
+  page served from elsewhere cannot join this relay.
+- **Only the calls a page needs**: `Join`, `RefreshSession`, `WatchFlowMap`,
+  `WatchFlows` and `ListPorts`. Other public calls answer no preflight, and
+  the admin listener has no CORS at all.
+- **Exactly the headers Connect needs.** The method and header lists are
+  those of [connectrpc.com/cors](https://pkg.go.dev/connectrpc.com/cors),
+  plus `Authorization`, `Wctr-Session`, `Wctr-Map-Ticket` and `User-Agent`.
+  Firefox lists `User-Agent` in the preflight because Connect-Web sets it.
+  Preflights are cached for 2 hours.
+- **No credentials mode.** Tokens travel in headers and never in cookies, so
+  the browser has nothing to attach on its own, and the relay never sends
+  `Access-Control-Allow-Credentials`.
+- **The data WebSocket checks the same list.** Browsers do not preflight
+  WebSockets, so a hostile page could otherwise open the data channel with a
+  token it had obtained (cross-site WebSocket hijacking). The relay therefore
+  refuses an upgrade whose `Origin` is not on the list. A client that is not
+  a browser sends no `Origin` and is unaffected.
+
+The `--cors-origin` flag appeared in relay v0.3.0. It replaces `--origin`,
+which covered only the WebSocket and allowed the Pages host by default.
 
 ## Secrets
 
