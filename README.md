@@ -38,7 +38,6 @@ against that release.
 | `content/design/` | design documents for planned parts (the classroom network); the decision table at the top of each is its decision record |
 | `i18n/en.yaml` | the site's strings, beside the theme's |
 | `hugo.yaml` | `baseURL`, the engine version described, the navbar, the brand mounts |
-| `layouts/_partials/custom/version-select.html` | the version selector (reads `versions.json`) |
 | `layouts/_partials/custom/content-begin.html` | the outdated-version banner |
 | `layouts/_partials/favicons.html` | the brand's favicons |
 | `assets/css/custom.css` | the brand cyan as Hextra's primary colour, with its contrast measured |
@@ -51,7 +50,7 @@ against that release.
 ```sh
 git clone --recurse-submodules https://github.com/go-wasmcontainers/docs.git
 cd docs
-mkdir -p data && sh themes/hextra/scripts/page-history.sh > data/pagehistory.json
+mkdir -p data && go run github.com/tannevaled/hextra/cmd/pagehistory@v0.21.0 > data/pagehistory.json
 hugo server --baseURL http://localhost:1313/docs/main/
 ```
 
