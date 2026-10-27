@@ -145,9 +145,9 @@ reason, so a deep state directory needs a short &lt;code&gt;--admin-socket&lt;/c
 &lt;td&gt;also answer &lt;code&gt;http-01&lt;/code&gt; on this address (e.g. &lt;code&gt;:80&lt;/code&gt;)&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;code&gt;--origin&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;go-wasmcontainers.github.io&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;other origins allowed to open the data channel&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--cors-origin&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;none&lt;/td&gt;
+&lt;td&gt;a browser origin (&lt;code&gt;scheme://host[:port]&lt;/code&gt;) allowed besides the relay&amp;rsquo;s own, e.g. the playground&amp;rsquo;s (on GitHub Pages); repeatable, never &lt;code&gt;*&lt;/code&gt;. See &lt;a href="../security/#browsers-on-another-origin-cors"&gt;Browsers on another origin&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;--host&lt;/code&gt;&lt;/td&gt;
@@ -402,8 +402,8 @@ names a port the session does not own is refused, a datagram from a source
 port the sender has not bound is dropped.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Authentication before the upgrade&lt;/strong&gt;: the session token is a WebSocket
 subprotocol (&lt;code&gt;bearer.&amp;lt;token&amp;gt;&lt;/code&gt;), checked before the upgrade and before any
-per-session state; it never appears in a URL. Unknown &lt;code&gt;Origin&lt;/code&gt; and &lt;code&gt;Host&lt;/code&gt;
-are refused.&lt;/li&gt;
+per-session state; it never appears in a URL. An &lt;code&gt;Origin&lt;/code&gt; that is neither
+the relay&amp;rsquo;s own nor in &lt;code&gt;--cors-origin&lt;/code&gt;, and an unknown &lt;code&gt;Host&lt;/code&gt;, are refused.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Pre-authentication limits&lt;/strong&gt; per source address on joins and upgrades, a cap
 on concurrent handshakes, header timeouts and sizes.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Bounds&lt;/strong&gt;: 16 KiB frames, 64 KiB stream windows, and per session: 256
@@ -415,6 +415,48 @@ place closes the connection.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Tokens&lt;/strong&gt;: Ed25519, one fixed layout and one algorithm, checked against the
 relay&amp;rsquo;s clock; a kicked session&amp;rsquo;s tokens stop working at once.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2 data-hextra-search-id="browsers-on-another-origin-cors"&gt;Browsers on another origin (CORS)&lt;span class="hx:absolute hx:-mt-20" id="browsers-on-another-origin-cors"&gt;&lt;/span&gt;
+&lt;a href="#browsers-on-another-origin-cors" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground runs on GitHub Pages and calls &lt;code&gt;Join&lt;/code&gt; and &lt;code&gt;RefreshSession&lt;/code&gt; on
+the relay from the browser. That is a cross-origin request, so the browser
+first sends a preflight, and the relay answers it only for the origins it is
+told to trust:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay serve --cors-origin https://go-wasmcontainers.github.io&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;An allowlist, empty by default.&lt;/strong&gt; The relay&amp;rsquo;s own origin is always
+allowed. Add a page&amp;rsquo;s origin once per origin (&lt;code&gt;scheme://host[:port]&lt;/code&gt;, the
+flag can be repeated). &lt;code&gt;*&lt;/code&gt; and wildcards are refused. Without the flag, a
+page served from elsewhere cannot join this relay.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Only the calls a page needs&lt;/strong&gt;: &lt;code&gt;Join&lt;/code&gt;, &lt;code&gt;RefreshSession&lt;/code&gt;, &lt;code&gt;WatchFlowMap&lt;/code&gt;,
+&lt;code&gt;WatchFlows&lt;/code&gt; and &lt;code&gt;ListPorts&lt;/code&gt;. Other public calls answer no preflight, and
+the admin listener has no CORS at all.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Exactly the headers Connect needs.&lt;/strong&gt; The method and header lists are
+those of &lt;a href="https://pkg.go.dev/connectrpc.com/cors" target="_blank" rel="noopener"&gt;connectrpc.com/cors&lt;/a&gt;,
+plus &lt;code&gt;Authorization&lt;/code&gt;, &lt;code&gt;Wctr-Session&lt;/code&gt;, &lt;code&gt;Wctr-Map-Ticket&lt;/code&gt; and &lt;code&gt;User-Agent&lt;/code&gt;.
+Firefox lists &lt;code&gt;User-Agent&lt;/code&gt; in the preflight because Connect-Web sets it.
+Preflights are cached for 2 hours.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No credentials mode.&lt;/strong&gt; Tokens travel in headers and never in cookies, so
+the browser has nothing to attach on its own, and the relay never sends
+&lt;code&gt;Access-Control-Allow-Credentials&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The data WebSocket checks the same list.&lt;/strong&gt; Browsers do not preflight
+WebSockets, so a hostile page could otherwise open the data channel with a
+token it had obtained (cross-site WebSocket hijacking). The relay therefore
+refuses an upgrade whose &lt;code&gt;Origin&lt;/code&gt; is not on the list. A client that is not
+a browser sends no &lt;code&gt;Origin&lt;/code&gt; and is unaffected.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The &lt;code&gt;--cors-origin&lt;/code&gt; flag appeared in relay v0.3.0. It replaces &lt;code&gt;--origin&lt;/code&gt;,
+which covered only the WebSocket and allowed the Pages host by default.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="secrets"&gt;Secrets&lt;span class="hx:absolute hx:-mt-20" id="secrets"&gt;&lt;/span&gt;
 &lt;a href="#secrets" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The admin token, the signing keys, the CA key, an EAB key and the state file
 are &lt;code&gt;0600&lt;/code&gt; files of the relay&amp;rsquo;s user, refused if anyone else can read them,

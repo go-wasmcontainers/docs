@@ -145,9 +145,9 @@ reason, so a deep state directory needs a short &lt;code&gt;--admin-socket&lt;/c
 &lt;td&gt;also answer &lt;code&gt;http-01&lt;/code&gt; on this address (e.g. &lt;code&gt;:80&lt;/code&gt;)&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;code&gt;--origin&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;go-wasmcontainers.github.io&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;other origins allowed to open the data channel&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--cors-origin&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;none&lt;/td&gt;
+&lt;td&gt;a browser origin (&lt;code&gt;scheme://host[:port]&lt;/code&gt;) allowed besides the relay&amp;rsquo;s own, e.g. the playground&amp;rsquo;s (on GitHub Pages); repeatable, never &lt;code&gt;*&lt;/code&gt;. See &lt;a href="../security/#browsers-on-another-origin-cors"&gt;Browsers on another origin&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;--host&lt;/code&gt;&lt;/td&gt;

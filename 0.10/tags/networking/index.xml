@@ -937,7 +937,7 @@ their frames. Every row is a requirement for the implementation and a test.&lt;/
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;A malicious public page attacks the relay through a student&amp;rsquo;s browser&lt;/td&gt;
-&lt;td&gt;Every API call and the WebSocket need a token in a header or in the first frame, never a cookie, so no ambient authority exists to ride (no CSRF). The WebSocket upgrade checks &lt;code&gt;Origin&lt;/code&gt; against the relay&amp;rsquo;s own origin and &lt;code&gt;https://go-wasmcontainers.github.io&lt;/code&gt;. The &lt;code&gt;Host&lt;/code&gt; header must be one of the relay&amp;rsquo;s names or addresses (DNS rebinding). Local Network Access prompts are a second barrier, not the first.&lt;/td&gt;
+&lt;td&gt;Every API call and the WebSocket need a token in a header or in the first frame, never a cookie, so no ambient authority exists to ride (no CSRF). The WebSocket upgrade, and CORS on the few calls a page makes, check &lt;code&gt;Origin&lt;/code&gt; against the relay&amp;rsquo;s own origin and the &lt;code&gt;--cors-origin&lt;/code&gt; allowlist, which is empty by default and never &lt;code&gt;*&lt;/code&gt; (relay v0.3.0). The &lt;code&gt;Host&lt;/code&gt; header must be one of the relay&amp;rsquo;s names or addresses (DNS rebinding). Local Network Access prompts are a second barrier, not the first.&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;The admin API reachable from the LAN&lt;/td&gt;
