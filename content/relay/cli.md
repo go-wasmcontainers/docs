@@ -54,7 +54,7 @@ A port is named by its id, its DNS name (`web.alice.class`) or
 | `--acme-domain`, `--acme-email`, `--acme-directory`, `--acme-cache` | | ACME for `--tls acme` (default CA: Let's Encrypt) |
 | `--eab-kid`, `--eab-hmac-file` | | External Account Binding (the HMAC key in a `0600` file) |
 | `--acme-http` | | also answer `http-01` on this address (e.g. `:80`) |
-| `--origin` | `go-wasmcontainers.github.io` | other origins allowed to open the data channel |
+| `--cors-origin` | none | a browser origin (`scheme://host[:port]`) allowed besides the relay's own, e.g. the playground's (on GitHub Pages); repeatable, never `*`. See [Browsers on another origin](../security/#browsers-on-another-origin-cors) |
 | `--host` | | Host names served; any other is refused |
 | `--oidc-issuer`, `--oidc-audience`, `--oidc-type` | | OpenID Connect token verification |
 | `--teacher-group` | | groups-claim value granting the teacher role on `--admin-listen` |
