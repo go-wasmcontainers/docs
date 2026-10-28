@@ -1,0 +1,83 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Compose</title><link>https://go-wasmcontainers.github.io/docs/0.10/tags/compose/</link><description>Recent content in Compose on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.10/tags/compose/index.xml" rel="self" type="application/rss+xml"/><item><title>Compose</title><link>https://go-wasmcontainers.github.io/docs/0.10/compose/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.10/compose/</guid><description>
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;wctr compose&lt;/code&gt; runs a multi-container application described by the Compose
+Specification, through the engine&amp;rsquo;s API.&lt;/strong&gt; It is the separate module
+&lt;a href="https://github.com/go-wasmcontainers/compose" target="_blank" rel="noopener"&gt;go-wasmcontainers/compose&lt;/a&gt;
+(v0.1.0, status M1). Compose files are accepted in &lt;strong&gt;three formats, YAML, JSON
+and HCL2&lt;/strong&gt;, which load to the same model; files of different formats merge
+(&lt;code&gt;-f compose.yaml -f override.hcl&lt;/code&gt;). The HCL2 mapping is specified in
+&lt;a href="https://github.com/go-wasmcontainers/compose/blob/main/docs/HCL.md" target="_blank" rel="noopener"&gt;docs/HCL.md&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The command on its own is &lt;code&gt;wctr-compose&lt;/code&gt;, which takes &lt;code&gt;-H&lt;/code&gt; like &lt;code&gt;wctr&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; go install github.com/go-wasmcontainers/compose/cmd/wctr-compose@v0.1.0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="commands"&gt;Commands&lt;span class="hx:absolute hx:-mt-20" id="commands"&gt;&lt;/span&gt;
+&lt;a href="#commands" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr compose [-f FILE]... [-p NAME] [--profile P]... COMMAND&lt;/code&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Command&lt;/th&gt;
+&lt;th&gt;Flags&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;up [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-d&lt;/code&gt;, &lt;code&gt;--force-recreate&lt;/code&gt;, &lt;code&gt;--build&lt;/code&gt; (refused until build is wired to &lt;code&gt;wctr build&lt;/code&gt;), &lt;code&gt;--remove-orphans&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;down&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-v&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;ps [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a&lt;/code&gt;, &lt;code&gt;-q&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;logs [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;start&lt;/code&gt;, &lt;code&gt;stop&lt;/code&gt;, &lt;code&gt;restart&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;dependencies first&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rm [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-s&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;pull&lt;/code&gt;, &lt;code&gt;images&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;config&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--format yaml|json|hcl&lt;/code&gt;, &lt;code&gt;-q&lt;/code&gt;, &lt;code&gt;--services&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Loading is complete: discovery, interpolation, &lt;code&gt;.env&lt;/code&gt;, merging, &lt;code&gt;extends&lt;/code&gt;,
+&lt;code&gt;include&lt;/code&gt;, profiles, and validation against the specification&amp;rsquo;s schema, with
+every error carrying &lt;code&gt;file:line:column&lt;/code&gt;. The Compose files are untrusted input
+and every reader is bounded and fuzzed.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="limits-of-v010"&gt;Limits of v0.1.0&lt;span class="hx:absolute hx:-mt-20" id="limits-of-v010"&gt;&lt;/span&gt;
+&lt;a href="#limits-of-v010" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;What the engine cannot do yet, and compose therefore does not:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A service joins &lt;strong&gt;one network&lt;/strong&gt; (the first by name, with a warning); &lt;strong&gt;network
+aliases are not applied yet&lt;/strong&gt;: reach a container by its name (&lt;code&gt;lab-web-1&lt;/code&gt;),
+not its service&amp;rsquo;s name.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;ports&lt;/code&gt; and &lt;code&gt;restart&lt;/code&gt; are recorded with a warning&lt;/strong&gt;, not applied.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;build:&lt;/code&gt; is refused&lt;/strong&gt; until compose is wired to &lt;code&gt;wctr build&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;service_healthy&lt;/code&gt; fails clearly&lt;/strong&gt;: the engine cannot run a command in a
+container yet (no &lt;code&gt;exec&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No host bind mounts&lt;/strong&gt;, and no file outside the project directory.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
