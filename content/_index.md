@@ -43,11 +43,15 @@ they will at work.
 - [Dashboard]({{< relref "dashboard" >}}): a graphical dashboard for the engine (v0.1.0)
 - [Getting started]({{< relref "getting-started" >}}): install, and a real session
 - [Networking]({{< relref "networking" >}}): sockets, DNS by container name and networks (engine v0.10.0)
+- [Build]({{< relref "build" >}}): `wctr build` from a Containerfile (build v0.2.0)
+- [Compose]({{< relref "compose" >}}): multi-container applications, YAML, JSON or HCL2 (compose v0.1.0)
+- [Shell]({{< relref "shell" >}}): a POSIX shell for WASI containers (in progress)
+- [GPU]({{< relref "gpu" >}}): ONNX models on the CPU (gpu v0.1.0); GPU compute and rendering planned
 - [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
 - [Performance]({{< relref "performance" >}}): what was measured
 - [Limitations]({{< relref "limitations" >}}): what the engine does not do
-- [Relay]({{< relref "relay" >}}): `wctr-relay`, the classroom relay and firewall (v0.1.0)
+- [Relay]({{< relref "relay" >}}): `wctr-relay`, the classroom relay and firewall (v0.3.0)
 - [Design]({{< relref "design" >}}): design documents for planned parts, such as the [classroom network]({{< relref "design/classroom-network" >}})
 - [Roadmap]({{< relref "roadmap" >}}): what is planned
 - [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
@@ -58,7 +62,11 @@ they will at work.
 | Repo | Status |
 | --- | --- |
 | [engine](https://github.com/go-wasmcontainers/engine) | v0.10.0 released |
-| [relay](https://github.com/go-wasmcontainers/relay) | v0.1.0 released (M-relay-1, M-relay-2) |
+| [relay](https://github.com/go-wasmcontainers/relay) | v0.3.0 released |
+| [build](https://github.com/go-wasmcontainers/build) | v0.2.0 released (standalone `wctr-build`) |
+| [compose](https://github.com/go-wasmcontainers/compose) | v0.1.0 released (M1) |
+| [shell](https://github.com/go-wasmcontainers/shell) | in progress (guest side) |
+| [gpu](https://github.com/go-wasmcontainers/gpu) | v0.1.0 released (ONNX on the CPU) |
 | [playground](https://github.com/go-wasmcontainers/playground) | live, in the browser |
 | [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.1.0 released; [live demo](https://go-wasmcontainers.github.io/dashboard/) |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
