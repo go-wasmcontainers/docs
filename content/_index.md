@@ -15,7 +15,8 @@ pure-Go WebAssembly runtime, instead of in a Linux kernel. `wctrd` serves a
 subset of the Docker Engine API.
 
 {{< callout type="info" >}}
-**Engine v0.10.0 is released** (networking: sockets for guests, DNS by container
+**Engine v0.12.0 is released** (`wctr commit` and `tag`, and the endpoints
+builders need; networking: sockets for guests, DNS by container
 name and networks, see [Networking]({{< relref "networking" >}}); `tar+zstd`
 layers, WebAssembly exception handling, named volumes, `wctr events` and `wctr stats`,
 containers that survive a restart, `wctr start`, `stop` and `restart`, shell
@@ -24,10 +25,10 @@ completion), and **the playground is live**:
 with no server, and works offline. The engine also runs natively on Linux and
 macOS: `wctr pull`, `images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`,
 `kill`, `start`, `stop`, `restart`, `diff`, `events`, `stats`, `volume`,
-`network`, `system df`, `system prune` and `version`. No `exec`, attach or build yet, and networking is not in the playground yet: see
+`network`, `commit`, `tag`, `system df`, `system prune` and `version`. No `exec` or attach yet, `wctr build` and `wctr compose` are separate programs for now, and networking is not in the playground yet: see
 [Limitations]({{< relref "limitations" >}}). Everything on the
 [roadmap]({{< relref "roadmap" >}}) is **planned**. These pages describe
-engine v0.10.0.
+engine v0.12.0.
 {{< /callout >}}
 
 ## Why
@@ -61,7 +62,7 @@ they will at work.
 
 | Repo | Status |
 | --- | --- |
-| [engine](https://github.com/go-wasmcontainers/engine) | v0.10.0 released |
+| [engine](https://github.com/go-wasmcontainers/engine) | v0.12.0 released |
 | [relay](https://github.com/go-wasmcontainers/relay) | v0.3.0 released |
 | [build](https://github.com/go-wasmcontainers/build) | v0.2.0 released (standalone `wctr-build`) |
 | [compose](https://github.com/go-wasmcontainers/compose) | v0.1.0 released (M1) |
