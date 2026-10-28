@@ -19,6 +19,8 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `logs CONTAINER` | `-f/--follow` |
 | `rm CONTAINER...` | `-f/--force` |
 | `rmi IMAGE...` | `-f/--force` |
+| `commit CONTAINER [REPO[:TAG]]` | `-m/--message`, `-a/--author`, `-c/--change` (`CMD`, `ENTRYPOINT`, `ENV`, `EXPOSE`, `LABEL`, `ONBUILD`, `STOPSIGNAL`, `USER`, `VOLUME`, `WORKDIR`): the container's changes as one OCI layer on the parent's, with a history entry; without a name, a `<none>` image addressable by ID (v0.12.0) |
+| `tag SOURCE TARGET` | another name for an image; a tag that moves leaves the old image as `<none>` (v0.12.0) |
 | `inspect NAME\|ID...` | containers, then images |
 | `kill CONTAINER...` | |
 | `start CONTAINER...` | `-a/--all` (v0.5.0) |
@@ -39,6 +41,21 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 A WebAssembly guest has no signals, so `wctr stop` kills the container at once:
 `-t` is accepted for compatibility and ignored. In the API, `/attach` is a plain
 streamed response, not a hijacked connection.
+
+## For builders (v0.12.0, API only for now)
+
+- `POST /images/load` takes an OCI image layout as a tar; each `index.json` entry
+  is named by `io.containerd.image.name` or `org.opencontainers.image.ref.name`,
+  else `<none>`. It is checked as a pull is, and nothing is read from the host.
+- `PUT /containers/{id}/archive?path=DIR` extracts a tar into a container
+  (relative clean names only, no devices, paths resolved inside the container, its
+  quota applies), and `GET` returns a tar of a path. These two routes accept
+  uploads up to **1 GiB** by default; every other request is limited to 1 MiB.
+- `GET /images/{name}/json` shows the full image config, the history, and
+  `RootFS.Layers` as `diff_ids`. Dangling images appear as `<none>`.
+- Other modules add commands to `wctr` through an extension hook,
+  `cli.Options.Extra`; [`wctr build`]({{< relref "build" >}}) uses it. **`wctr
+  build` needs a `wctrd` of v0.12.0 or later.**
 
 ## Events (v0.6.0)
 
