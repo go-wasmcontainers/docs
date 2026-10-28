@@ -30,8 +30,3 @@
 /* The version selector's list hangs from its button's right edge, so that it
  * stays on screen at the end of the navbar. */
 
-/* The outdated-version banner (layouts/_partials/custom/content-begin.html). */
-.nd-outdated { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem;
-  border: 1px solid #f59e0b; background: #fffbeb; color: #78350f; }
-.dark .nd-outdated { background: #451a03; color: #fde68a; border-color: #b45309; }
-.nd-outdated a { text-decoration: underline; font-weight: 600; }
