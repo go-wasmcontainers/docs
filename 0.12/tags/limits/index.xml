@@ -1,0 +1,37 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Limits</title><link>https://go-wasmcontainers.github.io/docs/0.12/tags/limits/</link><description>Recent content in Limits on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.12/tags/limits/index.xml" rel="self" type="application/rss+xml"/><item><title>Limitations</title><link>https://go-wasmcontainers.github.io/docs/0.12/limitations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.12/limitations/</guid><description>
+&lt;h2 data-hextra-search-id="playground"&gt;Playground&lt;span class="hx:absolute hx:-mt-20" id="playground"&gt;&lt;/span&gt;
+&lt;a href="#playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground has no stdin, no shell (one &lt;code&gt;wctr&lt;/code&gt; command per line) and no
+networking. Ctrl-C stops waiting for a container but leaves it running. Each
+container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB
+of logs, and 64 containers at once.&lt;/p&gt;
+&lt;p&gt;The default UI, the dashboard, makes the page slower to be ready than the
+terminal page (728 ms against 1070 ms in Chromium on the live site), because
+&lt;code&gt;dashboard.wasm&lt;/code&gt; is 20.45 MB raw (5.32 MB gzipped). A size reduction is in
+progress (planned). The terminal-only page is at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="engine"&gt;Engine&lt;span class="hx:absolute hx:-mt-20" id="engine"&gt;&lt;/span&gt;
+&lt;a href="#engine" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Engine v0.12.0 does &lt;strong&gt;not&lt;/strong&gt; have:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;CPU accounting: a WebAssembly guest gives none, so &lt;code&gt;wctr stats&lt;/code&gt; shows CPU as
+&lt;code&gt;--&lt;/code&gt;;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;host-path volumes: only named volumes exist, and a host path is refused;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;exec&lt;/code&gt; and attach: no &lt;code&gt;exec&lt;/code&gt;, no attaching to a container (so an interactive
+&lt;code&gt;run&lt;/code&gt;); the &lt;a href="https://go-wasmcontainers.github.io/docs/0.12/roadmap/"&gt;roadmap&lt;/a&gt; lists them as planned. Image
+building is the separate &lt;a href="https://go-wasmcontainers.github.io/docs/0.12/build/"&gt;&lt;code&gt;wctr-build&lt;/code&gt;&lt;/a&gt;, whose
+shell-form &lt;code&gt;RUN&lt;/code&gt; waits for the &lt;a href="https://go-wasmcontainers.github.io/docs/0.12/shell/"&gt;shell&lt;/a&gt;;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;published ports (&lt;code&gt;-p&lt;/code&gt;) and &lt;code&gt;network connect&lt;/code&gt; (one network per container); IPv6
+on in-engine networks; the DNS shadows a container&amp;rsquo;s own UDP server on port 53
+at the resolver addresses; and its network throughput is not measured yet (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.12/networking/"&gt;Networking&lt;/a&gt;);&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;a distinct quota error: when a container exhausts its storage quota, the
+write surfaces to the module as &lt;code&gt;EIO&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

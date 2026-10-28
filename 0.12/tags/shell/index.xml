@@ -1,0 +1,25 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Shell</title><link>https://go-wasmcontainers.github.io/docs/0.12/tags/shell/</link><description>Recent content in Shell on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.12/tags/shell/index.xml" rel="self" type="application/rss+xml"/><item><title>Shell</title><link>https://go-wasmcontainers.github.io/docs/0.12/shell/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.12/shell/</guid><description>
+&lt;p&gt;&lt;strong&gt;A POSIX shell for WASI containers, in pure Go&lt;/strong&gt;, built for
+&lt;code&gt;GOOS=wasip1 GOARCH=wasm&lt;/code&gt;:
+&lt;a href="https://github.com/go-wasmcontainers/shell" target="_blank" rel="noopener"&gt;go-wasmcontainers/shell&lt;/a&gt;. It is
+what will make shell-form commands work: &lt;code&gt;RUN a &amp;amp;&amp;amp; b&lt;/code&gt; in a Containerfile,
+&lt;code&gt;wctr run IMAGE sh -c '…'&lt;/code&gt;, and &lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Status: the guest side exists; the engine side is in progress.&lt;/strong&gt; A WebAssembly
+module cannot start another program: Go&amp;rsquo;s port has no fork or exec, and WASI
+preview 1 has no process calls. So the shell uses a small subset of
+&lt;a href="https://wasix.org/" target="_blank" rel="noopener"&gt;WASIX&lt;/a&gt;, in WASIX&amp;rsquo;s own import module (&lt;code&gt;wasix_32v1&lt;/code&gt;):
+&lt;code&gt;proc_spawn3&lt;/code&gt;, &lt;code&gt;proc_join&lt;/code&gt;, &lt;code&gt;fd_pipe&lt;/code&gt;, &lt;code&gt;proc_id&lt;/code&gt;, &lt;code&gt;proc_parent&lt;/code&gt;, &lt;code&gt;tty_get&lt;/code&gt; and
+&lt;code&gt;tty_set&lt;/code&gt;, and nothing else (no fork, exec, threads or signals). A host that
+implements the subset is needed: wasmer, which the tests use, or this engine
+once its host side is done. &lt;strong&gt;Nothing here runs in &lt;code&gt;wctr&lt;/code&gt; yet&lt;/strong&gt;, and &lt;code&gt;wctr exec&lt;/code&gt;
+does not exist yet; a base image is also in progress.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;wasix&lt;/code&gt;&lt;/strong&gt;: &lt;code&gt;//go:wasmimport&lt;/code&gt; bindings for the subset, with a Go API.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;sh&lt;/code&gt;&lt;/strong&gt;: the mvdan.cc/sh v3.14.1 interpreter (patched with one change: a pipe
+function, since upstream&amp;rsquo;s &lt;code&gt;os.Pipe&lt;/code&gt; is &lt;code&gt;ENOSYS&lt;/code&gt; on wasip1), whose external
+commands start with &lt;code&gt;proc_spawn3&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;sh&lt;/code&gt; does pipelines, redirections, here-documents, command substitution, &lt;code&gt;cd&lt;/code&gt;,
+exported variables, &lt;code&gt;$?&lt;/code&gt;, &lt;code&gt;set -e/-u/-x/-f/-a&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;, &lt;code&gt;sh -c&lt;/code&gt;, &lt;code&gt;sh file&lt;/code&gt; and
+an interactive prompt on a TTY. By design of the subset it has no signals, no
+job control and no process substitution.&lt;/p&gt;</description></item></channel></rss>
