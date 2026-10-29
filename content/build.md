@@ -47,9 +47,9 @@ Multi-stage builds work.
 - **Shell-form `RUN cmd` works on an image with a shell** (build v0.3.0). It runs
   `/bin/sh` through the engine's WASIX process subset (engine v0.17.0 or later),
   so pipes, redirections, `&&` and command substitution work, with coreutils on
-  the [shell]({{< relref "shell" >}}) base image (`ghcr.io/go-wasmcontainers/shell:0.1.0`,
-  whose package is **not public yet**, soon). In an image without a runnable shell
-  the build stops with a precise error.
+  the [shell]({{< relref "shell" >}}) base image (`wctr pull
+  ghcr.io/go-wasmcontainers/shell:0.1.0`, public). In an image without a runnable
+  shell the build stops with a precise error.
 - **A step's output streams as the step runs** (build v0.4.0), instead of being
   printed when it ends.
 - **Not supported, each a precise error and never ignored**: here-documents,

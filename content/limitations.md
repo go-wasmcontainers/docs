@@ -42,5 +42,5 @@ Engine v0.22.0 does **not** have:
   write surfaces to the module as `EIO`.
 
 `wctr build` runs shell-form `RUN` from engine v0.17.0 on the shell base image
-(shell v0.1.0); that image's registry package is not public yet (soon). See
+(shell v0.1.0, `ghcr.io/go-wasmcontainers/shell:0.1.0`, public). See
 [Build]({{< relref "build" >}}) and [Shell]({{< relref "shell" >}}).

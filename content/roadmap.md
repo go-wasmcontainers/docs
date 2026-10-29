@@ -40,7 +40,8 @@ tags: [roadmap]
 | **Classroom relay** M-relay-1 and M-relay-2: [`wctr-relay`]({{< relref "relay" >}}), the relay and firewall with security groups modelled on OpenStack Neutron, its gRPC control API, TLS, OpenID Connect | relay v0.1.0 |
 | **Live flow map** (M-relay-2b): the relay's page drawing the class's flows, refused ones in red | relay v0.2.0 |
 | **CORS** for browsers on another origin: `wctr-relay serve --cors-origin` | relay v0.3.0 |
-| **The POSIX shell** (`sh`, the `wasix` package) and its base image with the coreutils | shell v0.1.0, coreutils v0.4.0 |
+| **The POSIX shell** (`sh`, the `wasix` package) and its public base image with the coreutils (`ghcr.io/go-wasmcontainers/shell:0.1.0`) | shell v0.1.0, coreutils v0.4.0 |
+| **Compose on engine v0.21.0** | compose v0.3.2 |
 | **Relay fix**: `golang.org/x/net` updated for two advisories | relay v0.3.1 |
 | **`wctr build`**: multi-stage builds from a Containerfile or Dockerfile, the build cache, `.containerignore`; exec-form `RUN` ([Build]({{< relref "build" >}})) | build v0.2.0 |
 | **Shell-form `RUN`** on an image with a shell (engine v0.17.0 or later) | build v0.3.0 |
@@ -61,7 +62,6 @@ Nothing below exists yet.
 | Playground: stdin, a shell, `exec` | the playground has none of the three yet |
 | Published ports in the browser | `run -p` in the playground: **in progress**, through a second origin; natively it shipped in engine v0.22.0 |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
-| The shell base image, public | `ghcr.io/go-wasmcontainers/shell:0.1.0` exists; its registry package becomes public soon |
 | Attach and `run -it` | a terminal and stdin for a container's first process |
 | GPU surface input, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0); these are not served yet; see [GPU]({{< relref "gpu" >}}) |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
