@@ -1,14 +1,14 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.24.0) and the playground do not do."
+description: "What the engine (v0.27.0) and the playground do not do."
 tags: [limits]
 ---
 
 ## Playground
 
 The playground has no shell (one `wctr` command per line), no pipes and no stdin
-for a container. **`wctr exec` is not in the browser executor yet**, and there is
+for a container. **`wctr exec` is in the browser executor since engine v0.26.0, but the playground (v0.3.0, built on engine v0.14.0) does not have it until it is rebuilt**, and there is
 **no `-p` in the browser** yet (in progress, through a second origin). Networks
 stay inside the page: no Internet, no published ports. Ctrl-C stops waiting for a container but leaves it running.
 Each container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes,
@@ -22,7 +22,7 @@ page is at `?ui=terminal`.
 
 ## Engine
 
-Engine v0.24.0 does **not** have:
+Engine v0.27.0 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;

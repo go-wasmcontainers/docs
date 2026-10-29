@@ -1,14 +1,14 @@
 ---
 title: "Compose"
 weight: 26
-description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2, with published ports. Compose v0.4.0, built into wctr."
+description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2, with published ports and restart policies. Compose v0.5.0, built into wctr."
 tags: [compose]
 ---
 
 **`wctr compose` runs a multi-container application described by the Compose
 Specification, through the engine's API.** It is the separate module
 [go-wasmcontainers/compose](https://github.com/go-wasmcontainers/compose)
-(v0.4.0, status M1; it needs engine v0.14.0 or later, and **engine v0.22.0 or later for published ports**), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
+(v0.5.0, status M1; it needs engine v0.14.0 or later, **engine v0.22.0 or later for published ports** and **engine v0.25.0 or later for restart policies**), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
 [Getting started]({{< relref "getting-started" >}})); the standalone
 `wctr-compose` still exists. Compose files are accepted in **three formats, YAML,
 JSON and HCL2**, which load to the same model; files of different formats merge
@@ -25,7 +25,7 @@ JSON and HCL2**, which load to the same model; files of different formats merge
 | `down` | `-v` |
 | `ps [SERVICE...]` | `-a`, `-q` |
 | `logs [SERVICE...]` | `-f` |
-| `start`, `stop`, `restart` | dependencies first |
+| `start`, `stop`, `restart` | dependencies first; `stop` also stops a container waiting to restart, and ends its restart policy until the next start |
 | `rm [SERVICE...]` | `-s` |
 | `pull`, `images` | |
 | `build` | builds the services' images with [`wctr build`]({{< relref "build" >}}) |
@@ -53,11 +53,22 @@ default, not on every interface as the specification says, so that a lab
 container does not become a service on the machine's network by accident. Write
 `"0.0.0.0:8080:80"` (or `host_ip: 0.0.0.0`) when that is meant.
 
+## Restart policies (v0.5.0)
+
+A service's `restart` (`no`, `always`, `on-failure[:N]`, `unless-stopped`) and
+`deploy.restart_policy` are applied, through the engine's restart policies
+(engine v0.25.0 or later; see [Commands]({{< relref "commands" >}})).
+In `deploy.restart_policy`, `condition` `none`, `on-failure` and `any` map to `no`,
+`on-failure` and `always`, and `max_attempts` is the retry count. When both are
+written, **`deploy.restart_policy` wins over `restart`**. `delay` and `window` are
+not applied: the engine's own backoff (100 ms, doubling up to a minute) applies, and
+compose warns about them. `compose stop` also stops a container that is waiting to
+restart, and ends its restart policy until the next start.
+
 ## Limits
 
 What the engine cannot do yet, and compose therefore does not:
 
-- **`restart` is accepted with a warning**, not applied (no restart policies).
 - **`service_healthy` fails clearly**: compose does not run health checks.
 - **Build attributes** such as remote contexts, `cache_from` and `secrets` are
   accepted with a warning and not applied; what the builder itself does not do is

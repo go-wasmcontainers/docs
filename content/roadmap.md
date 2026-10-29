@@ -34,6 +34,11 @@ tags: [roadmap]
 | **Published ports** natively: `run -p`, `-P`, `--expose`, `wctr port`, a PORTS column in `ps`, `NetworkSettings.Ports`; default bind `127.0.0.1` with a bounded proxy; a refused start records exit 128 and `--rm` removes the container | engine v0.22.0 |
 | **`wctr run` exits 125** when the daemon refuses the start (the container records 128) | engine v0.23.0 |
 | **`portmap.Virtual`**: published ports with no sockets, the groundwork for `-p` in the browser (not live yet) | engine v0.24.0 |
+| **Restart policies**: `run --restart no\|always\|unless-stopped\|on-failure[:N]`; backoff from 100 ms, doubling, up to a minute; a user's `stop` or `kill` ends the policy until the next `start`; `always` and `unless-stopped` start with the engine; `RestartCount` and `State.Restarting` in `inspect`, `restarting` in `ps` | engine v0.25.0 |
+| **`wctr exec` in the browser executor**: the process runs in its own worker inside the container's process group, counts against its limits and is killed with it (not in the playground yet: it is built on engine v0.14.0) | engine v0.26.0 |
+| **`exec -t` follows window resizes**: SIGWINCH on unix, 2 Hz sampling on Windows, wasip1 and js | engine v0.27.0 |
+| **Headless Linux surfaces fixed**: the SwiftShader lane renders (Chromium needs `--enable-features=Vulkan --use-vulkan=swiftshader --use-angle=swiftshader`); strict pixel checks | gpu v0.5.1 |
+| **Compose restart policies**: `restart` and `deploy.restart_policy` applied (`condition` none/on-failure/any → no/on-failure/always, `max_attempts` → retry count; `deploy.restart_policy` wins over `restart`; `delay` and `window` not applied, with a warning); `compose stop` ends a restart loop; needs engine v0.25.0 or later | compose v0.5.0 |
 | **Compose ports**: short and long `ports` syntax and `expose`; a port with no host address binds `127.0.0.1` on purpose; needs engine v0.22.0 or later | compose v0.4.0 |
 | **Step output streams live** in `wctr build` | build v0.4.0 |
 | **Rendering on surfaces** (`wasi-gfx:surface` with `surface-webgpu`, frames to the page), shown in the dashboard's Surfaces view | gpu v0.5.0 |
@@ -62,11 +67,11 @@ Nothing below exists yet.
 
 | Item | What it is |
 | --- | --- |
-| Playground: stdin, a shell, `exec` | the playground has none of the three yet |
+| Playground: stdin, a shell, `exec` | the playground has none of the three yet; the engine's browser executor has `exec` since v0.26.0, so it waits for a playground built on it |
 | Published ports in the browser | `run -p` in the playground: **in progress**, through a second origin; natively it shipped in engine v0.22.0 |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
 | Attach and `run -it` | a terminal and stdin for a container's first process |
-| GPU surface input, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0); these are not served yet; see [GPU]({{< relref "gpu" >}}) |
+| GPU surface input, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0, headless Linux fixed in v0.5.1); these are not served yet; see [GPU]({{< relref "gpu" >}}) |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
 | apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip), which are now in the playground's catalogue; a base image plus tools is still planned |
 | A reference comparison | the benchmarks set against another WebAssembly runtime |

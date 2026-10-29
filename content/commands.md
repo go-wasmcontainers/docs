@@ -14,7 +14,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 |---|---|
 | `pull IMAGE` | `IMAGE` is a registry reference or `oci:<dir>[:<ref.name>]` |
 | `images` | `-q` |
-| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0), `-p/--publish [ip:][hostPort:]containerPort[/tcp\|udp]` (the ip defaults to **127.0.0.1**), `-P/--publish-all`, `--expose PORT[/proto]` (v0.22.0) |
+| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0), `-p/--publish [ip:][hostPort:]containerPort[/tcp\|udp]` (the ip defaults to **127.0.0.1**), `-P/--publish-all`, `--expose PORT[/proto]` (v0.22.0), `--restart no\|always\|unless-stopped\|on-failure[:N]` (v0.25.0; not with `--rm`; see [Restart policies](#restart-policies)) |
 | `port CONTAINER [PRIVATE_PORT[/PROTO]]` | where a running container's ports are published, e.g. `80/tcp -> 127.0.0.1:8080` (v0.22.0) |
 | `ps` | `-a/--all`, `-q`; a PORTS column as Docker writes it (v0.22.0) |
 | `logs CONTAINER` | `-f/--follow` |
@@ -24,7 +24,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `tag SOURCE TARGET` | another name for an image; a tag that moves leaves the old image as `<none>` (v0.12.0) |
 | `inspect NAME\|ID...` | containers, then images |
 | `build`, `compose` | [`wctr build`]({{< relref "build" >}}) and [`wctr compose`]({{< relref "compose" >}}), built into `wctr` since `cmd/wctr` v0.1.0; they use wctr's `-H`, which goes before the subcommand |
-| `exec [-d] [-i] [-t] [-e K=V] [-w DIR] CONTAINER CMD...` | a further process in a running container, in its process group; needs `--wasi engine`; exits with the command's status; `-t` gives it a terminal (the engine does the line editing and echo); `-u` accepts only `root` or `0` (engine v0.20.0; not in the browser executor yet) |
+| `exec [-d] [-i] [-t] [-e K=V] [-w DIR] CONTAINER CMD...` | a further process in a running container, in its process group; needs `--wasi engine`; exits with the command's status; `-t` gives it a terminal (the engine does the line editing and echo); `-u` accepts only `root` or `0` (engine v0.20.0). In the browser executor since v0.26.0: the process runs in its own worker inside the container's process group, counts against its limits and is killed with it. `-t` follows window resizes since v0.27.0: SIGWINCH on unix, a 2 Hz size sampling on Windows, wasip1 and js |
 | `kill CONTAINER...` | |
 | `start CONTAINER...` | `-a/--all` (v0.5.0) |
 | `stop CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
@@ -112,6 +112,24 @@ The container's own, or:
 | 127 | module not found |
 | 134 | the module trapped |
 | 137 | killed, or the wall-clock timeout |
+
+## Restart policies
+
+`run --restart` and `HostConfig.RestartPolicy` (engine v0.25.0), as Docker's:
+
+- `always` restarts a container whenever it exits, and starts it with the engine;
+- `unless-stopped` does the same, except that the engine leaves it stopped if a user
+  stopped it;
+- `on-failure[:N]` restarts it when it exits with a code other than 0, at most N
+  times (0: no bound);
+- `no` is the default.
+
+A user's `stop` or `kill` ends the policy until the next `start`, which counts from
+zero. Each restart waits first: 100 ms, doubled after every run shorter than 10 s, at
+most a minute. Meanwhile the container is `restarting`: `ps` lists it as `Restarting
+(code) … ago`, and `rm` needs `-f`. A start the engine refuses (a volume, a network, a
+port) is not retried. `inspect` shows `HostConfig.RestartPolicy`, `RestartCount` and
+`State.Restarting`. A policy cannot be combined with `--rm`.
 
 ## `wctrd`
 
