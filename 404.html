@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found</title>
+  <script>
+    // The build that was published at /docs/main/ is retired: a link into it
+    // opens the same page of the latest version.
+    (function () {
+      var m = window.location.pathname.match(/^\/docs\/main(\/.*)?$/);
+      if (m) {
+        window.location.replace("/docs/latest" + (m[1] || "/") + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+</head>
+<body style="font-family: system-ui, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem;">
+  <h1>Page not found</h1>
+  <p>This page does not exist in the documentation. Try <a href="/docs/latest/">the latest version</a>.</p>
+</body>
+</html>
