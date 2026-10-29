@@ -32,5 +32,5 @@ shadows a container&amp;rsquo;s own UDP server on port 53 at the resolver addres
 write surfaces to the module as &lt;code&gt;EIO&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;code&gt;wctr build&lt;/code&gt; runs shell-form &lt;code&gt;RUN&lt;/code&gt; from engine v0.17.0 on the shell base image
-(shell v0.1.0); that image&amp;rsquo;s registry package is not public yet (soon). See
+(shell v0.1.0, &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;, public). See
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/build/"&gt;Build&lt;/a&gt; and &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/shell/"&gt;Shell&lt;/a&gt;.&lt;/p&gt;</description></item></channel></rss>

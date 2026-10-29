@@ -2,7 +2,7 @@
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;wctr compose&lt;/code&gt; runs a multi-container application described by the Compose
 Specification, through the engine&amp;rsquo;s API.&lt;/strong&gt; It is the separate module
 &lt;a href="https://github.com/go-wasmcontainers/compose" target="_blank" rel="noopener"&gt;go-wasmcontainers/compose&lt;/a&gt;
-(v0.3.1, status M1), and it is &lt;strong&gt;built into &lt;code&gt;wctr&lt;/code&gt;&lt;/strong&gt; since &lt;code&gt;cmd/wctr&lt;/code&gt; v0.1.0 (see
+(v0.3.2, status M1; it needs engine v0.14.0 or later and is built against v0.21.0; published ports are coming in compose v0.4.0), and it is &lt;strong&gt;built into &lt;code&gt;wctr&lt;/code&gt;&lt;/strong&gt; since &lt;code&gt;cmd/wctr&lt;/code&gt; v0.1.0 (see
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/getting-started/"&gt;Getting started&lt;/a&gt;); the standalone
 &lt;code&gt;wctr-compose&lt;/code&gt; still exists. Compose files are accepted in &lt;strong&gt;three formats, YAML,
 JSON and HCL2&lt;/strong&gt;, which load to the same model; files of different formats merge

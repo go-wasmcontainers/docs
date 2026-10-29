@@ -133,8 +133,12 @@
 &lt;td&gt;relay v0.3.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;The POSIX shell&lt;/strong&gt; (&lt;code&gt;sh&lt;/code&gt;, the &lt;code&gt;wasix&lt;/code&gt; package) and its base image with the coreutils&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;The POSIX shell&lt;/strong&gt; (&lt;code&gt;sh&lt;/code&gt;, the &lt;code&gt;wasix&lt;/code&gt; package) and its public base image with the coreutils (&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;)&lt;/td&gt;
 &lt;td&gt;shell v0.1.0, coreutils v0.4.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Compose on engine v0.21.0&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;compose v0.3.2&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;strong&gt;Relay fix&lt;/strong&gt;: &lt;code&gt;golang.org/x/net&lt;/code&gt; updated for two advisories&lt;/td&gt;
@@ -192,10 +196,6 @@
 &lt;tr&gt;
 &lt;td&gt;Classroom relay, the rest&lt;/td&gt;
 &lt;td&gt;students&amp;rsquo; containers reaching each other through the relay from the playground: the engine&amp;rsquo;s network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/design/classroom-network/"&gt;design&lt;/a&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;The shell base image, public&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt; exists; its registry package becomes public soon&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;Attach and &lt;code&gt;run -it&lt;/code&gt;&lt;/td&gt;

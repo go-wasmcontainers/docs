@@ -74,9 +74,8 @@ step&amp;rsquo;s container.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Shell-form &lt;code&gt;RUN cmd&lt;/code&gt; works on an image with a shell&lt;/strong&gt; (build v0.3.0). It runs
 &lt;code&gt;/bin/sh&lt;/code&gt; through the engine&amp;rsquo;s WASIX process subset (engine v0.17.0 or later),
 so pipes, redirections, &lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt; and command substitution work, with coreutils on
-the &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/shell/"&gt;shell&lt;/a&gt; base image (&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;,
-whose package is &lt;strong&gt;not public yet&lt;/strong&gt;, soon). In an image without a runnable shell
-the build stops with a precise error.&lt;/li&gt;
+the &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/shell/"&gt;shell&lt;/a&gt; base image (&lt;code&gt;wctr pull ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;, public). In an image without a runnable
+shell the build stops with a precise error.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;A step&amp;rsquo;s output streams as the step runs&lt;/strong&gt; (build v0.4.0), instead of being
 printed when it ends.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Not supported, each a precise error and never ignored&lt;/strong&gt;: here-documents,
