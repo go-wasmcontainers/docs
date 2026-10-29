@@ -1,0 +1,280 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Reference</title><link>https://go-wasmcontainers.github.io/docs/0.20/tags/reference/</link><description>Recent content in Reference on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.20/tags/reference/index.xml" rel="self" type="application/rss+xml"/><item><title>Commands</title><link>https://go-wasmcontainers.github.io/docs/0.20/commands/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.20/commands/</guid><description>
+&lt;h2 data-hextra-search-id="wctr"&gt;&lt;code&gt;wctr&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="wctr"&gt;&lt;/span&gt;
+&lt;a href="#wctr" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The client. It finds the daemon at &lt;code&gt;-H unix:///path&lt;/code&gt;, else &lt;code&gt;$WCTR_HOST&lt;/code&gt;, else
+&lt;code&gt;unix:///var/run/wctr.sock&lt;/code&gt;.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Command&lt;/th&gt;
+&lt;th&gt;Flags&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;pull IMAGE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;IMAGE&lt;/code&gt; is a registry reference or &lt;code&gt;oci:&amp;lt;dir&amp;gt;[:&amp;lt;ref.name&amp;gt;]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;images&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-q&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;run IMAGE [COMMAND] [ARG...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--rm&lt;/code&gt;, &lt;code&gt;-d/--detach&lt;/code&gt;, &lt;code&gt;--name&lt;/code&gt;, &lt;code&gt;-e/--env KEY=value&lt;/code&gt; (or &lt;code&gt;KEY&lt;/code&gt; from the shell), &lt;code&gt;--entrypoint&lt;/code&gt;, &lt;code&gt;-w/--workdir&lt;/code&gt;, &lt;code&gt;-m/--memory&lt;/code&gt;, &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt; (v0.8.0), &lt;code&gt;--network NAME&lt;/code&gt; (v0.10.0), &lt;code&gt;--network-alias NAME&lt;/code&gt; (v0.14.0), &lt;code&gt;--gpu&lt;/code&gt; (v0.13.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;ps&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a/--all&lt;/code&gt;, &lt;code&gt;-q&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;logs CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f/--follow&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rm CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f/--force&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rmi IMAGE...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f/--force&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;commit CONTAINER [REPO[:TAG]]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-m/--message&lt;/code&gt;, &lt;code&gt;-a/--author&lt;/code&gt;, &lt;code&gt;-c/--change&lt;/code&gt; (&lt;code&gt;CMD&lt;/code&gt;, &lt;code&gt;ENTRYPOINT&lt;/code&gt;, &lt;code&gt;ENV&lt;/code&gt;, &lt;code&gt;EXPOSE&lt;/code&gt;, &lt;code&gt;LABEL&lt;/code&gt;, &lt;code&gt;ONBUILD&lt;/code&gt;, &lt;code&gt;STOPSIGNAL&lt;/code&gt;, &lt;code&gt;USER&lt;/code&gt;, &lt;code&gt;VOLUME&lt;/code&gt;, &lt;code&gt;WORKDIR&lt;/code&gt;): the container&amp;rsquo;s changes as one OCI layer on the parent&amp;rsquo;s, with a history entry; without a name, a &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt; image addressable by ID (v0.12.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;tag SOURCE TARGET&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;another name for an image; a tag that moves leaves the old image as &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt; (v0.12.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;inspect NAME|ID...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;containers, then images&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;build&lt;/code&gt;, &lt;code&gt;compose&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.20/build/"&gt;&lt;code&gt;wctr build&lt;/code&gt;&lt;/a&gt; and &lt;a href="https://go-wasmcontainers.github.io/docs/0.20/compose/"&gt;&lt;code&gt;wctr compose&lt;/code&gt;&lt;/a&gt;, built into &lt;code&gt;wctr&lt;/code&gt; since &lt;code&gt;cmd/wctr&lt;/code&gt; v0.1.0; they use wctr&amp;rsquo;s &lt;code&gt;-H&lt;/code&gt;, which goes before the subcommand&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;exec [-d] [-i] [-t] [-e K=V] [-w DIR] CONTAINER CMD...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a further process in a running container, in its process group; needs &lt;code&gt;--wasi engine&lt;/code&gt;; exits with the command&amp;rsquo;s status; &lt;code&gt;-t&lt;/code&gt; gives it a terminal (the engine does the line editing and echo); &lt;code&gt;-u&lt;/code&gt; accepts only &lt;code&gt;root&lt;/code&gt; or &lt;code&gt;0&lt;/code&gt; (engine v0.20.0; not in the browser executor yet)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;kill CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;start CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a/--all&lt;/code&gt; (v0.5.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stop CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-t&lt;/code&gt;, accepted and ignored (v0.5.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;restart CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-t&lt;/code&gt;, accepted and ignored (v0.5.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;diff CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;events&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--since&lt;/code&gt;, &lt;code&gt;--until&lt;/code&gt;, filters on type, event, container, image, volume and label (v0.6.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stats&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.7.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;volume create|ls|inspect|rm|prune&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.8.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network create|ls|inspect|rm&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.10.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network connect [--alias NAME] NETWORK CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a running container at once (v0.14.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network disconnect [-f] NETWORK CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.14.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network prune [-f] [--filter label=K[=V]]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;unused networks (v0.14.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;system df&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-v&lt;/code&gt; (v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;system prune&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a&lt;/code&gt;, &lt;code&gt;-f&lt;/code&gt; (v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;version&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;completion bash|zsh|fish|powershell&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;prints the completion script for that shell (v0.3.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;code&gt;wctr run&lt;/code&gt; pulls an image it does not have.&lt;/p&gt;
+&lt;p&gt;A WebAssembly guest has no signals, so &lt;code&gt;wctr stop&lt;/code&gt; kills the container at once:
+&lt;code&gt;-t&lt;/code&gt; is accepted for compatibility and ignored. In the API, &lt;code&gt;/attach&lt;/code&gt; is a plain
+streamed response, not a hijacked connection.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="for-builders-v0120-api-only-for-now"&gt;For builders (v0.12.0, API only for now)&lt;span class="hx:absolute hx:-mt-20" id="for-builders-v0120-api-only-for-now"&gt;&lt;/span&gt;
+&lt;a href="#for-builders-v0120-api-only-for-now" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /images/load&lt;/code&gt; takes an OCI image layout as a tar; each &lt;code&gt;index.json&lt;/code&gt; entry
+is named by &lt;code&gt;io.containerd.image.name&lt;/code&gt; or &lt;code&gt;org.opencontainers.image.ref.name&lt;/code&gt;,
+else &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt;. It is checked as a pull is, and nothing is read from the host.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;PUT /containers/{id}/archive?path=DIR&lt;/code&gt; extracts a tar into a container
+(relative clean names only, no devices, paths resolved inside the container, its
+quota applies), and &lt;code&gt;GET&lt;/code&gt; returns a tar of a path. These two routes accept
+uploads up to &lt;strong&gt;1 GiB&lt;/strong&gt; by default; every other request is limited to 1 MiB.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GET /images/{name}/json&lt;/code&gt; shows the full image config, the history, and
+&lt;code&gt;RootFS.Layers&lt;/code&gt; as &lt;code&gt;diff_ids&lt;/code&gt;. Dangling images appear as &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;HEAD&lt;/code&gt; on the archive route returns only the path&amp;rsquo;s stat, without building a tar
+(v0.14.0).&lt;/li&gt;
+&lt;li&gt;Since v0.18.0 the Go client&amp;rsquo;s &lt;code&gt;Containers&lt;/code&gt;, &lt;code&gt;Networks&lt;/code&gt; and &lt;code&gt;Volumes&lt;/code&gt; take
+optional filters (label filters among them). That changed their signatures;
+&lt;strong&gt;engine v0.21.0 is planned to restore the old signatures&lt;/strong&gt;, which is not
+released yet.&lt;/li&gt;
+&lt;li&gt;Other modules add commands to &lt;code&gt;wctr&lt;/code&gt; through an extension hook,
+&lt;code&gt;cli.Options.Extra&lt;/code&gt;; &lt;a href="https://go-wasmcontainers.github.io/docs/0.20/build/"&gt;&lt;code&gt;wctr build&lt;/code&gt;&lt;/a&gt; and
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.20/compose/"&gt;&lt;code&gt;wctr compose&lt;/code&gt;&lt;/a&gt; use it. &lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; needs a
+&lt;code&gt;wctrd&lt;/code&gt; of v0.12.0 or later&lt;/strong&gt; (v0.17.0 for shell-form &lt;code&gt;RUN&lt;/code&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="events-v060"&gt;Events (v0.6.0)&lt;span class="hx:absolute hx:-mt-20" id="events-v060"&gt;&lt;/span&gt;
+&lt;a href="#events-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr events&lt;/code&gt; and &lt;code&gt;GET /events&lt;/code&gt; stream NDJSON. &lt;code&gt;--since&lt;/code&gt; and &lt;code&gt;--until&lt;/code&gt; bound
+the range, and the filters are type, event, container, image, volume, network and label.
+The last 1024 events are kept, and a reader that is too slow is cut off.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="stats-v070"&gt;Stats (v0.7.0)&lt;span class="hx:absolute hx:-mt-20" id="stats-v070"&gt;&lt;/span&gt;
+&lt;a href="#stats-v070" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr stats&lt;/code&gt; and the stats endpoint report memory against its limit, bytes
+written, layer and log size, and pids. &lt;strong&gt;CPU is not measured&lt;/strong&gt;: a WebAssembly
+guest gives no CPU accounting, so it is shown as &lt;code&gt;--&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="volumes-v080"&gt;Volumes (v0.8.0)&lt;span class="hx:absolute hx:-mt-20" id="volumes-v080"&gt;&lt;/span&gt;
+&lt;a href="#volumes-v080" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr volume create|ls|inspect|rm|prune&lt;/code&gt;, and &lt;code&gt;wctr run -v NAME:/path[:ro]&lt;/code&gt;.
+Only named volumes exist: a host path is refused. A volume is shared between
+containers, &lt;code&gt;:ro&lt;/code&gt; is enforced, and volumes survive a restart and a page reload.
+They appear in &lt;code&gt;system df&lt;/code&gt; and in &lt;code&gt;inspect&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="persistence-v040"&gt;Persistence (v0.4.0)&lt;span class="hx:absolute hx:-mt-20" id="persistence-v040"&gt;&lt;/span&gt;
+&lt;a href="#persistence-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Containers survive a &lt;code&gt;wctrd&lt;/code&gt; restart: they are kept under &lt;code&gt;--data-root&lt;/code&gt; in
+&lt;code&gt;containers/&lt;/code&gt; (state, exit code, logs and written files). A container that was
+running comes back &lt;code&gt;exited&lt;/code&gt; with code 137, and a &lt;code&gt;--rm&lt;/code&gt; container is removed. An
+entry that is corrupted is dropped and reported.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="exit-status-of-wctr-run"&gt;Exit status of &lt;code&gt;wctr run&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="exit-status-of-wctr-run"&gt;&lt;/span&gt;
+&lt;a href="#exit-status-of-wctr-run" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The container&amp;rsquo;s own, or:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Code&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;125&lt;/td&gt;
+&lt;td&gt;the CLI or the daemon failed&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;126&lt;/td&gt;
+&lt;td&gt;not a WebAssembly module&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;127&lt;/td&gt;
+&lt;td&gt;module not found&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;134&lt;/td&gt;
+&lt;td&gt;the module trapped&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;137&lt;/td&gt;
+&lt;td&gt;killed, or the wall-clock timeout&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 data-hextra-search-id="wctrd"&gt;&lt;code&gt;wctrd&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="wctrd"&gt;&lt;/span&gt;
+&lt;a href="#wctrd" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Flag&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;th&gt;Default&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;-H&lt;/code&gt;, &lt;code&gt;--host unix:///path&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the socket to serve (unix only; TCP is refused, the API has no authentication)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;unix:///var/run/wctr.sock&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--data-root&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;where images are kept&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;$XDG_DATA_HOME/wasmcontainers&lt;/code&gt;, else &lt;code&gt;~/.local/share/wasmcontainers&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--memory&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;linear-memory limit per container&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;256m&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--run-timeout&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;wall-clock limit per run (&lt;code&gt;0&lt;/code&gt; = none)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;10m&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--storage-quota&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;bytes a container may write&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;256m&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--max-containers&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;containers at once&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;256&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--insecure-registry host:port&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;allow plain HTTP to that registry (loopback registries are always plain HTTP)&lt;/td&gt;
+&lt;td&gt;none&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 data-hextra-search-id="bounds-on-untrusted-content"&gt;Bounds on untrusted content&lt;span class="hx:absolute hx:-mt-20" id="bounds-on-untrusted-content"&gt;&lt;/span&gt;
+&lt;a href="#bounds-on-untrusted-content" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;th&gt;Bound&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;blob&lt;/td&gt;
+&lt;td&gt;512 MiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;image&lt;/td&gt;
+&lt;td&gt;1 GiB, 128 layers&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;unpacked layers&lt;/td&gt;
+&lt;td&gt;1 GiB, 131072 files&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;gzip expansion ratio&lt;/td&gt;
+&lt;td&gt;200:1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;logs kept&lt;/td&gt;
+&lt;td&gt;8 MiB per container&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</description></item></channel></rss>
