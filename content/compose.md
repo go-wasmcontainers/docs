@@ -1,14 +1,14 @@
 ---
 title: "Compose"
 weight: 26
-description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2. Compose v0.3.1, built into wctr."
+description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2. Compose v0.3.2, built into wctr."
 tags: [compose]
 ---
 
 **`wctr compose` runs a multi-container application described by the Compose
 Specification, through the engine's API.** It is the separate module
 [go-wasmcontainers/compose](https://github.com/go-wasmcontainers/compose)
-(v0.3.1, status M1), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
+(v0.3.2, status M1; it needs engine v0.14.0 or later and is built against v0.21.0; published ports are coming in compose v0.4.0), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
 [Getting started]({{< relref "getting-started" >}})); the standalone
 `wctr-compose` still exists. Compose files are accepted in **three formats, YAML,
 JSON and HCL2**, which load to the same model; files of different formats merge

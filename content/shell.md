@@ -1,7 +1,7 @@
 ---
 title: "Shell"
 weight: 27
-description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.1.0 with the coreutils v0.4.0; the engine runs it from v0.17.0."
+description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.1.0 with the coreutils v0.4.0, a public base image; the engine runs it from v0.17.0."
 tags: [shell]
 ---
 
@@ -25,9 +25,12 @@ through the coreutils work. The base image is
 `/bin/coreutils.wasm` (the multicall module of
 [wasmdesk/coreutils](https://github.com/wasmdesk/coreutils), released as v0.4.0,
 with 42 tools as symbolic links), a root-only `/etc/passwd`, and the config
-`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **The image's
-registry package is not public yet** (it becomes public soon); until then it
-cannot be pulled without access.
+`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **The image is
+public**; pull it with:
+
+```console
+$ wctr pull ghcr.io/go-wasmcontainers/shell:0.1.0
+```
 
 - **`wasix`**: `//go:wasmimport` bindings for the subset, with a Go API.
 - **`sh`**: the mvdan.cc/sh v3.14.1 interpreter (patched with one change: a pipe

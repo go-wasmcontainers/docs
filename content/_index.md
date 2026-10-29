@@ -23,8 +23,7 @@ named volumes, `wctr events` and `wctr stats`, containers that survive a restart
 and shell completion. **The playground is live** (v0.3.0, with networking, Join
 class and wasi-nn): <https://go-wasmcontainers.github.io/playground/> runs a
 dashboard and `wctr` in a browser tab, with no server, and works offline. No
-attach, no `-p` in the browser yet (in progress), and the shell's base image is
-not public yet (soon): see
+attach and no `-p` in the browser yet (in progress): see
 [Limitations]({{< relref "limitations" >}}). Everything on the
 [roadmap]({{< relref "roadmap" >}}) under "Planned" is **planned**. These pages
 describe engine v0.22.0.
@@ -44,7 +43,7 @@ they will at work.
 - [Getting started]({{< relref "getting-started" >}}): install, and a real session
 - [Networking]({{< relref "networking" >}}): sockets, DNS by container name and networks
 - [Build]({{< relref "build" >}}): `wctr build` from a Containerfile (build v0.4.0)
-- [Compose]({{< relref "compose" >}}): multi-container applications, YAML, JSON or HCL2 (compose v0.3.1)
+- [Compose]({{< relref "compose" >}}): multi-container applications, YAML, JSON or HCL2 (compose v0.3.2)
 - [Shell]({{< relref "shell" >}}): a POSIX shell for WASI containers (shell v0.1.0, coreutils v0.4.0)
 - [GPU]({{< relref "gpu" >}}): wasi-nn on the CPU and WebGPU, wasi:webgpu compute and rendering to surfaces (gpu v0.5.0)
 - [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
@@ -64,8 +63,8 @@ they will at work.
 | [engine](https://github.com/go-wasmcontainers/engine) | v0.22.0 released (`cmd/wctr` v0.1.0) |
 | [relay](https://github.com/go-wasmcontainers/relay) | v0.3.1 released |
 | [build](https://github.com/go-wasmcontainers/build) | v0.4.0 released (built into `wctr`) |
-| [compose](https://github.com/go-wasmcontainers/compose) | v0.3.1 released (built into `wctr`) |
-| [shell](https://github.com/go-wasmcontainers/shell) | v0.1.0 released (runs on engine v0.17.0 or later; base image public soon) |
+| [compose](https://github.com/go-wasmcontainers/compose) | v0.3.2 released (built into `wctr`) |
+| [shell](https://github.com/go-wasmcontainers/shell) | v0.1.0 released (runs on engine v0.17.0 or later; public base image `ghcr.io/go-wasmcontainers/shell:0.1.0`) |
 | [gpu](https://github.com/go-wasmcontainers/gpu) | v0.5.0 released (wasi-nn, wasi:webgpu compute, rendering to surfaces) |
 | [playground](https://github.com/go-wasmcontainers/playground) | v0.3.0 released, live in the browser |
 | [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.6.0 released; [live demo](https://go-wasmcontainers.github.io/dashboard/) |
