@@ -15,20 +15,19 @@ pure-Go WebAssembly runtime, instead of in a Linux kernel. `wctrd` serves a
 subset of the Docker Engine API.
 
 {{< callout type="info" >}}
-**Engine v0.12.0 is released** (`wctr commit` and `tag`, and the endpoints
-builders need; networking: sockets for guests, DNS by container
-name and networks, see [Networking]({{< relref "networking" >}}); `tar+zstd`
-layers, WebAssembly exception handling, named volumes, `wctr events` and `wctr stats`,
-containers that survive a restart, `wctr start`, `stop` and `restart`, shell
-completion), and **the playground is live**:
-<https://go-wasmcontainers.github.io/playground/> runs `wctr` in a browser tab,
-with no server, and works offline. The engine also runs natively on Linux and
-macOS: `wctr pull`, `images`, `run`, `ps`, `logs`, `rm`, `rmi`, `inspect`,
-`kill`, `start`, `stop`, `restart`, `diff`, `events`, `stats`, `volume`,
-`network`, `commit`, `tag`, `system df`, `system prune` and `version`. No `exec` or attach yet, `wctr build` and `wctr compose` are separate programs for now, and networking is not in the playground yet: see
+**Engine v0.20.0 is released**: `wctr exec`, the WASIX process subset (`sh`,
+pipelines, shell-form `RUN`), networks with aliases and several networks per
+container, `wctr commit` and `tag`, `wctr build` and `wctr compose` built into
+`wctr`, networking ([Networking]({{< relref "networking" >}})), `tar+zstd` layers,
+named volumes, `wctr events` and `wctr stats`, containers that survive a restart,
+and shell completion. **The playground is live** (v0.3.0, with networking, Join
+class and wasi-nn): <https://go-wasmcontainers.github.io/playground/> runs a
+dashboard and `wctr` in a browser tab, with no server, and works offline. No
+attach, no `-p` published ports yet (natively planned for v0.22.0), and the
+shell's base image is not public yet (soon): see
 [Limitations]({{< relref "limitations" >}}). Everything on the
-[roadmap]({{< relref "roadmap" >}}) is **planned**. These pages describe
-engine v0.12.0.
+[roadmap]({{< relref "roadmap" >}}) under "Planned" is **planned**. These pages
+describe engine v0.20.0.
 {{< /callout >}}
 
 ## Why
@@ -41,18 +40,18 @@ they will at work.
 ## Pages
 
 - [Playground]({{< relref "playground" >}}): `wctr` in a browser tab
-- [Dashboard]({{< relref "dashboard" >}}): a graphical dashboard for the engine (v0.1.0)
+- [Dashboard]({{< relref "dashboard" >}}): a graphical dashboard for the engine (v0.6.0)
 - [Getting started]({{< relref "getting-started" >}}): install, and a real session
-- [Networking]({{< relref "networking" >}}): sockets, DNS by container name and networks (engine v0.10.0)
-- [Build]({{< relref "build" >}}): `wctr build` from a Containerfile (build v0.2.0)
-- [Compose]({{< relref "compose" >}}): multi-container applications, YAML, JSON or HCL2 (compose v0.1.0)
-- [Shell]({{< relref "shell" >}}): a POSIX shell for WASI containers (in progress)
-- [GPU]({{< relref "gpu" >}}): ONNX models on the CPU (gpu v0.1.0); GPU compute and rendering planned
+- [Networking]({{< relref "networking" >}}): sockets, DNS by container name and networks
+- [Build]({{< relref "build" >}}): `wctr build` from a Containerfile (build v0.3.0)
+- [Compose]({{< relref "compose" >}}): multi-container applications, YAML, JSON or HCL2 (compose v0.3.1)
+- [Shell]({{< relref "shell" >}}): a POSIX shell for WASI containers (shell v0.1.0, coreutils v0.4.0)
+- [GPU]({{< relref "gpu" >}}): wasi-nn on the CPU and WebGPU, and wasi:webgpu compute (gpu v0.4.0); rendering in progress
 - [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
 - [Performance]({{< relref "performance" >}}): what was measured
 - [Limitations]({{< relref "limitations" >}}): what the engine does not do
-- [Relay]({{< relref "relay" >}}): `wctr-relay`, the classroom relay and firewall (v0.3.0)
+- [Relay]({{< relref "relay" >}}): `wctr-relay`, the classroom relay and firewall (v0.3.1)
 - [Design]({{< relref "design" >}}): design documents for planned parts, such as the [classroom network]({{< relref "design/classroom-network" >}})
 - [Roadmap]({{< relref "roadmap" >}}): what is planned
 - [FAQ]({{< relref "faq" >}}): why `wctr`, and not `docker` or `ctr`
@@ -62,14 +61,14 @@ they will at work.
 
 | Repo | Status |
 | --- | --- |
-| [engine](https://github.com/go-wasmcontainers/engine) | v0.12.0 released |
-| [relay](https://github.com/go-wasmcontainers/relay) | v0.3.0 released |
-| [build](https://github.com/go-wasmcontainers/build) | v0.2.0 released (standalone `wctr-build`) |
-| [compose](https://github.com/go-wasmcontainers/compose) | v0.1.0 released (M1) |
-| [shell](https://github.com/go-wasmcontainers/shell) | in progress (guest side) |
-| [gpu](https://github.com/go-wasmcontainers/gpu) | v0.1.0 released (ONNX on the CPU) |
-| [playground](https://github.com/go-wasmcontainers/playground) | live, in the browser |
-| [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.1.0 released; [live demo](https://go-wasmcontainers.github.io/dashboard/) |
+| [engine](https://github.com/go-wasmcontainers/engine) | v0.20.0 released (`cmd/wctr` v0.1.0) |
+| [relay](https://github.com/go-wasmcontainers/relay) | v0.3.1 released |
+| [build](https://github.com/go-wasmcontainers/build) | v0.3.0 released (built into `wctr`) |
+| [compose](https://github.com/go-wasmcontainers/compose) | v0.3.1 released (built into `wctr`) |
+| [shell](https://github.com/go-wasmcontainers/shell) | v0.1.0 released (runs on engine v0.17.0 or later; base image public soon) |
+| [gpu](https://github.com/go-wasmcontainers/gpu) | v0.4.0 released (wasi-nn, wasi:webgpu compute); rendering in progress |
+| [playground](https://github.com/go-wasmcontainers/playground) | v0.3.0 released, live in the browser |
+| [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.6.0 released; [live demo](https://go-wasmcontainers.github.io/dashboard/) |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
 | [go-wasmcontainers.github.io](https://github.com/go-wasmcontainers/go-wasmcontainers.github.io) | the landing page |
 | [brand](https://github.com/go-wasmcontainers/brand) | logo, icons and social images |

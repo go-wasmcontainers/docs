@@ -13,12 +13,18 @@ Open <https://go-wasmcontainers.github.io/playground/> and type
 
 ## Install
 
-Go 1.27.3 or later, no cgo:
+Go 1.27.3 or later, no cgo. **`wctr` is a module of its own now, with `wctr build`
+and `wctr compose` built in**, so there are two `go install` commands, one per
+module (one command naming both no longer works):
 
 ```sh
-go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.12.0
-go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.12.0
+go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.1.0
+go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.20.0
 ```
+
+`cmd/wctr` v0.1.0 requires engine v0.16.0, so the `wctr` it installs carries that
+version's commands; the daemon (`wctrd`, engine v0.20.0) serves everything else,
+including `exec`.
 
 Shell completion for `wctr` (bash, zsh, fish or PowerShell), for example in
 zsh:

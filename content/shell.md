@@ -1,25 +1,33 @@
 ---
 title: "Shell"
 weight: 27
-description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. The guest side exists; the engine's process spawning is in progress."
+description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.1.0 with the coreutils v0.4.0; the engine runs it from v0.17.0."
 tags: [shell]
 ---
 
 **A POSIX shell for WASI containers, in pure Go**, built for
 `GOOS=wasip1 GOARCH=wasm`:
 [go-wasmcontainers/shell](https://github.com/go-wasmcontainers/shell). It is
-what will make shell-form commands work: `RUN a && b` in a Containerfile,
+what makes shell-form commands work: `RUN a && b` in a Containerfile,
 `wctr run IMAGE sh -c '…'`, and `wctr exec -it CONTAINER sh`.
 
-**Status: the guest side exists; the engine side is in progress.** A WebAssembly
-module cannot start another program: Go's port has no fork or exec, and WASI
-preview 1 has no process calls. So the shell uses a small subset of
-[WASIX](https://wasix.org/), in WASIX's own import module (`wasix_32v1`):
+A WebAssembly module cannot start another program: Go's port has no fork or
+exec, and WASI preview 1 has no process calls. So the shell uses a small subset
+of [WASIX](https://wasix.org/), in WASIX's own import module (`wasix_32v1`):
 `proc_spawn3`, `proc_join`, `fd_pipe`, `proc_id`, `proc_parent`, `tty_get` and
-`tty_set`, and nothing else (no fork, exec, threads or signals). A host that
-implements the subset is needed: wasmer, which the tests use, or this engine
-once its host side is done. **Nothing here runs in `wctr` yet**, and `wctr exec`
-does not exist yet; a base image is also in progress.
+`tty_set`, and nothing else (no fork, exec, threads or signals). **The engine
+serves that subset from v0.17.0** (`wctrd --wasi engine`, the default): see
+[Architecture]({{< relref "architecture" >}}).
+
+**Status: shell v0.1.0 is released.** `sh` runs on the engine, where pipelines
+through the coreutils work. The base image is
+`ghcr.io/go-wasmcontainers/shell:0.1.0` (`wasip1/wasm`, one layer): `/bin/sh`,
+`/bin/coreutils.wasm` (the multicall module of
+[wasmdesk/coreutils](https://github.com/wasmdesk/coreutils), released as v0.4.0,
+with 42 tools as symbolic links), a root-only `/etc/passwd`, and the config
+`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **The image's
+registry package is not public yet** (it becomes public soon); until then it
+cannot be pulled without access.
 
 - **`wasix`**: `//go:wasmimport` bindings for the subset, with a Go API.
 - **`sh`**: the mvdan.cc/sh v3.14.1 interpreter (patched with one change: a pipe

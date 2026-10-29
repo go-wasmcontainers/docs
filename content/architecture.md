@@ -67,8 +67,21 @@ built from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx is
 gaining a `wasip1/wasm` target for this; until it ships, images come from
 whatever registry holds `wasip1` images.
 
+### Processes
+
+With the engine's WASI host (`wctrd --wasi engine`, the default), a guest can
+start other programs of its container through a small subset of
+[WASIX](https://wasix.org/), in WASIX's own import module `wasix_32v1`:
+`proc_spawn2`, `proc_spawn3`, `proc_join`, `proc_id`, `proc_parent`, `fd_pipe`,
+`tty_get` and `tty_set` (no fork, exec, threads or signals), since engine v0.17.0.
+A child is a new instance of a module of the same root filesystem; a container's
+processes form one group (at most 64 at once, 32 spawns per second), killed
+together with the container. This is what runs `sh` and its pipelines (the
+[shell]({{< relref "shell" >}})), shell-form `RUN` in a build, and `wctr exec`
+(engine v0.20.0).
+
 ## What is not in this design yet
 
-Networking (the WasmEdge socket ABI), `wctr exec` and a shell (a WASIX subset),
-building an image from a Dockerfile, Compose and a mini-Kubernetes are on the
-[roadmap]({{< relref "roadmap" >}}); none of them exists.
+A mini-Kubernetes is on the [roadmap]({{< relref "roadmap" >}}) and does not
+exist. Published ports, `exec` in the browser executor and the shell's base image
+are also still to come: see [Limitations]({{< relref "limitations" >}}).

@@ -1,23 +1,19 @@
 ---
 title: "Compose"
 weight: 26
-description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2. Compose v0.1.0."
+description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2. Compose v0.3.1, built into wctr."
 tags: [compose]
 ---
 
 **`wctr compose` runs a multi-container application described by the Compose
 Specification, through the engine's API.** It is the separate module
 [go-wasmcontainers/compose](https://github.com/go-wasmcontainers/compose)
-(v0.1.0, status M1). Compose files are accepted in **three formats, YAML, JSON
-and HCL2**, which load to the same model; files of different formats merge
+(v0.3.1, status M1), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
+[Getting started]({{< relref "getting-started" >}})); the standalone
+`wctr-compose` still exists. Compose files are accepted in **three formats, YAML,
+JSON and HCL2**, which load to the same model; files of different formats merge
 (`-f compose.yaml -f override.hcl`). The HCL2 mapping is specified in
 [docs/HCL.md](https://github.com/go-wasmcontainers/compose/blob/main/docs/HCL.md).
-
-The command on its own is `wctr-compose`, which takes `-H` like `wctr`:
-
-```console
-$ go install github.com/go-wasmcontainers/compose/cmd/wctr-compose@v0.1.0
-```
 
 ## Commands
 
@@ -25,13 +21,14 @@ $ go install github.com/go-wasmcontainers/compose/cmd/wctr-compose@v0.1.0
 
 | Command | Flags |
 |---|---|
-| `up [SERVICE...]` | `-d`, `--force-recreate`, `--build` (refused until build is wired to `wctr build`), `--remove-orphans` |
+| `up [SERVICE...]` | `-d`, `--force-recreate`, `--build`, `--remove-orphans` |
 | `down` | `-v` |
 | `ps [SERVICE...]` | `-a`, `-q` |
 | `logs [SERVICE...]` | `-f` |
 | `start`, `stop`, `restart` | dependencies first |
 | `rm [SERVICE...]` | `-s` |
 | `pull`, `images` | |
+| `build` | builds the services' images with [`wctr build`]({{< relref "build" >}}) |
 | `config` | `--format yaml\|json\|hcl`, `-q`, `--services` |
 
 Loading is complete: discovery, interpolation, `.env`, merging, `extends`,
@@ -39,15 +36,20 @@ Loading is complete: discovery, interpolation, `.env`, merging, `extends`,
 every error carrying `file:line:column`. The Compose files are untrusted input
 and every reader is bounded and fuzzed.
 
-## Limits of v0.1.0
+## Networking (v0.3.0)
+
+Services **reach each other by service name and aliases**, on as many networks as
+they declare. This needs engine v0.14.0 or later (it is built against v0.18.0).
+Builds (`up --build`, `build`) use `wctr build` (compose v0.2.0).
+
+## Limits
 
 What the engine cannot do yet, and compose therefore does not:
 
-- A service joins **one network** (the first by name, with a warning); **network
-  aliases are not applied yet**: reach a container by its name (`lab-web-1`),
-  not its service's name.
-- **`ports` and `restart` are recorded with a warning**, not applied.
-- **`build:` is refused** until compose is wired to `wctr build`.
-- **`service_healthy` fails clearly**: the engine cannot run a command in a
-  container yet (no `exec`).
+- **`ports` and `restart` are accepted with a warning**, not applied (no
+  published ports, no restart policies).
+- **`service_healthy` fails clearly**: compose does not run health checks.
+- **Build attributes** such as remote contexts, `cache_from` and `secrets` are
+  accepted with a warning and not applied; what the builder itself does not do is
+  on the [Build]({{< relref "build" >}}) page.
 - **No host bind mounts**, and no file outside the project directory.

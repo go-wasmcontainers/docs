@@ -14,7 +14,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 |---|---|
 | `pull IMAGE` | `IMAGE` is a registry reference or `oci:<dir>[:<ref.name>]` |
 | `images` | `-q` |
-| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0) |
+| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0) |
 | `ps` | `-a/--all`, `-q` |
 | `logs CONTAINER` | `-f/--follow` |
 | `rm CONTAINER...` | `-f/--force` |
@@ -22,6 +22,8 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `commit CONTAINER [REPO[:TAG]]` | `-m/--message`, `-a/--author`, `-c/--change` (`CMD`, `ENTRYPOINT`, `ENV`, `EXPOSE`, `LABEL`, `ONBUILD`, `STOPSIGNAL`, `USER`, `VOLUME`, `WORKDIR`): the container's changes as one OCI layer on the parent's, with a history entry; without a name, a `<none>` image addressable by ID (v0.12.0) |
 | `tag SOURCE TARGET` | another name for an image; a tag that moves leaves the old image as `<none>` (v0.12.0) |
 | `inspect NAME\|ID...` | containers, then images |
+| `build`, `compose` | [`wctr build`]({{< relref "build" >}}) and [`wctr compose`]({{< relref "compose" >}}), built into `wctr` since `cmd/wctr` v0.1.0; they use wctr's `-H`, which goes before the subcommand |
+| `exec [-d] [-i] [-t] [-e K=V] [-w DIR] CONTAINER CMD...` | a further process in a running container, in its process group; needs `--wasi engine`; exits with the command's status; `-t` gives it a terminal (the engine does the line editing and echo); `-u` accepts only `root` or `0` (engine v0.20.0; not in the browser executor yet) |
 | `kill CONTAINER...` | |
 | `start CONTAINER...` | `-a/--all` (v0.5.0) |
 | `stop CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
@@ -31,6 +33,9 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `stats` | (v0.7.0) |
 | `volume create\|ls\|inspect\|rm\|prune` | (v0.8.0) |
 | `network create\|ls\|inspect\|rm` | (v0.10.0) |
+| `network connect [--alias NAME] NETWORK CONTAINER` | a running container at once (v0.14.0) |
+| `network disconnect [-f] NETWORK CONTAINER` | (v0.14.0) |
+| `network prune [-f] [--filter label=K[=V]]` | unused networks (v0.14.0) |
 | `system df` | `-v` (v0.4.0) |
 | `system prune` | `-a`, `-f` (v0.4.0) |
 | `version` | |
@@ -53,14 +58,21 @@ streamed response, not a hijacked connection.
   uploads up to **1 GiB** by default; every other request is limited to 1 MiB.
 - `GET /images/{name}/json` shows the full image config, the history, and
   `RootFS.Layers` as `diff_ids`. Dangling images appear as `<none>`.
+- `HEAD` on the archive route returns only the path's stat, without building a tar
+  (v0.14.0).
+- Since v0.18.0 the Go client's `Containers`, `Networks` and `Volumes` take
+  optional filters (label filters among them). That changed their signatures;
+  **engine v0.21.0 is planned to restore the old signatures**, which is not
+  released yet.
 - Other modules add commands to `wctr` through an extension hook,
-  `cli.Options.Extra`; [`wctr build`]({{< relref "build" >}}) uses it. **`wctr
-  build` needs a `wctrd` of v0.12.0 or later.**
+  `cli.Options.Extra`; [`wctr build`]({{< relref "build" >}}) and
+  [`wctr compose`]({{< relref "compose" >}}) use it. **`wctr build` needs a
+  `wctrd` of v0.12.0 or later** (v0.17.0 for shell-form `RUN`).
 
 ## Events (v0.6.0)
 
 `wctr events` and `GET /events` stream NDJSON. `--since` and `--until` bound
-the range, and the filters are type, event, container, image, volume and label.
+the range, and the filters are type, event, container, image, volume, network and label.
 The last 1024 events are kept, and a reader that is too slow is cut off.
 
 ## Stats (v0.7.0)
