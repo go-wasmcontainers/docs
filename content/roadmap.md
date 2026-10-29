@@ -38,6 +38,7 @@ tags: [roadmap]
 | **`wctr exec` in the browser executor**: the process runs in its own worker inside the container's process group, counts against its limits and is killed with it (not in the playground yet: it is built on engine v0.14.0) | engine v0.26.0 |
 | **`exec -t` follows window resizes**: SIGWINCH on unix, 2 Hz sampling on Windows, wasip1 and js | engine v0.27.0 |
 | **Headless Linux surfaces fixed**: the SwiftShader lane renders (Chromium needs `--enable-features=Vulkan --use-vulkan=swiftshader --use-angle=swiftshader`); strict pixel checks | gpu v0.5.1 |
+| **Compose restart policies**: `restart` and `deploy.restart_policy` applied (`condition` none/on-failure/any → no/on-failure/always, `max_attempts` → retry count; `deploy.restart_policy` wins over `restart`; `delay` and `window` not applied, with a warning); `compose stop` ends a restart loop; needs engine v0.25.0 or later | compose v0.5.0 |
 | **Compose ports**: short and long `ports` syntax and `expose`; a port with no host address binds `127.0.0.1` on purpose; needs engine v0.22.0 or later | compose v0.4.0 |
 | **Step output streams live** in `wctr build` | build v0.4.0 |
 | **Rendering on surfaces** (`wasi-gfx:surface` with `surface-webgpu`, frames to the page), shown in the dashboard's Surfaces view | gpu v0.5.0 |
