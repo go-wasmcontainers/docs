@@ -1,7 +1,7 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.20.0) and the playground do not do."
+description: "What the engine (v0.22.0) and the playground do not do."
 tags: [limits]
 ---
 
@@ -9,8 +9,8 @@ tags: [limits]
 
 The playground has no shell (one `wctr` command per line), no pipes and no stdin
 for a container. **`wctr exec` is not in the browser executor yet**, and there is
-**no `-p` in the browser** (planned). Networks stay inside the page: no Internet,
-no published ports. Ctrl-C stops waiting for a container but leaves it running.
+**no `-p` in the browser** yet (in progress, through a second origin). Networks
+stay inside the page: no Internet, no published ports. Ctrl-C stops waiting for a container but leaves it running.
 Each container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes,
 4 MiB of logs, and 64 containers at once.
 
@@ -22,7 +22,7 @@ page is at `?ui=terminal`.
 
 ## Engine
 
-Engine v0.20.0 does **not** have:
+Engine v0.22.0 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;
@@ -30,8 +30,9 @@ Engine v0.20.0 does **not** have:
 - a terminal or stdin attach for a container's first process (`run -it`):
   `exec -it` has both. Processes are the WASIX subset, with no signals: a child
   is stopped only with its container, and Ctrl-C in a terminal erases the line;
-- **published ports (`-p`)**: natively they are coming in engine v0.22.0, and in
-  the browser they are planned. A container on several networks binds to its
+- **published ports in the browser** (`-p` works natively since v0.22.0; in the
+  browser it is in progress, through a second origin; natively there is no SCTP,
+  and the source address the guest sees is its own). A container on several networks binds to its
   primary address or to all (`0.0.0.0`), not to a secondary address alone;
   aliases work on in-engine networks only; no IPv6 on in-engine networks; the DNS
   shadows a container's own UDP server on port 53 at the resolver addresses (see

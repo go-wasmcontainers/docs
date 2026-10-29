@@ -93,8 +93,8 @@ containers at once.
 
 One `wctr` command per line, no shell, no pipes, no stdin for a container;
 **`wctr exec` is not in the browser executor yet**; **no `-p` published ports in
-the browser** (planned: the service worker would route a path to the container's
-port). Networks stay inside the page: there is no route to the Internet. Ctrl-C
+the browser** (in progress, through a second origin; natively `-p` works since
+engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 [Limitations]({{< relref "limitations" >}}) and the [roadmap]({{< relref "roadmap" >}}).
 

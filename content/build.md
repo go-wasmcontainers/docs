@@ -1,13 +1,13 @@
 ---
 title: "Build"
 weight: 24
-description: "wctr build: OCI images from a Containerfile or Dockerfile, for WASI. Build v0.3.0, built into wctr, with shell-form RUN."
+description: "wctr build: OCI images from a Containerfile or Dockerfile, for WASI. Build v0.4.0, built into wctr, with shell-form RUN and live step output."
 tags: [build]
 ---
 
 **`wctr build` builds OCI images from a Containerfile (or a Dockerfile, same
 syntax) for the engine.** It is the separate module
-[go-wasmcontainers/build](https://github.com/go-wasmcontainers/build) (v0.3.0),
+[go-wasmcontainers/build](https://github.com/go-wasmcontainers/build) (v0.4.0),
 which drives the engine through its API, the way BuildKit sits beside a
 container daemon: each step runs in a container made from the previous step's
 image, which is then committed. Pure Go, so it also runs in the browser.
@@ -50,6 +50,8 @@ Multi-stage builds work.
   the [shell]({{< relref "shell" >}}) base image (`ghcr.io/go-wasmcontainers/shell:0.1.0`,
   whose package is **not public yet**, soon). In an image without a runnable shell
   the build stops with a precise error.
+- **A step's output streams as the step runs** (build v0.4.0), instead of being
+  printed when it ends.
 - **Not supported, each a precise error and never ignored**: here-documents,
   `RUN --mount`, `ADD` from a URL or Git, `COPY --parents/--exclude`, `--chown`
   by name, symbolic `--chmod`, and xz/zstd archives in `ADD`.
