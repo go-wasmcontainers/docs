@@ -68,7 +68,8 @@ streamed response, not a hijacked connection.
   modules against the engine.
 - A start refused before the process exists (a port, a network, a volume) is
   recorded as an exit with code 128 and the reason, as Docker records it: a `run
-  --rm` returns at once and its container is removed (v0.22.0).
+  --rm` returns at once and its container is removed (v0.22.0). **Since v0.23.0,
+  `wctr run` exits 125 when the daemon refuses the start.**
 - Other modules add commands to `wctr` through an extension hook,
   `cli.Options.Extra`; [`wctr build`]({{< relref "build" >}}) and
   [`wctr compose`]({{< relref "compose" >}}) use it. **`wctr build` needs a

@@ -87,7 +87,9 @@ userland proxy does, not iptables). UDP keeps one session per client, ended afte
 - No SCTP, and the source address the guest sees is its own, not the client's.
 
 **In the browser, `-p` is not available yet**: it is in progress, through a second
-origin (the host would be the page, not a machine).
+origin (the host would be the page, not a machine). Engine v0.24.0 adds the
+groundwork, `portmap.Virtual`, published ports with no sockets, for an engine that
+runs in a page.
 
 ## In the browser
 

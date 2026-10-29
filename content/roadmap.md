@@ -32,6 +32,9 @@ tags: [roadmap]
 | **`wctr exec`** and the exec endpoints, with a terminal line discipline | engine v0.20.0 |
 | **The Go client's old list signatures restored** (v0.18.0 had broken the dashboard); filtering through `ContainersFiltered`, `NetworksFiltered`, `VolumesFiltered`; a CI job compiles downstream modules | engine v0.21.0 |
 | **Published ports** natively: `run -p`, `-P`, `--expose`, `wctr port`, a PORTS column in `ps`, `NetworkSettings.Ports`; default bind `127.0.0.1` with a bounded proxy; a refused start records exit 128 and `--rm` removes the container | engine v0.22.0 |
+| **`wctr run` exits 125** when the daemon refuses the start (the container records 128) | engine v0.23.0 |
+| **`portmap.Virtual`**: published ports with no sockets, the groundwork for `-p` in the browser (not live yet) | engine v0.24.0 |
+| **Compose ports**: short and long `ports` syntax and `expose`; a port with no host address binds `127.0.0.1` on purpose; needs engine v0.22.0 or later | compose v0.4.0 |
 | **Step output streams live** in `wctr build` | build v0.4.0 |
 | **Rendering on surfaces** (`wasi-gfx:surface` with `surface-webgpu`, frames to the page), shown in the dashboard's Surfaces view | gpu v0.5.0 |
 | **Playground v0.3.0**, on engine v0.14.0: the dashboard as the main UI, networking in the browser, Join class (relay), wasi-nn with the `mnist` image | playground v0.3.0, live |
