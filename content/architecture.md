@@ -80,6 +80,13 @@ together with the container. This is what runs `sh` and its pipelines (the
 [shell]({{< relref "shell" >}})), shell-form `RUN` in a build, and `wctr exec`
 (engine v0.20.0).
 
+### Published ports
+
+A container has no socket on the host, so a published port (`run -p`, engine
+v0.22.0) is a listener that `wctrd` opens on the host and proxies into the
+container's network endpoint. It listens on `127.0.0.1` unless the binding names an
+address. See [Networking]({{< relref "networking" >}}).
+
 ## What is not in this design yet
 
 A mini-Kubernetes is on the [roadmap]({{< relref "roadmap" >}}) and does not

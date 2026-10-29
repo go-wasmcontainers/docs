@@ -14,8 +14,9 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 |---|---|
 | `pull IMAGE` | `IMAGE` is a registry reference or `oci:<dir>[:<ref.name>]` |
 | `images` | `-q` |
-| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0) |
-| `ps` | `-a/--all`, `-q` |
+| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0), `-p/--publish [ip:][hostPort:]containerPort[/tcp\|udp]` (the ip defaults to **127.0.0.1**), `-P/--publish-all`, `--expose PORT[/proto]` (v0.22.0) |
+| `port CONTAINER [PRIVATE_PORT[/PROTO]]` | where a running container's ports are published, e.g. `80/tcp -> 127.0.0.1:8080` (v0.22.0) |
+| `ps` | `-a/--all`, `-q`; a PORTS column as Docker writes it (v0.22.0) |
 | `logs CONTAINER` | `-f/--follow` |
 | `rm CONTAINER...` | `-f/--force` |
 | `rmi IMAGE...` | `-f/--force` |
@@ -60,10 +61,14 @@ streamed response, not a hijacked connection.
   `RootFS.Layers` as `diff_ids`. Dangling images appear as `<none>`.
 - `HEAD` on the archive route returns only the path's stat, without building a tar
   (v0.14.0).
-- Since v0.18.0 the Go client's `Containers`, `Networks` and `Volumes` take
-  optional filters (label filters among them). That changed their signatures;
-  **engine v0.21.0 is planned to restore the old signatures**, which is not
-  released yet.
+- The Go client filters lists through `ContainersFiltered`, `NetworksFiltered` and
+  `VolumesFiltered`, which take an `api.Filters`. v0.18.0 had changed the
+  signatures of `Containers`, `Networks` and `Volumes` to take filters, which broke
+  the dashboard; **v0.21.0 restored them**, and a new CI job compiles downstream
+  modules against the engine.
+- A start refused before the process exists (a port, a network, a volume) is
+  recorded as an exit with code 128 and the reason, as Docker records it: a `run
+  --rm` returns at once and its container is removed (v0.22.0).
 - Other modules add commands to `wctr` through an extension hook,
   `cli.Options.Extra`; [`wctr build`]({{< relref "build" >}}) and
   [`wctr compose`]({{< relref "compose" >}}) use it. **`wctr build` needs a

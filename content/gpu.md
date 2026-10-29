@@ -1,7 +1,7 @@
 ---
 title: "GPU"
 weight: 28
-description: "wasi-nn on the CPU and on WebGPU, and wasi:webgpu compute, for WASI containers. gpu v0.4.0; rendering is in progress."
+description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.5.0."
 tags: [gpu]
 ---
 
@@ -11,7 +11,7 @@ rendering, on WebGPU in the browser and on the CPU natively. Pure Go. The design
 and its references are in
 [docs/DESIGN.md](https://github.com/go-wasmcontainers/gpu/blob/main/docs/DESIGN.md).
 
-**Status (v0.4.0): inference and compute exist; rendering is in progress.**
+**Status (v0.5.0): inference, compute and rendering exist.**
 
 | Part | State |
 |---|---|
@@ -19,7 +19,8 @@ and its references are in
 | `nn`: wasi-nn host module (`wasi_ephemeral_nn`), CPU backend; `wasinn` Go guest bindings; the `mnist` example | done (v0.2.0) |
 | `nn/webgpu`: wasi-nn on the GPU, WGSL kernels (browser) | done (v0.3.0) |
 | wasi:webgpu compute (host and Go guest), `examples/compute` | done (v0.4.0) |
-| rendering to a dashboard pane | **in progress**: the dashboard (v0.6.0) already has a Surfaces view for GPU frames |
+| rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
+| surface input events, vertex buffers, depth-stencil | not yet |
 
 A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later). The
 execution target is checked: `gpu` needs that capability **and** a GPU backend,
@@ -55,6 +56,25 @@ On an Apple Metal adapter, `examples/compute` (adding two 1M-float vectors,
 multiplying two 256×256 matrices) matches the CPU on every element, with the
 matmul in 15 ms on the GPU against 42 ms on the guest's CPU, and the vector add in
 69 ms against 3.5 ms (dominated by transfers). That is one run, not a benchmark.
+
+## Rendering: surfaces
+
+In the browser each `wasi-gfx:surface` is an `OffscreenCanvas` in the engine's
+worker; `present` turns it into an `ImageBitmap` handed to the page, which draws it
+(in the playground, a dashboard pane). The page acknowledges each frame: at most two
+are unacknowledged, a page that stops acknowledging slows the guest to a frame per
+second without stopping it, frames are paced to 60 per second, and surfaces are at
+most 1920×1080. Render pipelines take their vertices from the shader (no vertex
+buffers yet) and have no depth-stencil; surface input is not served yet.
+
+`examples/triangle` draws a spinning triangle. On an Apple Metal adapter, the end to
+end test checks 60 frames in order, the clear colour, the triangle, frames that
+change, and a rate within the pacing (one run: 51 frames per second).
+
+**Open defect:** on Linux headless Chromium 143 with SwiftShader (the CI fallback
+lane), every frame reaches the page fully transparent, while the same build renders
+correctly with SwiftShader on macOS; that lane checks events, order, container and
+pacing, not pixels.
 
 ## `onnx`
 

@@ -1,7 +1,7 @@
 ---
 title: "Networking"
 weight: 22
-description: "Sockets for guests, built-in DNS, networks with aliases and several networks per container, and a class network through the relay. Live in the playground since v0.3.0."
+description: "Sockets for guests, built-in DNS, networks with aliases and several networks per container, published ports, and a class network through the relay. Live in the playground since v0.3.0."
 tags: [networking]
 ---
 
@@ -62,6 +62,33 @@ the playground's "Join class" does.
 `wctrd --wasi engine` is the default, because sockets need it. `wctrd --wasi
 wazero` gives no network.
 
+## Published ports (engine v0.22.0, native)
+
+```console
+$ wctr run -d --name web -p 8080:80 netprobe serve 80
+$ wctr port web
+80/tcp -> 127.0.0.1:8080
+```
+
+A container has no socket on the host, so a published port is a listener that
+`wctrd` opens on the host and proxies into the container (the way Docker's
+userland proxy does, not iptables). UDP keeps one session per client, ended after
+90 seconds of silence. The API shapes are Docker's (`HostConfig.PortBindings`,
+`PublishAllPorts`, `Config.ExposedPorts`, `NetworkSettings.Ports`).
+
+- **A binding without an address listens on `127.0.0.1`, not on every address as
+  Docker does.** `-p 8080:80` makes the container reachable from this machine only;
+  `-p 0.0.0.0:8080:80` makes it reachable from the network.
+- A host port someone holds refuses the start (`Bind for 127.0.0.1:8080 failed:
+  port is already allocated`), and nothing of that container is left listening.
+  A container on `--network none` cannot publish.
+- Bounds: each binding proxies at most 128 connections and 256 UDP clients at a
+  time, and at most 1024 bindings per container; the parsers are fuzzed.
+- No SCTP, and the source address the guest sees is its own, not the client's.
+
+**In the browser, `-p` is not available yet**: it is in progress, through a second
+origin (the host would be the page, not a machine).
+
 ## In the browser
 
 In the playground, nothing leaves the page: there is no route to the Internet or
@@ -82,9 +109,8 @@ open item.
 
 ## Limitations
 
-- **No published ports (`-p`)** yet. Natively, `-p` is coming in engine v0.22.0; in
-  the browser it is planned (the service worker would route a path to the
-  container's port) and not implemented.
+- **`-p` is not in the browser yet** (in progress, through a second origin);
+  natively it exists since engine v0.22.0 (see above).
 - A container on several networks binds to its primary address or to all of them
   (`0.0.0.0`), not to a secondary address alone.
 - Aliases work on in-engine networks only; no IPv6 on in-engine networks; no
