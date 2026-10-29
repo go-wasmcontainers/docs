@@ -1,0 +1,92 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Build</title><link>https://go-wasmcontainers.github.io/docs/0.24/tags/build/</link><description>Recent content in Build on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.24/tags/build/index.xml" rel="self" type="application/rss+xml"/><item><title>Build</title><link>https://go-wasmcontainers.github.io/docs/0.24/build/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.24/build/</guid><description>
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; builds OCI images from a Containerfile (or a Dockerfile, same
+syntax) for the engine.&lt;/strong&gt; It is the separate module
+&lt;a href="https://github.com/go-wasmcontainers/build" target="_blank" rel="noopener"&gt;go-wasmcontainers/build&lt;/a&gt; (v0.4.0),
+which drives the engine through its API, the way BuildKit sits beside a
+container daemon: each step runs in a container made from the previous step&amp;rsquo;s
+image, which is then committed. Pure Go, so it also runs in the browser.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; is built into &lt;code&gt;wctr&lt;/code&gt;&lt;/strong&gt; since &lt;code&gt;cmd/wctr&lt;/code&gt; v0.1.0 (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.24/getting-started/"&gt;Getting started&lt;/a&gt;); the standalone &lt;code&gt;wctr-build&lt;/code&gt;
+still exists. It needs a &lt;code&gt;wctrd&lt;/code&gt; of v0.12.0 or later, and &lt;strong&gt;v0.17.0 or later for
+shell-form &lt;code&gt;RUN&lt;/code&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr build -t lab/app:v1 .
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm lab/app:v1
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="flags"&gt;Flags&lt;span class="hx:absolute hx:-mt-20" id="flags"&gt;&lt;/span&gt;
+&lt;a href="#flags" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr build [OPTIONS] PATH | -&lt;/code&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Flag&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;-t, --tag NAME[:TAG]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;name the image (repeatable)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;-f, --file FILE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the Containerfile (&lt;code&gt;-&lt;/code&gt;: standard input); default &lt;code&gt;PATH/Containerfile&lt;/code&gt;, else &lt;code&gt;PATH/Dockerfile&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--build-arg K=V&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a build argument (&lt;code&gt;K&lt;/code&gt; alone: from the environment)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--target STAGE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;build up to this stage&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--no-cache&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;run every step&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--progress plain&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;plain progress, the only kind&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;-q, --quiet&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;print only the image ID&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;code&gt;PATH&lt;/code&gt; is the build context, sent without what its &lt;code&gt;.containerignore&lt;/code&gt; (else
+&lt;code&gt;.dockerignore&lt;/code&gt;) excludes; &lt;code&gt;-&lt;/code&gt; reads the context as a tar on standard input.
+Multi-stage builds work.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-works-and-what-does-not-yet"&gt;What works, and what does not yet&lt;span class="hx:absolute hx:-mt-20" id="what-works-and-what-does-not-yet"&gt;&lt;/span&gt;
+&lt;a href="#what-works-and-what-does-not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Exec-form &lt;code&gt;RUN [&amp;quot;prog&amp;quot;, &amp;quot;arg&amp;quot;]&lt;/code&gt; works&lt;/strong&gt;: it runs a WebAssembly program in the
+step&amp;rsquo;s container.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Shell-form &lt;code&gt;RUN cmd&lt;/code&gt; works on an image with a shell&lt;/strong&gt; (build v0.3.0). It runs
+&lt;code&gt;/bin/sh&lt;/code&gt; through the engine&amp;rsquo;s WASIX process subset (engine v0.17.0 or later),
+so pipes, redirections, &lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt; and command substitution work, with coreutils on
+the &lt;a href="https://go-wasmcontainers.github.io/docs/0.24/shell/"&gt;shell&lt;/a&gt; base image (&lt;code&gt;wctr pull ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;, public). In an image without a runnable
+shell the build stops with a precise error.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;A step&amp;rsquo;s output streams as the step runs&lt;/strong&gt; (build v0.4.0), instead of being
+printed when it ends.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Not supported, each a precise error and never ignored&lt;/strong&gt;: here-documents,
+&lt;code&gt;RUN --mount&lt;/code&gt;, &lt;code&gt;ADD&lt;/code&gt; from a URL or Git, &lt;code&gt;COPY --parents/--exclude&lt;/code&gt;, &lt;code&gt;--chown&lt;/code&gt;
+by name, symbolic &lt;code&gt;--chmod&lt;/code&gt;, and xz/zstd archives in &lt;code&gt;ADD&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="cache"&gt;Cache&lt;span class="hx:absolute hx:-mt-20" id="cache"&gt;&lt;/span&gt;
+&lt;a href="#cache" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A step is reused when its parent image, the configuration it produces, the
+instruction and the digest of its inputs are the same. The cache is kept in
+&lt;code&gt;$XDG_CACHE_HOME/wasmcontainers/build-cache.json&lt;/code&gt; (in memory in a browser).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="speed"&gt;Speed&lt;span class="hx:absolute hx:-mt-20" id="speed"&gt;&lt;/span&gt;
+&lt;a href="#speed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A seven-instruction build with one &lt;code&gt;RUN&lt;/code&gt; took 61.7 ms cold and 4.8 ms with every
+step cached (build v0.2.0). &lt;strong&gt;Measured under heavy load (a load average of 66),
+so indicative only&lt;/strong&gt;, and not yet compared with BuildKit.&lt;/p&gt;</description></item></channel></rss>
