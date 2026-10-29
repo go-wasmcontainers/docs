@@ -1,0 +1,36 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Limits</title><link>https://go-wasmcontainers.github.io/docs/0.22/tags/limits/</link><description>Recent content in Limits on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.22/tags/limits/index.xml" rel="self" type="application/rss+xml"/><item><title>Limitations</title><link>https://go-wasmcontainers.github.io/docs/0.22/limitations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.22/limitations/</guid><description>
+&lt;h2 data-hextra-search-id="playground"&gt;Playground&lt;span class="hx:absolute hx:-mt-20" id="playground"&gt;&lt;/span&gt;
+&lt;a href="#playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground has no shell (one &lt;code&gt;wctr&lt;/code&gt; command per line), no pipes and no stdin
+for a container. &lt;strong&gt;&lt;code&gt;wctr exec&lt;/code&gt; is not in the browser executor yet&lt;/strong&gt;, and there is
+&lt;strong&gt;no &lt;code&gt;-p&lt;/code&gt; in the browser&lt;/strong&gt; yet (in progress, through a second origin). Networks
+stay inside the page: no Internet, no published ports. Ctrl-C stops waiting for a container but leaves it running.
+Each container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes,
+4 MiB of logs, and 64 containers at once.&lt;/p&gt;
+&lt;p&gt;The default UI, the dashboard, makes the page slower to be ready than the
+terminal page (728 ms against 1070 ms in Chromium on the live site), because
+&lt;code&gt;dashboard.wasm&lt;/code&gt; was 20.45 MB raw (5.32 MB gzipped) when measured; dashboard
+v0.4.2 made it smaller and no newer figure has been measured. The terminal-only
+page is at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="engine"&gt;Engine&lt;span class="hx:absolute hx:-mt-20" id="engine"&gt;&lt;/span&gt;
+&lt;a href="#engine" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Engine v0.22.0 does &lt;strong&gt;not&lt;/strong&gt; have:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CPU accounting: a WebAssembly guest gives none, so &lt;code&gt;wctr stats&lt;/code&gt; shows CPU as
+&lt;code&gt;--&lt;/code&gt;;&lt;/li&gt;
+&lt;li&gt;host-path volumes: only named volumes exist, and a host path is refused;&lt;/li&gt;
+&lt;li&gt;a terminal or stdin attach for a container&amp;rsquo;s first process (&lt;code&gt;run -it&lt;/code&gt;):
+&lt;code&gt;exec -it&lt;/code&gt; has both. Processes are the WASIX subset, with no signals: a child
+is stopped only with its container, and Ctrl-C in a terminal erases the line;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;published ports in the browser&lt;/strong&gt; (&lt;code&gt;-p&lt;/code&gt; works natively since v0.22.0; in the
+browser it is in progress, through a second origin; natively there is no SCTP,
+and the source address the guest sees is its own). A container on several networks binds to its
+primary address or to all (&lt;code&gt;0.0.0.0&lt;/code&gt;), not to a secondary address alone;
+aliases work on in-engine networks only; no IPv6 on in-engine networks; the DNS
+shadows a container&amp;rsquo;s own UDP server on port 53 at the resolver addresses (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/networking/"&gt;Networking&lt;/a&gt;);&lt;/li&gt;
+&lt;li&gt;a Kubernetes API, and volume drivers or tmpfs;&lt;/li&gt;
+&lt;li&gt;a distinct quota error: when a container exhausts its storage quota, the
+write surfaces to the module as &lt;code&gt;EIO&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;wctr build&lt;/code&gt; runs shell-form &lt;code&gt;RUN&lt;/code&gt; from engine v0.17.0 on the shell base image
+(shell v0.1.0); that image&amp;rsquo;s registry package is not public yet (soon). See
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/build/"&gt;Build&lt;/a&gt; and &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/shell/"&gt;Shell&lt;/a&gt;.&lt;/p&gt;</description></item></channel></rss>

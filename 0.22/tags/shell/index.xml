@@ -1,0 +1,32 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Shell</title><link>https://go-wasmcontainers.github.io/docs/0.22/tags/shell/</link><description>Recent content in Shell on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.22/tags/shell/index.xml" rel="self" type="application/rss+xml"/><item><title>Shell</title><link>https://go-wasmcontainers.github.io/docs/0.22/shell/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.22/shell/</guid><description>
+&lt;p&gt;&lt;strong&gt;A POSIX shell for WASI containers, in pure Go&lt;/strong&gt;, built for
+&lt;code&gt;GOOS=wasip1 GOARCH=wasm&lt;/code&gt;:
+&lt;a href="https://github.com/go-wasmcontainers/shell" target="_blank" rel="noopener"&gt;go-wasmcontainers/shell&lt;/a&gt;. It is
+what makes shell-form commands work: &lt;code&gt;RUN a &amp;amp;&amp;amp; b&lt;/code&gt; in a Containerfile,
+&lt;code&gt;wctr run IMAGE sh -c '…'&lt;/code&gt;, and &lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;A WebAssembly module cannot start another program: Go&amp;rsquo;s port has no fork or
+exec, and WASI preview 1 has no process calls. So the shell uses a small subset
+of &lt;a href="https://wasix.org/" target="_blank" rel="noopener"&gt;WASIX&lt;/a&gt;, in WASIX&amp;rsquo;s own import module (&lt;code&gt;wasix_32v1&lt;/code&gt;):
+&lt;code&gt;proc_spawn3&lt;/code&gt;, &lt;code&gt;proc_join&lt;/code&gt;, &lt;code&gt;fd_pipe&lt;/code&gt;, &lt;code&gt;proc_id&lt;/code&gt;, &lt;code&gt;proc_parent&lt;/code&gt;, &lt;code&gt;tty_get&lt;/code&gt; and
+&lt;code&gt;tty_set&lt;/code&gt;, and nothing else (no fork, exec, threads or signals). &lt;strong&gt;The engine
+serves that subset from v0.17.0&lt;/strong&gt; (&lt;code&gt;wctrd --wasi engine&lt;/code&gt;, the default): see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/architecture/"&gt;Architecture&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Status: shell v0.1.0 is released.&lt;/strong&gt; &lt;code&gt;sh&lt;/code&gt; runs on the engine, where pipelines
+through the coreutils work. The base image is
+&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt; (&lt;code&gt;wasip1/wasm&lt;/code&gt;, one layer): &lt;code&gt;/bin/sh&lt;/code&gt;,
+&lt;code&gt;/bin/coreutils.wasm&lt;/code&gt; (the multicall module of
+&lt;a href="https://github.com/wasmdesk/coreutils" target="_blank" rel="noopener"&gt;wasmdesk/coreutils&lt;/a&gt;, released as v0.4.0,
+with 42 tools as symbolic links), a root-only &lt;code&gt;/etc/passwd&lt;/code&gt;, and the config
+&lt;code&gt;Shell [&amp;quot;/bin/sh&amp;quot;,&amp;quot;-c&amp;quot;]&lt;/code&gt;, which is what a shell-form &lt;code&gt;RUN&lt;/code&gt; runs. &lt;strong&gt;The image&amp;rsquo;s
+registry package is not public yet&lt;/strong&gt; (it becomes public soon); until then it
+cannot be pulled without access.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;wasix&lt;/code&gt;&lt;/strong&gt;: &lt;code&gt;//go:wasmimport&lt;/code&gt; bindings for the subset, with a Go API.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;sh&lt;/code&gt;&lt;/strong&gt;: the mvdan.cc/sh v3.14.1 interpreter (patched with one change: a pipe
+function, since upstream&amp;rsquo;s &lt;code&gt;os.Pipe&lt;/code&gt; is &lt;code&gt;ENOSYS&lt;/code&gt; on wasip1), whose external
+commands start with &lt;code&gt;proc_spawn3&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;sh&lt;/code&gt; does pipelines, redirections, here-documents, command substitution, &lt;code&gt;cd&lt;/code&gt;,
+exported variables, &lt;code&gt;$?&lt;/code&gt;, &lt;code&gt;set -e/-u/-x/-f/-a&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;, &lt;code&gt;sh -c&lt;/code&gt;, &lt;code&gt;sh file&lt;/code&gt; and
+an interactive prompt on a TTY. By design of the subset it has no signals, no
+job control and no process substitution.&lt;/p&gt;</description></item></channel></rss>

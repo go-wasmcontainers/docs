@@ -1,0 +1,93 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Performance</title><link>https://go-wasmcontainers.github.io/docs/0.22/tags/performance/</link><description>Recent content in Performance on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.22/tags/performance/index.xml" rel="self" type="application/rss+xml"/><item><title>Performance</title><link>https://go-wasmcontainers.github.io/docs/0.22/performance/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.22/performance/</guid><description>
+&lt;h2 data-hextra-search-id="native-engine-v010"&gt;Native (engine v0.1.0)&lt;span class="hx:absolute hx:-mt-20" id="native-engine-v010"&gt;&lt;/span&gt;
+&lt;a href="#native-engine-v010" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Measured on an Apple M4 Max, one core, median of 3. The benchmarks are
+committed in the engine repository.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Benchmark&lt;/th&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;th&gt;Result&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;pull from a layout&lt;/td&gt;
+&lt;td&gt;cold pull of the &lt;code&gt;hello&lt;/code&gt; image (735 kB tar+gzip layer): verify and store&lt;/td&gt;
+&lt;td&gt;1.26 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;unpack a gzip layer&lt;/td&gt;
+&lt;td&gt;apply that layer to an empty tree&lt;/td&gt;
+&lt;td&gt;11.5 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;copy-on-write clone&lt;/td&gt;
+&lt;td&gt;a container&amp;rsquo;s root plus its first write&lt;/td&gt;
+&lt;td&gt;2.2 µs&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;cold start&lt;/td&gt;
+&lt;td&gt;first container of an image: wazero compiles the module and runs it to exit&lt;/td&gt;
+&lt;td&gt;610 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;warm start&lt;/td&gt;
+&lt;td&gt;every later container: compiled module from the per-digest cache&lt;/td&gt;
+&lt;td&gt;3.4 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;These native numbers were measured without a reference runtime on the machine.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="in-the-browser-the-playground"&gt;In the browser (the playground)&lt;span class="hx:absolute hx:-mt-20" id="in-the-browser-the-playground"&gt;&lt;/span&gt;
+&lt;a href="#in-the-browser-the-playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One run on a CI &lt;code&gt;ubuntu-latest&lt;/code&gt; runner, in Chromium and Firefox, with the
+native wazero and wasmtime 50 on the same runner for comparison:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;th&gt;Chromium&lt;/th&gt;
+&lt;th&gt;Firefox&lt;/th&gt;
+&lt;th&gt;wazero native&lt;/th&gt;
+&lt;th&gt;wasmtime 50&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;page ready&lt;/td&gt;
+&lt;td&gt;0.46 s&lt;/td&gt;
+&lt;td&gt;1.0 s&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;first run of &lt;code&gt;hello&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;81 ms&lt;/td&gt;
+&lt;td&gt;291 ms&lt;/td&gt;
+&lt;td&gt;825 ms&lt;/td&gt;
+&lt;td&gt;23 ms&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;next run&lt;/td&gt;
+&lt;td&gt;47 ms&lt;/td&gt;
+&lt;td&gt;231 ms&lt;/td&gt;
+&lt;td&gt;5.4 ms&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;one WASI call&lt;/td&gt;
+&lt;td&gt;97 µs&lt;/td&gt;
+&lt;td&gt;354 µs&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Page ready is slower with the dashboard.&lt;/strong&gt; On the live site in Chromium the
+page was ready in 728 ms for the terminal page and 1070 ms for the dashboard
+(the new default UI). &lt;code&gt;dashboard.wasm&lt;/code&gt; was 20.45 MB raw and 5.32 MB gzipped at
+that time; dashboard v0.4.2 made it smaller (go-widgets toolkit v0.345.1) and no
+newer figure has been measured.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Cold start in the browser is slower than wasmtime&lt;/strong&gt; (81 ms against 23 ms in
+Chromium, 291 ms in Firefox). These are single runs on one CI machine, not
+medians, so they show orders of magnitude rather than precise ratios.&lt;/p&gt;</description></item></channel></rss>

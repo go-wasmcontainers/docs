@@ -1,0 +1,119 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Playground</title><link>https://go-wasmcontainers.github.io/docs/0.22/tags/playground/</link><description>Recent content in Playground on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.22/tags/playground/index.xml" rel="self" type="application/rss+xml"/><item><title>Playground</title><link>https://go-wasmcontainers.github.io/docs/0.22/playground/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.22/playground/</guid><description>
+&lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a dashboard of WASI
+containers, images and volumes with a terminal running &lt;code&gt;wctr&lt;/code&gt;, in a web page.
+There is no server: the engine runs in the page (the browser executor,
+&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.3.0&lt;/strong&gt;, on engine
+v0.14.0.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-is-new-in-v030"&gt;What is new in v0.3.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v030"&gt;&lt;/span&gt;
+&lt;a href="#what-is-new-in-v030" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;The dashboard is the main UI&lt;/strong&gt;: the &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/dashboard/"&gt;dashboard&lt;/a&gt;
+(Containers, Images, Volumes, Networks, Terminal) runs on the persistent engine
+worker. The terminal alone, on xterm.js, stays at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Networking in the browser&lt;/strong&gt;: containers talk over TCP and UDP, by name (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/networking/"&gt;Networking&lt;/a&gt;). The &lt;code&gt;net&lt;/code&gt; image has &lt;code&gt;serve&lt;/code&gt;, &lt;code&gt;get&lt;/code&gt;,
+&lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt; and &lt;code&gt;dial&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Join class&lt;/strong&gt;: with a teacher&amp;rsquo;s &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/relay/"&gt;relay&lt;/a&gt;, the page joins
+the class network (the dashboard&amp;rsquo;s Networks view, &lt;strong&gt;Join class…&lt;/strong&gt;). The relay
+must run with &lt;code&gt;--cors-origin https://go-wasmcontainers.github.io&lt;/code&gt; (relay v0.3.0 or
+later). The join code is typed in a password field, posted once to the engine
+worker, and never stored.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;wasi-nn in the browser&lt;/strong&gt;: the &lt;code&gt;mnist&lt;/code&gt; image reads a handwritten digit (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/gpu/"&gt;GPU&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;It still works offline and keeps its images and containers across a reload.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="completion-and-editing"&gt;Completion and editing&lt;span class="hx:absolute hx:-mt-20" id="completion-and-editing"&gt;&lt;/span&gt;
+&lt;a href="#completion-and-editing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal completes with Tab, as a shell does: subcommands, flags, &lt;code&gt;-m&lt;/code&gt;
+sizes, local images (for &lt;code&gt;run&lt;/code&gt; and &lt;code&gt;rmi&lt;/code&gt;), the catalogue of images to pull,
+container names and IDs (&lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt;, &lt;code&gt;inspect&lt;/code&gt;, and only running containers
+for &lt;code&gt;kill&lt;/code&gt;) and image arguments. Editing is bash-style: Up and Down for the
+history, Ctrl-R to search it, Ctrl-A, Ctrl-E, Ctrl-B and Ctrl-F to move,
+Ctrl-U, Ctrl-K and Ctrl-W to cut, Ctrl-D, and Ctrl-L to clear. The history is
+kept per tab (in &lt;code&gt;sessionStorage&lt;/code&gt;). From a keypress to the line on screen took
+7 to 14 ms in Chromium and 23 ms in Firefox, measured in CI.&lt;/p&gt;
+&lt;p&gt;The line editor and its completion are the package &lt;code&gt;cli/lineedit&lt;/code&gt; of the
+engine: pure Go, usable by anyone who embeds the engine&amp;rsquo;s CLI.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-you-can-type"&gt;What you can type&lt;span class="hx:absolute hx:-mt-20" id="what-you-can-type"&gt;&lt;/span&gt;
+&lt;a href="#what-you-can-type" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr pull&lt;/code&gt;, &lt;code&gt;run&lt;/code&gt;, &lt;code&gt;ps&lt;/code&gt;, &lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt;, &lt;code&gt;rmi&lt;/code&gt;, &lt;code&gt;images&lt;/code&gt;, &lt;code&gt;inspect&lt;/code&gt; and &lt;code&gt;kill&lt;/code&gt;,
+&lt;code&gt;start&lt;/code&gt;, &lt;code&gt;stop&lt;/code&gt;, &lt;code&gt;restart&lt;/code&gt;, &lt;code&gt;diff&lt;/code&gt;, &lt;code&gt;stats&lt;/code&gt;, &lt;code&gt;events&lt;/code&gt;, &lt;code&gt;volume&lt;/code&gt;, &lt;code&gt;network&lt;/code&gt; and
+&lt;code&gt;system df|prune&lt;/code&gt;, plus &lt;code&gt;help&lt;/code&gt; and &lt;code&gt;clear&lt;/code&gt;. &lt;code&gt;run&lt;/code&gt; takes &lt;code&gt;--rm&lt;/code&gt;, &lt;code&gt;-d&lt;/code&gt;, &lt;code&gt;--name&lt;/code&gt;,
+&lt;code&gt;-e&lt;/code&gt;, &lt;code&gt;-w&lt;/code&gt;, &lt;code&gt;-m&lt;/code&gt;, &lt;code&gt;--entrypoint&lt;/code&gt;, &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt; and &lt;code&gt;--network NAME&lt;/code&gt;. Exit
+codes are the native engine&amp;rsquo;s: the container&amp;rsquo;s own, or 125, 126, 127, 134 and 137;
+see &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/commands/"&gt;Commands&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm hello
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm -e &lt;span class="nv"&gt;NAME&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;you greet
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="images"&gt;Images&lt;span class="hx:absolute hx:-mt-20" id="images"&gt;&lt;/span&gt;
+&lt;a href="#images" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Image&lt;/th&gt;
+&lt;th&gt;What it is&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;hello&lt;/code&gt;, &lt;code&gt;greet&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the small demonstration modules&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;lab&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a module with subcommands: &lt;code&gt;echo&lt;/code&gt;, &lt;code&gt;env&lt;/code&gt;, &lt;code&gt;pwd&lt;/code&gt;, &lt;code&gt;ls&lt;/code&gt;, &lt;code&gt;cat&lt;/code&gt;, &lt;code&gt;write&lt;/code&gt;, &lt;code&gt;count&lt;/code&gt;, &lt;code&gt;sleep&lt;/code&gt;, &lt;code&gt;spin&lt;/code&gt;, &lt;code&gt;hog&lt;/code&gt;, &lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;fs&lt;/code&gt;, &lt;code&gt;exit&lt;/code&gt;, &lt;code&gt;esc&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;net&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a networking probe: &lt;code&gt;serve&lt;/code&gt;, &lt;code&gt;get&lt;/code&gt;, &lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt;, &lt;code&gt;dial&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;mnist&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;classifies a handwritten digit with wasi-nn&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;age:1.3.2&lt;/code&gt;, &lt;code&gt;go-md2man:2.0.7&lt;/code&gt;, &lt;code&gt;shfmt:3.14.1&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1&lt;/code&gt; bottles&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;lua&lt;/code&gt; 5.4.9, &lt;code&gt;sqlite3&lt;/code&gt; 3.53.4, &lt;code&gt;minigzip&lt;/code&gt; (zlib 1.3.2)&lt;/td&gt;
+&lt;td&gt;C tools built by &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;go-pkgx&lt;/a&gt; for wasip1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Lua&amp;rsquo;s errors, which use WebAssembly exception handling, work in Chromium,
+Firefox and natively. The first &lt;code&gt;lua&lt;/code&gt; run took 69–108 ms in Chromium and 170 ms
+in Firefox, measured in CI.&lt;/p&gt;
+&lt;p&gt;Images and pulls survive a reload: they are kept in the browser&amp;rsquo;s IndexedDB.
+So do the containers (engine v0.4.0): state, exit code, logs and written files.
+A container that was running comes back exited with code 137, and a &lt;code&gt;--rm&lt;/code&gt; one
+is removed.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="offline-and-updates"&gt;Offline and updates&lt;span class="hx:absolute hx:-mt-20" id="offline-and-updates"&gt;&lt;/span&gt;
+&lt;a href="#offline-and-updates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground works offline (&lt;code&gt;dashboard.wasm&lt;/code&gt; is in the service-worker cache). A
+new version installs in the background and applies when you choose &amp;ldquo;Reload to
+update&amp;rdquo;. Only one tab runs the engine at a time; another tab can take over with
+&amp;ldquo;Use it here&amp;rdquo;. The engine was ready in 130–190 ms on a first visit in Chromium,
+80–115 ms after a reload, and 75 ms offline.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="limits-per-container"&gt;Limits per container&lt;span class="hx:absolute hx:-mt-20" id="limits-per-container"&gt;&lt;/span&gt;
+&lt;a href="#limits-per-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB of logs, and 64
+containers at once.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
+&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line, no shell, no pipes, no stdin for a container;
+&lt;strong&gt;&lt;code&gt;wctr exec&lt;/code&gt; is not in the browser executor yet&lt;/strong&gt;; &lt;strong&gt;no &lt;code&gt;-p&lt;/code&gt; published ports in
+the browser&lt;/strong&gt; (in progress, through a second origin; natively &lt;code&gt;-p&lt;/code&gt; works since
+engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
+stops waiting for a container but leaves it running. See
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/limitations/"&gt;Limitations&lt;/a&gt; and the &lt;a href="https://go-wasmcontainers.github.io/docs/0.22/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="speed"&gt;Speed&lt;span class="hx:absolute hx:-mt-20" id="speed"&gt;&lt;/span&gt;
+&lt;a href="#speed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Measured in one CI run, the page is ready in 0.46 s in Chromium and 1.0 s in
+Firefox, and the first &lt;code&gt;hello&lt;/code&gt; runs in 81 ms and 291 ms. &lt;strong&gt;Cold start is slower
+than wasmtime&lt;/strong&gt; (23 ms natively). The table is on
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.22/performance/"&gt;Performance&lt;/a&gt;.&lt;/p&gt;</description></item></channel></rss>
