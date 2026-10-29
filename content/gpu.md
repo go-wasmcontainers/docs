@@ -1,7 +1,7 @@
 ---
 title: "GPU"
 weight: 28
-description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.5.0."
+description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.5.1."
 tags: [gpu]
 ---
 
@@ -11,7 +11,7 @@ rendering, on WebGPU in the browser and on the CPU natively. Pure Go. The design
 and its references are in
 [docs/DESIGN.md](https://github.com/go-wasmcontainers/gpu/blob/main/docs/DESIGN.md).
 
-**Status (v0.5.0): inference, compute and rendering exist.**
+**Status (v0.5.1): inference, compute and rendering exist.**
 
 | Part | State |
 |---|---|
@@ -71,10 +71,15 @@ buffers yet) and have no depth-stencil; surface input is not served yet.
 end test checks 60 frames in order, the clear colour, the triangle, frames that
 change, and a rate within the pacing (one run: 51 frames per second).
 
-**Open defect:** on Linux headless Chromium 143 with SwiftShader (the CI fallback
-lane), every frame reaches the page fully transparent, while the same build renders
-correctly with SwiftShader on macOS; that lane checks events, order, container and
-pacing, not pixels.
+**Testing on headless Linux (fixed in v0.5.1).** Before v0.5.1, on Linux headless
+Chromium 143 with SwiftShader (the CI fallback lane), every frame reached the page
+fully transparent. Headless Linux Chromium can back a WebGPU canvas only with Skia
+on Vulkan: launch it with `--enable-features=Vulkan --use-vulkan=swiftshader
+--use-angle=swiftshader` (or a real Vulkan driver); otherwise the WebGPU instance is
+torn down at the first canvas configure and frames are blank. With those flags the
+Linux SwiftShader lane passes the same checks as macOS, pixels included, and the
+pixel checks are strict. `go run ./internal/cmd/gpuprobe --canvas` follows one
+canvas frame from the GPU to the page, to check a browser.
 
 ## `onnx`
 

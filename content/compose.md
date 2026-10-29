@@ -57,7 +57,8 @@ container does not become a service on the machine's network by accident. Write
 
 What the engine cannot do yet, and compose therefore does not:
 
-- **`restart` is accepted with a warning**, not applied (no restart policies).
+- **`restart` is accepted with a warning**, not applied: the engine has restart
+  policies since v0.25.0, but compose does not pass them on yet.
 - **`service_healthy` fails clearly**: compose does not run health checks.
 - **Build attributes** such as remote contexts, `cache_from` and `secrets` are
   accepted with a warning and not applied; what the builder itself does not do is

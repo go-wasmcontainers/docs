@@ -90,5 +90,6 @@ address. See [Networking]({{< relref "networking" >}}).
 ## What is not in this design yet
 
 A mini-Kubernetes is on the [roadmap]({{< relref "roadmap" >}}) and does not
-exist. Published ports, `exec` in the browser executor and the shell's base image
+exist. Published ports in the browser (in progress) and `exec` in the playground
+(the browser executor has it since engine v0.26.0; the playground is not rebuilt yet)
 are also still to come: see [Limitations]({{< relref "limitations" >}}).
