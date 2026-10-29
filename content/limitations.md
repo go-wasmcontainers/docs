@@ -1,7 +1,7 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.22.0) and the playground do not do."
+description: "What the engine (v0.24.0) and the playground do not do."
 tags: [limits]
 ---
 
@@ -22,7 +22,7 @@ page is at `?ui=terminal`.
 
 ## Engine
 
-Engine v0.22.0 does **not** have:
+Engine v0.24.0 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;
@@ -31,7 +31,7 @@ Engine v0.22.0 does **not** have:
   `exec -it` has both. Processes are the WASIX subset, with no signals: a child
   is stopped only with its container, and Ctrl-C in a terminal erases the line;
 - **published ports in the browser** (`-p` works natively since v0.22.0; in the
-  browser it is in progress, through a second origin; natively there is no SCTP,
+  browser it is in progress, through a second origin, with the groundwork `portmap.Virtual` in v0.24.0; natively there is no SCTP,
   and the source address the guest sees is its own). A container on several networks binds to its
   primary address or to all (`0.0.0.0`), not to a secondary address alone;
   aliases work on in-engine networks only; no IPv6 on in-engine networks; the DNS

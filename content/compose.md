@@ -1,14 +1,14 @@
 ---
 title: "Compose"
 weight: 26
-description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2. Compose v0.3.2, built into wctr."
+description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2, with published ports. Compose v0.4.0, built into wctr."
 tags: [compose]
 ---
 
 **`wctr compose` runs a multi-container application described by the Compose
 Specification, through the engine's API.** It is the separate module
 [go-wasmcontainers/compose](https://github.com/go-wasmcontainers/compose)
-(v0.3.2, status M1; it needs engine v0.14.0 or later and is built against v0.21.0; published ports are coming in compose v0.4.0), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
+(v0.4.0, status M1; it needs engine v0.14.0 or later, and **engine v0.22.0 or later for published ports**), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
 [Getting started]({{< relref "getting-started" >}})); the standalone
 `wctr-compose` still exists. Compose files are accepted in **three formats, YAML,
 JSON and HCL2**, which load to the same model; files of different formats merge
@@ -42,12 +42,22 @@ Services **reach each other by service name and aliases**, on as many networks a
 they declare. This needs engine v0.14.0 or later (it is built against v0.18.0).
 Builds (`up --build`, `build`) use `wctr build` (compose v0.2.0).
 
+## Published ports (v0.4.0)
+
+A service's `ports` (short and long syntax) and `expose` are applied, through the
+engine's published ports (engine v0.22.0 or later; see
+[Networking]({{< relref "networking" >}})). **One difference from the
+specification, on purpose**: a port that names no host address (`"8080:80"`, or the
+long syntax without `host_ip`) is published on **127.0.0.1**, the engine's
+default, not on every interface as the specification says, so that a lab
+container does not become a service on the machine's network by accident. Write
+`"0.0.0.0:8080:80"` (or `host_ip: 0.0.0.0`) when that is meant.
+
 ## Limits
 
 What the engine cannot do yet, and compose therefore does not:
 
-- **`ports` and `restart` are accepted with a warning**, not applied (no
-  published ports, no restart policies).
+- **`restart` is accepted with a warning**, not applied (no restart policies).
 - **`service_healthy` fails clearly**: compose does not run health checks.
 - **Build attributes** such as remote contexts, `cache_from` and `secrets` are
   accepted with a warning and not applied; what the builder itself does not do is
