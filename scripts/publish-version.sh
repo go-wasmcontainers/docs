@@ -38,6 +38,41 @@ command -v rsync >/dev/null || die "rsync is required"
 mkdir -p "$pages/$version"
 rsync -a --delete "$site/" "$pages/$version/"
 
+# A release supersedes the "main" build made while no release existed: nothing
+# rebuilds it any more, so it would go on showing pages that are out of date,
+# listed as the development version. Retire it, and answer a link into it
+# (/docs/main/<page>) with the same page of latest, through the 404 page.
+if [ "$version" != main ] && [ -d "$pages/main" ] && [ ! -L "$pages/main" ]; then
+	rm -rf "$pages/main"
+	echo "retired the superseded main build"
+fi
+if [ "$version" != main ] && [ ! -e "$pages/404.html" ]; then
+	cat >"$pages/404.html" <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found</title>
+  <script>
+    // The build that was published at /docs/main/ is retired: a link into it
+    // opens the same page of the latest version.
+    (function () {
+      var m = window.location.pathname.match(/^\/docs\/main(\/.*)?$/);
+      if (m) {
+        window.location.replace("/docs/latest" + (m[1] || "/") + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+</head>
+<body style="font-family: system-ui, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem;">
+  <h1>Page not found</h1>
+  <p>This page does not exist in the documentation. Try <a href="/docs/latest/">the latest version</a>.</p>
+</body>
+</html>
+EOF
+fi
+
 # The versions present, newest first (0.10 before 0.9: compared as numbers),
 # then "main". latest is the newest release, else main.
 versions=$(cd "$pages" && for d in *; do
