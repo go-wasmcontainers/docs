@@ -1,12 +1,13 @@
 ---
 title: "Networking"
 weight: 22
-description: "Sockets for guests, built-in DNS and networks in engine v0.10.0, and a class network through the relay. Not in the playground yet."
+description: "Sockets for guests, built-in DNS, networks with aliases and several networks per container, and a class network through the relay. Live in the playground since v0.3.0."
 tags: [networking]
 ---
 
-Engine v0.10.0 gives containers a network. **Networking in the playground is
-not live yet**: it is the next milestone. Everything below is the native engine.
+Containers have a network (engine v0.10.0, extended in v0.14.0). **Networking is
+live in the [playground]({{< relref "playground" >}}) since playground v0.3.0**
+(engine v0.10.0 there), and joining a teacher's class from the page works.
 
 ```console
 $ wctr network create lab
@@ -35,8 +36,16 @@ built with `-tags getaddrinfo` resolve through `sock_getaddrinfo` instead.
 
 - The default network is `bridge` (`10.88.0.0/16`); the other is `none`, which
   gives no sockets.
-- `wctr network create|ls|inspect|rm`, `wctr run --network NAME`, and the
-  container's address is shown by `inspect`. The API has `/networks`.
+- `wctr network create|ls|inspect|rm|connect|disconnect|prune`, and `wctr run
+  --network NAME`; the container's address is shown by `inspect`. The API has
+  `/networks`.
+- **Since v0.14.0**: `wctr run --network-alias NAME` gives a container more names
+  on a user-defined network (replicas may share one); `wctr network connect
+  [--alias NAME] NETWORK CONTAINER` attaches a running container at once, so a
+  container can be on **several networks**; `disconnect [-f]` detaches it; and
+  `prune [-f] [--filter label=K[=V]]` removes unused networks. Lists can be
+  filtered by label, and `wctr events` has network events (`create`, `connect`,
+  `disconnect`, `destroy`, `prune`).
 
 ## A class network
 
@@ -44,18 +53,41 @@ built with `-tags getaddrinfo` resolve through `sock_getaddrinfo` instead.
 class]` joins a class of the [relay]({{< relref "relay" >}}) and adds a network
 on which containers get the class's addresses and names, under the teacher's
 firewall. The join code is read from a file, which is refused if other users can
-read it; the session token is kept with mode 0600 and refreshed.
+read it; the session token is kept with mode 0600 and refreshed. Since engine
+v0.11.0 a host can also add and remove such a network at run time, which is what
+the playground's "Join class" does.
 
 ## The WASI host
 
-`wctrd --wasi engine` is now the default, because sockets need it.
-`wctrd --wasi wazero` gives no network.
+`wctrd --wasi engine` is the default, because sockets need it. `wctrd --wasi
+wazero` gives no network.
+
+## In the browser
+
+In the playground, nothing leaves the page: there is no route to the Internet or
+to the machine. Measured by `net bench` (200 sequential GETs, then one 8 MiB GET,
+between two containers on the bridge) on an Apple M4 Max, under a load of 16 to
+19, so **indicative only**:
+
+| | latency p50 / p90 | throughput |
+|---|---|---|
+| Chromium (the page) | 1.1 / 1.4 ms | 106–112 MB/s |
+| native: the same engine on wazero | 0.33 / 0.39 ms | 1.2 GB/s |
+| native: Go `net/http` over loopback TCP (upper bound) | 0.05 / 0.07 ms | 3.8 GB/s |
+
+The browser is about 3 times slower in latency and 11 times in throughput than the
+same engine natively, because every socket read or write is a WASI call that
+crosses from the container's worker to the engine's. Larger reads per call are an
+open item.
 
 ## Limitations
 
-- No published ports (`-p`) and no `network connect`.
-- No IPv6 on in-engine networks.
+- **No published ports (`-p`)** yet. Natively, `-p` is coming in engine v0.22.0; in
+  the browser it is planned (the service worker would route a path to the
+  container's port) and not implemented.
+- A container on several networks binds to its primary address or to all of them
+  (`0.0.0.0`), not to a secondary address alone.
+- Aliases work on in-engine networks only; no IPv6 on in-engine networks; no
+  `AF_UNIX`.
 - The DNS shadows a container's own UDP server on port 53 at those resolver
-  addresses.
-- Throughput has not been measured yet.
-- Networking in the playground is not live yet (next milestone).
+  addresses, and an unconnected UDP `sendto` to the resolver is not answered.

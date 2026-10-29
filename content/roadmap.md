@@ -22,14 +22,29 @@ tags: [roadmap]
 | **Networking**: sockets for guests (WasmEdge socket extension V2, preview1 `sock_*`), built-in DNS by container name, the networks `bridge` (10.88.0.0/16) and `none`, `wctr network create\|ls\|inspect\|rm`, `run --network`, a class network through the relay (`wctrd --relay`); `wctrd --wasi engine` is the new default; see [Networking]({{< relref "networking" >}}) | engine v0.10.0 |
 | **A class joined at run time**: the engine's network manager can add and remove a class network while running (`AddDriver`, `RemoveDriver`); the playground's "Join class" uses it | engine v0.11.0 |
 | **Builder support**: `wctr commit`, `wctr tag`, dangling `<none>` images, `POST /images/load`, container archive `PUT`/`GET` (1 GiB limit on those two routes), the full image config with `diff_ids`, and the `wctr` extension hook that `wctr build` uses | engine v0.12.0 |
+| **Host modules and `--gpu`**: typed imports beside `wasi_snapshot_preview1`, per-process state, `cabi_realloc`, `wctr run --gpu` | engine v0.13.0 |
+| **Networks, more**: aliases, several networks per container, `network connect`, `disconnect`, `prune`, label filters, `HEAD` on the archive route | engine v0.14.0 |
+| **Process primitives**: spawn, descriptor tables, process groups, pipes | engine v0.15.0 |
+| **`wctr` is a module of its own**, with `wctr build` and `wctr compose` built in; install with two `go install` commands | engine v0.16.0, `cmd/wctr` v0.1.0 |
+| **The WASIX process subset** as a host module (`wasix_32v1`): spawn, join, pipes, tty; `sh`, pipelines and shell-form `RUN` can run | engine v0.17.0 |
+| **List filters** on the Go client (`Containers`, `Networks`, `Volumes`) | engine v0.18.0 |
+| **`Config.Label`** names a process's container (the seam for process-level features) | engine v0.19.0 |
+| **`wctr exec`** and the exec endpoints, with a terminal line discipline | engine v0.20.0 |
+| **Playground v0.3.0**, on engine v0.14.0: the dashboard as the main UI, networking in the browser, Join class (relay), wasi-nn with the `mnist` image | playground v0.3.0, live |
 | **Playground v0.2.0**, on engine v0.9.0 (with completion, persistence and offline use): `start`, `stop`, `restart`, `diff`, `stats`, `events`, `volume`, `system df\|prune`, `run -v`; the images `lua` 5.4.9, `sqlite3` 3.53.4 and `minigzip` (zlib 1.3.2), C tools built by go-pkgx for wasip1 | playground v0.2.0, live |
 | **Playground M1**: `wctr` in a browser tab, no server | playground v0.1.0; live at <https://go-wasmcontainers.github.io/playground/> |
 | **Classroom relay** M-relay-1 and M-relay-2: [`wctr-relay`]({{< relref "relay" >}}), the relay and firewall with security groups modelled on OpenStack Neutron, its gRPC control API, TLS, OpenID Connect | relay v0.1.0 |
 | **Live flow map** (M-relay-2b): the relay's page drawing the class's flows, refused ones in red | relay v0.2.0 |
 | **CORS** for browsers on another origin: `wctr-relay serve --cors-origin` | relay v0.3.0 |
-| **`wctr build`**: multi-stage builds from a Containerfile or Dockerfile, the build cache, `.containerignore`; exec-form `RUN` ([Build]({{< relref "build" >}})) | build v0.2.0 (standalone `wctr-build`, needs wctrd v0.12.0 or later) |
+| **The POSIX shell** (`sh`, the `wasix` package) and its base image with the coreutils | shell v0.1.0, coreutils v0.4.0 |
+| **Relay fix**: `golang.org/x/net` updated for two advisories | relay v0.3.1 |
+| **`wctr build`**: multi-stage builds from a Containerfile or Dockerfile, the build cache, `.containerignore`; exec-form `RUN` ([Build]({{< relref "build" >}})) | build v0.2.0 |
+| **Shell-form `RUN`** on an image with a shell (engine v0.17.0 or later) | build v0.3.0 |
 | **`wctr compose`**: Compose files in YAML, JSON and HCL2; `up`, `down`, `ps`, `logs`, `start`, `stop`, `restart`, `rm`, `pull`, `images`, `config` ([Compose]({{< relref "compose" >}})) | compose v0.1.0 |
-| **ONNX loader and CPU operators** ([GPU]({{< relref "gpu" >}})) | gpu v0.1.0 |
+| **Compose builds** (`up --build`, `build`) | compose v0.2.0 |
+| **Service-name networking**, aliases and several networks (engine v0.14.0 or later), label-filtered lists | compose v0.3.0, v0.3.1 |
+| **GPU**: ONNX loader and CPU operators (v0.1.0); wasi-nn host module and `mnist` (v0.2.0); wasi-nn on WebGPU, proven on a real Apple GPU in CI (v0.3.0); wasi:webgpu compute (v0.4.0) ([GPU]({{< relref "gpu" >}})) | gpu v0.1.0 to v0.4.0 |
+| **Surfaces view** for GPU frames; Networks view and Join class | dashboard v0.6.0, v0.5.0 |
 
 What the engine does not do is on [Limitations]({{< relref "limitations" >}}).
 
@@ -39,14 +54,13 @@ Nothing below exists yet.
 
 | Item | What it is |
 | --- | --- |
-| Playground: stdin, a shell, networking | the playground has none of the three yet |
-| Networking in the playground | the networking above, in the browser: the next milestone, **not live yet** |
-| Published ports | `run -p`, and `network connect` |
+| Playground: stdin, a shell, `exec` | the playground has none of the three yet |
+| Published ports | `run -p`: natively planned for engine v0.22.0; in the browser planned (the service worker would route a path to the container's port) |
+| Engine v0.21.0 | restores the Go client's old list signatures that v0.18.0 changed; not released |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
-| Shell and `exec` | `wctr exec`, attach, and an interactive shell, through a WASIX subset: the guest side (`sh`, the `wasix` package) exists in [shell]({{< relref "shell" >}}); the engine's process spawning and a base image are **in progress** |
-| Shell-form `RUN` | needs the shell above; exec-form `RUN` works now |
-| `wctr build` and `wctr compose` inside `wctr` | today they are the standalone `wctr-build` and `wctr-compose` |
-| GPU | wasi-nn host module (next), wasi:webgpu compute and rendering (planned); see [GPU]({{< relref "gpu" >}}) |
+| The shell base image, public | `ghcr.io/go-wasmcontainers/shell:0.1.0` exists; its registry package becomes public soon |
+| Attach and `run -it` | a terminal and stdin for a container's first process |
+| GPU rendering | rendering to a dashboard pane is **in progress**; input back to the guest is planned; see [GPU]({{< relref "gpu" >}}) |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
 | apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip), which are now in the playground's catalogue; a base image plus tools is still planned |
 | A reference comparison | the benchmarks set against another WebAssembly runtime |

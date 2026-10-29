@@ -1,15 +1,14 @@
 ---
 title: "Dashboard"
 weight: 6
-description: "A graphical dashboard for the engine, built with go-widgets, running in the browser."
+description: "A graphical dashboard for the engine, built with go-widgets, running in the browser. Dashboard v0.6.0, with a Surfaces view for GPU frames."
 tags: [dashboard]
 ---
 
-**A graphical dashboard for the engine — containers, images, volumes and a
-`wctr` terminal — built with [go-widgets](https://github.com/go-widgets),
+**A graphical dashboard for the engine — containers, images, volumes, networks
+and a `wctr` terminal — built with [go-widgets](https://github.com/go-widgets),
 running in the browser on the same engine and API as `wctr`. Every action
-shows the `wctr` command it stands for.** This is dashboard v0.3.0, which runs
-on engine v0.8.0.
+shows the `wctr` command it stands for.** This is dashboard v0.6.0.
 
 ## What it does
 
@@ -27,6 +26,14 @@ on engine v0.8.0.
   the limit, a sparkline of recent readings, bytes written, log size and pids.
   CPU is shown as `--` because it is not measured.
 - The run dialog accepts `-v NAME:/path[:ro]`.
+- **Networks view and Join class** (v0.5.0): the networks, the networks of each
+  container, and a **Join class…** dialog for a teacher's
+  [relay]({{< relref "relay" >}}).
+- **Surfaces view** (v0.6.0): one pane per GPU surface a container opens
+  (`wasi-gfx:surface`, rendered by the [gpu]({{< relref "gpu" >}}) module in the
+  engine's worker), titled with the container and the surface number, with its
+  size and frame rate. A closed surface keeps its last frame, greyed, until you
+  dismiss it. Input back to the guest is planned.
 - It was tested live in Chromium and Firefox.
 
 Live demo: **<https://go-wasmcontainers.github.io/dashboard/>**. Source:
@@ -45,12 +52,12 @@ sequences are dropped.
   reload. In the [playground]({{< relref "playground" >}}) the dashboard runs
   on the persistent engine worker instead.
 - Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.
-- `dashboard.wasm` is 20.45 MB raw and 5.32 MB gzipped; a size reduction of
-  go-widgets is in progress (planned).
+- `dashboard.wasm` was 20.45 MB raw and 5.32 MB gzipped when measured. Dashboard
+  v0.4.2 made it smaller (go-widgets toolkit v0.345.1), and **no newer figure has
+  been measured**.
 
 ## In the playground
 
-The dashboard is now the playground's default UI on the live site (Containers,
-Images, Volumes, Terminal). The terminal-only page stays at `?ui=terminal`.
-This is deployed on the playground's main branch and is not in a playground tag
-yet: the latest tag is v0.2.0.
+The dashboard is the [playground]({{< relref "playground" >}})'s default UI since
+playground v0.3.0 (Containers, Images, Volumes, Networks, Terminal). The
+terminal-only page stays at `?ui=terminal`.

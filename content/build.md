@@ -1,23 +1,24 @@
 ---
 title: "Build"
 weight: 24
-description: "wctr build: OCI images from a Containerfile or Dockerfile, for WASI. Build v0.2.0; shell-form RUN is in progress."
+description: "wctr build: OCI images from a Containerfile or Dockerfile, for WASI. Build v0.3.0, built into wctr, with shell-form RUN."
 tags: [build]
 ---
 
 **`wctr build` builds OCI images from a Containerfile (or a Dockerfile, same
 syntax) for the engine.** It is the separate module
-[go-wasmcontainers/build](https://github.com/go-wasmcontainers/build) (v0.2.0),
+[go-wasmcontainers/build](https://github.com/go-wasmcontainers/build) (v0.3.0),
 which drives the engine through its API, the way BuildKit sits beside a
 container daemon: each step runs in a container made from the previous step's
 image, which is then committed. Pure Go, so it also runs in the browser.
 
-**Until it is wired into `wctr`, the command is the standalone `wctr-build`.**
-It needs a `wctrd` of v0.12.0 or later.
+**`wctr build` is built into `wctr`** since `cmd/wctr` v0.1.0 (see
+[Getting started]({{< relref "getting-started" >}})); the standalone `wctr-build`
+still exists. It needs a `wctrd` of v0.12.0 or later, and **v0.17.0 or later for
+shell-form `RUN`**.
 
 ```console
-$ go install github.com/go-wasmcontainers/build/cmd/wctr-build@v0.2.0
-$ wctr-build -H "$WCTR_HOST" -t lab/app:v1 .
+$ wctr build -t lab/app:v1 .
 $ wctr run --rm lab/app:v1
 ```
 
@@ -41,11 +42,14 @@ Multi-stage builds work.
 
 ## What works, and what does not yet
 
-- **Exec-form `RUN ["prog", "arg"]` works now**: it runs a WebAssembly program in
-  the step's container.
-- **Shell-form `RUN cmd` is in progress.** It needs an image with a shell and an
-  engine that spawns processes, which the [shell]({{< relref "shell" >}})
-  repository is building. Until then the build stops with a precise error.
+- **Exec-form `RUN ["prog", "arg"]` works**: it runs a WebAssembly program in the
+  step's container.
+- **Shell-form `RUN cmd` works on an image with a shell** (build v0.3.0). It runs
+  `/bin/sh` through the engine's WASIX process subset (engine v0.17.0 or later),
+  so pipes, redirections, `&&` and command substitution work, with coreutils on
+  the [shell]({{< relref "shell" >}}) base image (`ghcr.io/go-wasmcontainers/shell:0.1.0`,
+  whose package is **not public yet**, soon). In an image without a runnable shell
+  the build stops with a precise error.
 - **Not supported, each a precise error and never ignored**: here-documents,
   `RUN --mount`, `ADD` from a URL or Git, `COPY --parents/--exclude`, `--chown`
   by name, symbolic `--chmod`, and xz/zstd archives in `ADD`.
@@ -59,5 +63,5 @@ instruction and the digest of its inputs are the same. The cache is kept in
 ## Speed
 
 A seven-instruction build with one `RUN` took 61.7 ms cold and 4.8 ms with every
-step cached. **Measured under heavy load (a load average of 66), so indicative
-only**, and not yet compared with BuildKit.
+step cached (build v0.2.0). **Measured under heavy load (a load average of 66),
+so indicative only**, and not yet compared with BuildKit.

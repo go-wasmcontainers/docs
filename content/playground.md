@@ -1,25 +1,32 @@
 ---
 title: "Playground"
 weight: 5
-description: "wctr in a browser tab: pull and run WASI containers with no server."
+description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.3.0: networking, Join class, wasi-nn."
 tags: [playground]
 ---
 
-**<https://go-wasmcontainers.github.io/playground/>** is a terminal in a web
-page running `wctr` against WASI containers. There is no server: the engine
-runs in the page (the browser executor, `runtime/browser`, new in engine
-v0.2.0). This is **playground v0.2.0**: completion and line editing (below),
-persistence and offline use, the new commands and the images `lua`, `sqlite3`
-and `minigzip`, on engine v0.9.0.
+**<https://go-wasmcontainers.github.io/playground/>** is a dashboard of WASI
+containers, images and volumes with a terminal running `wctr`, in a web page.
+There is no server: the engine runs in the page (the browser executor,
+`runtime/browser`, new in engine v0.2.0). This is **playground v0.3.0**, on engine
+v0.14.0.
 
-## The dashboard is the default UI
+## What is new in v0.3.0
 
-On the live site, the playground now opens the [dashboard]({{< relref "dashboard" >}})
-(Containers, Images, Volumes, Terminal), running on the persistent engine worker.
-The terminal-only page stays at `?ui=terminal`. It works offline: `dashboard.wasm`
-is in the service-worker cache. This is deployed on the playground's main branch
-but is not in a playground tag yet (the latest tag is v0.2.0). The terminal
-sections below describe the terminal page.
+- **The dashboard is the main UI**: the [dashboard]({{< relref "dashboard" >}})
+  (Containers, Images, Volumes, Networks, Terminal) runs on the persistent engine
+  worker. The terminal alone, on xterm.js, stays at `?ui=terminal`.
+- **Networking in the browser**: containers talk over TCP and UDP, by name (see
+  [Networking]({{< relref "networking" >}})). The `net` image has `serve`, `get`,
+  `bench`, `udp-echo`, `udp`, `lookup` and `dial`.
+- **Join class**: with a teacher's [relay]({{< relref "relay" >}}), the page joins
+  the class network (the dashboard's Networks view, **Join class…**). The relay
+  must run with `--cors-origin https://go-wasmcontainers.github.io` (relay v0.3.0 or
+  later). The join code is typed in a password field, posted once to the engine
+  worker, and never stored.
+- **wasi-nn in the browser**: the `mnist` image reads a handwritten digit (see
+  [GPU]({{< relref "gpu" >}})).
+- It still works offline and keeps its images and containers across a reload.
 
 ## Completion and editing
 
@@ -38,10 +45,11 @@ engine: pure Go, usable by anyone who embeds the engine's CLI.
 ## What you can type
 
 `wctr pull`, `run`, `ps`, `logs`, `rm`, `rmi`, `images`, `inspect` and `kill`,
-and, with engine v0.9.0, `start`, `stop`, `restart`, `diff`, `stats`, `events`,
-`volume` and `system df|prune`, plus `help` and `clear`. `run` takes `--rm`,
-`-d`, `--name`, `-e`, `-w`, `-m`, `--entrypoint` and `-v NAME:/path[:ro]`. Exit codes are the native engine's: the container's own,
-or 125, 126, 127, 134 and 137; see [Commands]({{< relref "commands" >}}).
+`start`, `stop`, `restart`, `diff`, `stats`, `events`, `volume`, `network` and
+`system df|prune`, plus `help` and `clear`. `run` takes `--rm`, `-d`, `--name`,
+`-e`, `-w`, `-m`, `--entrypoint`, `-v NAME:/path[:ro]` and `--network NAME`. Exit
+codes are the native engine's: the container's own, or 125, 126, 127, 134 and 137;
+see [Commands]({{< relref "commands" >}}).
 
 ```console
 $ wctr run --rm hello
@@ -54,8 +62,10 @@ $ wctr run --rm -e NAME=you greet
 |---|---|
 | `hello`, `greet` | the small demonstration modules |
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
+| `net` | a networking probe: `serve`, `get`, `bench`, `udp-echo`, `udp`, `lookup`, `dial` |
+| `mnist` | classifies a handwritten digit with wasi-nn |
 | `age:1.3.2`, `go-md2man:2.0.7`, `shfmt:3.14.1` | [pkgx](https://github.com/go-pkgx) `wasip1` bottles |
-| `lua` 5.4.9, `sqlite3` 3.53.4, `minigzip` (zlib 1.3.2) | C tools built by [go-pkgx](https://github.com/go-pkgx) for wasip1, live with engine v0.9.0 |
+| `lua` 5.4.9, `sqlite3` 3.53.4, `minigzip` (zlib 1.3.2) | C tools built by [go-pkgx](https://github.com/go-pkgx) for wasip1 |
 
 Lua's errors, which use WebAssembly exception handling, work in Chromium,
 Firefox and natively. The first `lua` run took 69–108 ms in Chromium and 170 ms
@@ -68,11 +78,11 @@ is removed.
 
 ## Offline and updates
 
-The playground works offline. A new version installs in the background and
-applies when you choose "Reload to update". Only one tab runs the engine at a
-time; another tab can take over with "Use it here". The engine was ready in
-130–190 ms on a first visit in Chromium, 80–115 ms after a reload, and 75 ms
-offline.
+The playground works offline (`dashboard.wasm` is in the service-worker cache). A
+new version installs in the background and applies when you choose "Reload to
+update". Only one tab runs the engine at a time; another tab can take over with
+"Use it here". The engine was ready in 130–190 ms on a first visit in Chromium,
+80–115 ms after a reload, and 75 ms offline.
 
 ## Limits per container
 
@@ -81,10 +91,12 @@ containers at once.
 
 ## Not yet
 
-No stdin, no shell, and **no networking: engine v0.10.0's networking is not live
-in the playground yet** (the next milestone). Ctrl-C stops waiting for a container but
-leaves it running. See [Limitations]({{< relref "limitations" >}}) and the
-[roadmap]({{< relref "roadmap" >}}).
+One `wctr` command per line, no shell, no pipes, no stdin for a container;
+**`wctr exec` is not in the browser executor yet**; **no `-p` published ports in
+the browser** (planned: the service worker would route a path to the container's
+port). Networks stay inside the page: there is no route to the Internet. Ctrl-C
+stops waiting for a container but leaves it running. See
+[Limitations]({{< relref "limitations" >}}) and the [roadmap]({{< relref "roadmap" >}}).
 
 ## Speed
 
