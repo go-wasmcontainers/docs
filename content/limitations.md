@@ -1,7 +1,7 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.27.0) and the playground do not do."
+description: "What the engine (v0.29.1) and the playground do not do."
 tags: [limits]
 ---
 
@@ -22,7 +22,7 @@ page is at `?ui=terminal`.
 
 ## Engine
 
-Engine v0.27.0 does **not** have:
+Engine v0.29.1 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;

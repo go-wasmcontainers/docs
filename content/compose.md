@@ -1,14 +1,14 @@
 ---
 title: "Compose"
 weight: 26
-description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2, with published ports and restart policies. Compose v0.5.0, built into wctr."
+description: "wctr compose: multi-container applications from Compose files in YAML, JSON or HCL2, with published ports, restart policies and health checks. Compose v0.6.0, built into wctr."
 tags: [compose]
 ---
 
 **`wctr compose` runs a multi-container application described by the Compose
 Specification, through the engine's API.** It is the separate module
 [go-wasmcontainers/compose](https://github.com/go-wasmcontainers/compose)
-(v0.5.0, status M1; it needs engine v0.14.0 or later, **engine v0.22.0 or later for published ports** and **engine v0.25.0 or later for restart policies**), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
+(v0.6.0, status M1; it needs engine v0.14.0 or later, **engine v0.22.0 or later for published ports**, **engine v0.25.0 or later for restart policies** and **engine v0.28.0 or later for health checks**), and it is **built into `wctr`** since `cmd/wctr` v0.1.0 (see
 [Getting started]({{< relref "getting-started" >}})); the standalone
 `wctr-compose` still exists. Compose files are accepted in **three formats, YAML,
 JSON and HCL2**, which load to the same model; files of different formats merge
@@ -21,7 +21,7 @@ JSON and HCL2**, which load to the same model; files of different formats merge
 
 | Command | Flags |
 |---|---|
-| `up [SERVICE...]` | `-d`, `--force-recreate`, `--build`, `--remove-orphans` |
+| `up [SERVICE...]` | `-d`, `--force-recreate`, `--build`, `--remove-orphans`, `--wait-timeout` (how long a `service_healthy` dependency may stay starting; default 5 minutes) |
 | `down` | `-v` |
 | `ps [SERVICE...]` | `-a`, `-q` |
 | `logs [SERVICE...]` | `-f` |
@@ -65,11 +65,30 @@ not applied: the engine's own backoff (100 ms, doubling up to a minute) applies,
 compose warns about them. `compose stop` also stops a container that is waiting to
 restart, and ends its restart policy until the next start.
 
+## Health checks (v0.6.0)
+
+A service's `healthcheck` is applied, through the engine's health checks (engine
+v0.28.0 or later; see [Commands]({{< relref "commands" >}})): `test` as `CMD`,
+`CMD-SHELL` or `NONE`, the durations, and `retries`. `disable: true` is `NONE`.
+What a `healthcheck` leaves unset, even `test`, comes from the image's own check,
+which the engine merges field by field, as Docker does. **`CMD-SHELL` needs a
+`/bin/sh` in the image**, for example `ghcr.io/go-wasmcontainers/shell`
+([Shell]({{< relref "shell" >}})).
+
+`depends_on` with `condition: service_healthy` **really waits**. The wait follows
+the engine's events, and `up` fails when the dependency reports unhealthy (with the
+last probe's exit code and output), when it stops first, when it has no health
+check, and after `--wait-timeout` (default 5 minutes) when it is still starting. A
+dependency with `required: false` that fails any of these is a warning, and `up`
+carries on. The engine's minimum interval is 100 ms.
+
+With this, every engine feature compose waited for is applied: aliases and several
+networks, label filters, ports, restart policies and health checks.
+
 ## Limits
 
 What the engine cannot do yet, and compose therefore does not:
 
-- **`service_healthy` fails clearly**: compose does not run health checks.
 - **Build attributes** such as remote contexts, `cache_from` and `secrets` are
   accepted with a warning and not applied; what the builder itself does not do is
   on the [Build]({{< relref "build" >}}) page.

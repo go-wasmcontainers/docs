@@ -38,6 +38,11 @@ tags: [roadmap]
 | **`wctr exec` in the browser executor**: the process runs in its own worker inside the container's process group, counts against its limits and is killed with it (not in the playground yet: it is built on engine v0.14.0) | engine v0.26.0 |
 | **`exec -t` follows window resizes**: SIGWINCH on unix, 2 Hz sampling on Windows, wasip1 and js | engine v0.27.0 |
 | **Headless Linux surfaces fixed**: the SwiftShader lane renders (Chromium needs `--enable-features=Vulkan --use-vulkan=swiftshader --use-angle=swiftshader`); strict pixel checks | gpu v0.5.1 |
+| **Health checks**: `Config.Healthcheck`, `State.Health`, `health_status` events, `run --health-cmd` and the other `--health-*` flags, `--no-healthcheck`, an image's `HEALTHCHECK`; `ps` shows `(healthy)` | engine v0.28.0 |
+| **Dependencies updated** (relay v0.3.1, compress v1.20.3, pflag v1.0.10) | engine v0.28.1 |
+| **Tests share one wazero compilation cache**: the engine's CI test job went from 13 min 30 s to 5 min 40 s | engine v0.29.0 |
+| **Browser executor**: stdin reads never block the engine; `exec` waits up to 30 s for a starting container | engine v0.29.1 |
+| **Compose health checks**: `healthcheck` applied (`CMD`, `CMD-SHELL`, `NONE`, durations, retries; `disable: true` is `NONE`; merged field by field with the image's check); `depends_on` `service_healthy` really waits (errors on unhealthy, on stop, on no check and after `up --wait-timeout`, default 5 minutes; `required: false` is a warning); `CMD-SHELL` needs `/bin/sh` in the image; needs engine v0.28.0 or later | compose v0.6.0 |
 | **Compose restart policies**: `restart` and `deploy.restart_policy` applied (`condition` none/on-failure/any → no/on-failure/always, `max_attempts` → retry count; `deploy.restart_policy` wins over `restart`; `delay` and `window` not applied, with a warning); `compose stop` ends a restart loop; needs engine v0.25.0 or later | compose v0.5.0 |
 | **Compose ports**: short and long `ports` syntax and `expose`; a port with no host address binds `127.0.0.1` on purpose; needs engine v0.22.0 or later | compose v0.4.0 |
 | **Step output streams live** in `wctr build` | build v0.4.0 |
