@@ -131,6 +131,27 @@ most a minute. Meanwhile the container is `restarting`: `ps` lists it as `Restar
 port) is not retried. `inspect` shows `HostConfig.RestartPolicy`, `RestartCount` and
 `State.Restarting`. A policy cannot be combined with `--rm`.
 
+## Health checks
+
+`run --health-cmd CMD`, `--health-interval`, `--health-timeout`,
+`--health-start-period`, `--health-start-interval`, `--health-retries` and
+`--no-healthcheck` (engine v0.28.0), as well as an image's `HEALTHCHECK` and
+`Config.Healthcheck`. The test (`CMD` argv, `CMD-SHELL` through `/bin/sh -c`, or
+`NONE`) runs inside the running container through the exec machinery, every interval
+(default 30 s; 5 s during the start period), and is killed after the timeout
+(default 30 s, exit code −1). A pass makes the container `healthy`; `retries`
+consecutive failures (default 3) make it `unhealthy`; failures in the start period do
+not count. Fields left empty are taken from the image's check. `inspect` shows
+`State.Health` (`Status`, `FailingStreak`, and the last 5 results with at most 4 KiB
+of output each), `ps` shows `Up … (healthy)`, and each change of status is a
+`health_status` event (`healthy` or `unhealthy`; `--filter event=health_status`).
+Probes stop with the container and are not exec events. Unlike Docker, an interval or
+timeout below **100 ms** is refused. A `CMD-SHELL` probe needs a `/bin/sh` in the
+image (the [shell]({{< relref "shell" >}}) image has one).
+
+**For embedders.** An in-process engine must register `wasi.WASIX` in its
+`HostModules`, as `wctrd` does, to run the shell image or health checks.
+
 ## `wctrd`
 
 | Flag | Meaning | Default |

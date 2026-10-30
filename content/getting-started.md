@@ -19,11 +19,11 @@ module (one command naming both no longer works):
 
 ```sh
 go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.1.0
-go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.27.0
+go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.29.1
 ```
 
 `cmd/wctr` v0.1.0 requires engine v0.16.0, so the `wctr` it installs carries that
-version's commands; the daemon (`wctrd`, engine v0.27.0) serves everything else,
+version's commands; the daemon (`wctrd`, engine v0.29.1) serves everything else,
 including `exec` and published ports.
 
 Shell completion for `wctr` (bash, zsh, fish or PowerShell), for example in
