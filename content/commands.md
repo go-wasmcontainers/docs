@@ -134,6 +134,17 @@ The container's own, or:
 | 134 | the module trapped |
 | 137 | killed, or the wall-clock timeout |
 
+A guest's own `proc_exit` code is a Docker status: 0 to 255 is kept, so a
+guest that exits 126, 127 or 130 reports exactly that. A code outside that
+range (`os.Exit(-1)` arrives as 4294967295, or 256 and above) is reported as 1,
+which is also what wasmtime reports for it. wasmtime additionally turns 126 to
+255 into 1; the engine does not, because Docker is the target.
+
+Standard input, output and error are reported to the guest as a character
+device only under `run -t` or `exec -t`; otherwise (a pipe) they are of type
+`unknown`, as in wasmtime, so `isatty()` and Go's terminal checks answer false
+for piped input.
+
 ## Restart policies
 
 `run --restart` and `HostConfig.RestartPolicy` (engine v0.25.0), as Docker's:
