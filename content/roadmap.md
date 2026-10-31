@@ -42,6 +42,15 @@ tags: [roadmap]
 | **Dependencies updated** (relay v0.3.1, compress v1.20.3, pflag v1.0.10) | engine v0.28.1 |
 | **Tests share one wazero compilation cache**: the engine's CI test job went from 13 min 30 s to 5 min 40 s | engine v0.29.0 |
 | **Browser executor**: stdin reads never block the engine; `exec` waits up to 30 s for a starting container | engine v0.29.1 |
+| **Typed-ahead keys survive a terminal's switch to raw mode**: when a process on a terminal (`exec -t`) turns line mode off, the line being typed is handed over at once, as Linux does when ICANON is cleared (before, keys typed before a shell's first prompt were lost); `wasi.Terminal.OnMode`; the hand-over runs in at most one goroutine at a time | engine v0.29.2 |
+| **A container's own stdin and terminal**: `Config.Tty`, `OpenStdin`, `StdinOnce`, `HostConfig.ConsoleSize`; `wctr run -i/-t/--detach-keys`, `wctr attach`, `wctr start -ai`; `POST /containers/{id}/attach` with `stdin=1` and `detachKeys`, and `POST /containers/{id}/resize`; Ctrl-P Ctrl-Q detaches; works in both executors | engine v0.30.0 |
+| **`cmd/wctr` v0.2.0**: engine v0.22.0, compose v0.3.2, build v0.4.0 | `cmd/wctr` v0.2.0 |
+| **A line editor on a terminal** (arrow keys, history, ^C, ^D) in `sh` | shell v0.2.0 |
+| **`wasix/exec`**, `os/exec` for WASI containers, in `wasix`, a module of its own | shell v0.2.0, `wasix/v0.1.0` |
+| **Coreutils**: `grep` flags, `tee` streaming, `ls FILE`, `find`, `sort`, `head`/`tail`, `date`, `tr`, `printf` in full; `hostname`, `uname`, `id`, `whoami`, `clear`, `which` | coreutils v0.5.0 |
+| **GPU surface input**: `wasi-gfx:surface` pointer and key streams for the guest, `webgpu.SurfaceInput` for the page | gpu v0.6.0 |
+| **Open shell** in the dashboard (`wctr exec -it CONTAINER sh`), request bodies streamed over the bridge | dashboard v0.7.0 |
+| **Playground v0.4.0**, on engine v0.27.2: GPU surfaces and compute (the `compute` and `triangle` images), WASIX, the `shell` image pinned by digest, typing into `exec -i`, `wctr build` and `wctr compose` in the page, and the shell of the second origin for containers' pages (`-p` is not live yet) | playground v0.4.0, live |
 | **Compose health checks**: `healthcheck` applied (`CMD`, `CMD-SHELL`, `NONE`, durations, retries; `disable: true` is `NONE`; merged field by field with the image's check); `depends_on` `service_healthy` really waits (errors on unhealthy, on stop, on no check and after `up --wait-timeout`, default 5 minutes; `required: false` is a warning); `CMD-SHELL` needs `/bin/sh` in the image; needs engine v0.28.0 or later | compose v0.6.0 |
 | **Compose restart policies**: `restart` and `deploy.restart_policy` applied (`condition` none/on-failure/any → no/on-failure/always, `max_attempts` → retry count; `deploy.restart_policy` wins over `restart`; `delay` and `window` not applied, with a warning); `compose stop` ends a restart loop; needs engine v0.25.0 or later | compose v0.5.0 |
 | **Compose ports**: short and long `ports` syntax and `expose`; a port with no host address binds `127.0.0.1` on purpose; needs engine v0.22.0 or later | compose v0.4.0 |
@@ -72,11 +81,11 @@ Nothing below exists yet.
 
 | Item | What it is |
 | --- | --- |
-| Playground: stdin, a shell, `exec` | the playground has none of the three yet; the engine's browser executor has `exec` since v0.26.0, so it waits for a playground built on it |
-| Published ports in the browser | `run -p` in the playground: **in progress**, through a second origin; natively it shipped in engine v0.22.0 |
+| Playground: `run -i/-t` and `attach` | the playground (v0.4.0) types into `exec -i` and has a shell, but is built on engine v0.27.2, which has no `run -i`; it waits for a playground built on engine v0.30.0 |
+| Published ports in the browser | `run -p` in the playground: **in progress**, through a second origin (the origin is deployed; the rest is not live); natively it shipped in engine v0.22.0 |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
-| Attach and `run -it` | a terminal and stdin for a container's first process |
-| GPU surface input, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0, headless Linux fixed in v0.5.1); these are not served yet; see [GPU]({{< relref "gpu" >}}) |
+| Surface input from the dashboard's pane | the guest side shipped in gpu v0.6.0; no dashboard release (v0.7.0 is the latest) forwards pane events yet |
+| `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0, headless Linux fixed in v0.5.1) and input in v0.6.0; these are not served yet; see [GPU]({{< relref "gpu" >}}) |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
 | apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip), which are now in the playground's catalogue; a base image plus tools is still planned |
 | A reference comparison | the benchmarks set against another WebAssembly runtime |

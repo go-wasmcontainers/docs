@@ -1,15 +1,18 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.29.1) and the playground do not do."
+description: "What the engine (v0.30.0) and the playground do not do."
 tags: [limits]
 ---
 
 ## Playground
 
-The playground has no shell (one `wctr` command per line), no pipes and no stdin
-for a container. **`wctr exec` is in the browser executor since engine v0.26.0, but the playground (v0.3.0, built on engine v0.14.0) does not have it until it is rebuilt**, and there is
-**no `-p` in the browser** yet (in progress, through a second origin). Networks
+The playground (v0.4.0, built on engine v0.27.2) takes one `wctr` command per
+line, with no pipes in that line. It has `exec`, a shell (the `shell` image) and
+typing into `exec -i`; it does **not** have `run -i`, `-t` or `attach`, which are
+in engine v0.30.0 and wait for a playground built on it. There is
+**no `-p` in the browser** yet: the second origin for containers' pages is
+deployed, but the rest of it is in progress and not live. Networks
 stay inside the page: no Internet, no published ports. Ctrl-C stops waiting for a container but leaves it running.
 Each container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes,
 4 MiB of logs, and 64 containers at once.
@@ -22,14 +25,14 @@ page is at `?ui=terminal`.
 
 ## Engine
 
-Engine v0.29.1 does **not** have:
+Engine v0.30.0 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;
 - host-path volumes: only named volumes exist, and a host path is refused;
-- a terminal or stdin attach for a container's first process (`run -it`):
-  `exec -it` has both. Processes are the WASIX subset, with no signals: a child
-  is stopped only with its container, and Ctrl-C in a terminal erases the line;
+- signals: processes are the WASIX subset, a child is stopped only with its
+  container, and Ctrl-C in a terminal erases the line (a container's first
+  process has its own stdin and terminal since v0.30.0: `run -it`, `attach`);
 - **published ports in the browser** (`-p` works natively since v0.22.0; in the
   browser it is in progress, through a second origin, with the groundwork `portmap.Virtual` in v0.24.0; natively there is no SCTP,
   and the source address the guest sees is its own). A container on several networks binds to its

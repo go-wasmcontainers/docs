@@ -1,7 +1,7 @@
 ---
 title: "GPU"
 weight: 28
-description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.5.1."
+description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.6.0, with surface input."
 tags: [gpu]
 ---
 
@@ -11,7 +11,7 @@ rendering, on WebGPU in the browser and on the CPU natively. Pure Go. The design
 and its references are in
 [docs/DESIGN.md](https://github.com/go-wasmcontainers/gpu/blob/main/docs/DESIGN.md).
 
-**Status (v0.5.1): inference, compute and rendering exist.**
+**Status (v0.6.0): inference, compute, rendering and surface input exist.**
 
 | Part | State |
 |---|---|
@@ -20,7 +20,8 @@ and its references are in
 | `nn/webgpu`: wasi-nn on the GPU, WGSL kernels (browser) | done (v0.3.0) |
 | wasi:webgpu compute (host and Go guest), `examples/compute` | done (v0.4.0) |
 | rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
-| surface input events, vertex buffers, depth-stencil | not yet |
+| surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); no dashboard release forwards pane events yet |
+| `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | not yet |
 
 A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later). The
 execution target is checked: `gpu` needs that capability **and** a GPU backend,
@@ -65,7 +66,11 @@ worker; `present` turns it into an `ImageBitmap` handed to the page, which draws
 are unacknowledged, a page that stops acknowledging slows the guest to a frame per
 second without stopping it, frames are paced to 60 per second, and surfaces are at
 most 1920×1080. Render pipelines take their vertices from the shader (no vertex
-buffers yet) and have no depth-stencil; surface input is not served yet.
+buffers yet) and have no depth-stencil. **Surface input** (v0.6.0): pointer and key
+events reach the guest as `wasi-gfx:surface` streams, which the host serves for
+core modules per the Canonical ABI. The page's events are untrusted and bounded:
+finite coordinates up to 2^16, key text of at most 64 bytes of valid UTF-8, 256
+queued events per stream and 64 streams per surface.
 
 `examples/triangle` draws a spinning triangle. On an Apple Metal adapter, the end to
 end test checks 60 frames in order, the clear colour, the triangle, frames that
