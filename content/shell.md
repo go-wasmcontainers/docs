@@ -1,7 +1,7 @@
 ---
 title: "Shell"
 weight: 27
-description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.2.0 with the coreutils v0.5.0, a public base image; the engine runs it from v0.17.0."
+description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.2.0, a public base image (shell:0.2.0, with coreutils v0.4.0); the engine runs it from v0.17.0."
 tags: [shell]
 ---
 
@@ -22,18 +22,24 @@ serves that subset from v0.17.0** (`wctrd --wasi engine`, the default): see
 **Status: shell v0.2.0 is released.** v0.2.0 adds **a line editor on a terminal**
 (arrow keys, history, Ctrl-C, Ctrl-D) and makes **`wasix` a module of its own**
 (`github.com/go-wasmcontainers/shell/wasix`, tag `wasix/v0.1.0`) with
-**`wasix/exec`**, which mirrors `os/exec` for WASI containers. The base image
-documented below is `ghcr.io/go-wasmcontainers/shell:0.1.0`. `sh` runs on the engine, where pipelines
-through the coreutils work. The base image is
-`ghcr.io/go-wasmcontainers/shell:0.1.0` (`wasip1/wasm`, one layer): `/bin/sh`,
+**`wasix/exec`**, which mirrors `os/exec` for WASI containers. `sh` runs on the engine, where pipelines
+through the coreutils work. **The current base image is
+`ghcr.io/go-wasmcontainers/shell:0.2.0`** (also tagged `latest`), built by the
+release workflow of shell v0.2.0 and pushed with manifest digest
+`sha256:32bb0127f92334ed27698f59ff5c3f7f439387026fc626fc37d0e0df35c505a7`
+(`wasip1/wasm`, one layer of 51 entries): `sh` with the line editor,
 `/bin/coreutils.wasm` (the multicall module of
-[wasmdesk/coreutils](https://github.com/wasmdesk/coreutils), v0.4.0 in this image,
-with 42 tools as symbolic links; coreutils v0.5.0 is released, see below), a root-only `/etc/passwd`, and the config
-`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **The image is
-public**; pull it with:
+[wasmdesk/coreutils](https://github.com/wasmdesk/coreutils)) with its tools as
+symbolic links, a root-only `/etc/passwd`, and the config
+`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **This image
+carries coreutils v0.4.0, not v0.5.0**: shell v0.2.0's `go.mod` requires
+coreutils v0.4.0, and coreutils v0.5.0 reached the repository after the tag. The
+earlier image, `shell:0.1.0` (shell v0.1.0, 42 tools), stays available and is the
+one the examples elsewhere in these pages use. **The images are public**; pull
+the current one with:
 
 ```console
-$ wctr pull ghcr.io/go-wasmcontainers/shell:0.1.0
+$ wctr pull ghcr.io/go-wasmcontainers/shell:0.2.0
 ```
 
 - **`wasix`**: `//go:wasmimport` bindings for the subset, with a Go API; a
@@ -49,7 +55,7 @@ $ wctr pull ghcr.io/go-wasmcontainers/shell:0.1.0
 `sh` does pipelines, redirections, here-documents, command substitution, `cd`,
 exported variables, `$?`, `set -e/-u/-x/-f/-a`, `exec`, `sh -c`, `sh file` and
 an interactive prompt on a TTY, with a line editor since v0.2.0. **Coreutils v0.5.0**
-(released; the image documented above is `:0.1.0`) brings `grep` flags (`-F -r -l -c -o -q -w -H -h`, combined flags,
+(released; the current image, `:0.2.0`, carries v0.4.0) brings `grep` flags (`-F -r -l -c -o -q -w -H -h`, combined flags,
 POSIX exit 2), a `tee` that writes its files as the input arrives, POSIX
 `ls FILE`, `find` expressions, `sort` keys, `head` and `tail` (`-c`, `+N`,
 `tail -f`), `date +FORMAT`, `tr` and a full POSIX `printf`, and adds `hostname`,

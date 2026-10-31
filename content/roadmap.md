@@ -45,7 +45,7 @@ tags: [roadmap]
 | **Typed-ahead keys survive a terminal's switch to raw mode**: when a process on a terminal (`exec -t`) turns line mode off, the line being typed is handed over at once, as Linux does when ICANON is cleared (before, keys typed before a shell's first prompt were lost); `wasi.Terminal.OnMode`; the hand-over runs in at most one goroutine at a time | engine v0.29.2 |
 | **A container's own stdin and terminal**: `Config.Tty`, `OpenStdin`, `StdinOnce`, `HostConfig.ConsoleSize`; `wctr run -i/-t/--detach-keys`, `wctr attach`, `wctr start -ai`; `POST /containers/{id}/attach` with `stdin=1` and `detachKeys`, and `POST /containers/{id}/resize`; Ctrl-P Ctrl-Q detaches; works in both executors | engine v0.30.0 |
 | **`cmd/wctr` v0.2.0**: engine v0.22.0, compose v0.3.2, build v0.4.0 | `cmd/wctr` v0.2.0 |
-| **A line editor on a terminal** (arrow keys, history, ^C, ^D) in `sh` | shell v0.2.0 |
+| **A line editor on a terminal** (arrow keys, history, ^C, ^D) in `sh`; the public image `ghcr.io/go-wasmcontainers/shell:0.2.0` (digest `sha256:32bb0127…505a7`, coreutils v0.4.0) | shell v0.2.0 |
 | **`wasix/exec`**, `os/exec` for WASI containers, in `wasix`, a module of its own | shell v0.2.0, `wasix/v0.1.0` |
 | **Coreutils**: `grep` flags, `tee` streaming, `ls FILE`, `find`, `sort`, `head`/`tail`, `date`, `tr`, `printf` in full; `hostname`, `uname`, `id`, `whoami`, `clear`, `which` | coreutils v0.5.0 |
 | **GPU surface input**: `wasi-gfx:surface` pointer and key streams for the guest, `webgpu.SurfaceInput` for the page | gpu v0.6.0 |
