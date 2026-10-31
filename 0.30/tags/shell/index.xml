@@ -11,8 +11,13 @@ of &lt;a href="https://wasix.org/" target="_blank" rel="noopener"&gt;WASIX&lt;/a
 &lt;code&gt;tty_set&lt;/code&gt;, and nothing else (no fork, exec, threads or signals). &lt;strong&gt;The engine
 serves that subset from v0.17.0&lt;/strong&gt; (&lt;code&gt;wctrd --wasi engine&lt;/code&gt;, the default): see
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/architecture/"&gt;Architecture&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Status: shell v0.2.0 is released.&lt;/strong&gt; v0.2.0 adds &lt;strong&gt;a line editor on a terminal&lt;/strong&gt;
-(arrow keys, history, Ctrl-C, Ctrl-D) and makes &lt;strong&gt;&lt;code&gt;wasix&lt;/code&gt; a module of its own&lt;/strong&gt;
+&lt;p&gt;&lt;strong&gt;Status: shell v0.3.0 is released.&lt;/strong&gt; v0.3.0 updates its dependencies: coreutils
+v0.5.0, then the coreutils commit that adds &lt;code&gt;env CMD&lt;/code&gt;, &lt;code&gt;xargs&lt;/code&gt; and &lt;code&gt;find -exec&lt;/code&gt;
+(released as coreutils v0.6.0), and engine v0.29.2 (typed-ahead keys survive the
+switch to raw mode, which the line editor relies on). &lt;strong&gt;This page names the image
+only as far as it was confirmed&lt;/strong&gt;: the latest one confirmed published is
+&lt;code&gt;shell:0.2.0&lt;/code&gt;, described next. v0.2.0 added &lt;strong&gt;a line editor on a terminal&lt;/strong&gt;
+(arrow keys, history, Ctrl-C, Ctrl-D) and made &lt;strong&gt;&lt;code&gt;wasix&lt;/code&gt; a module of its own&lt;/strong&gt;
 (&lt;code&gt;github.com/go-wasmcontainers/shell/wasix&lt;/code&gt;, tag &lt;code&gt;wasix/v0.1.0&lt;/code&gt;) with
 &lt;strong&gt;&lt;code&gt;wasix/exec&lt;/code&gt;&lt;/strong&gt;, which mirrors &lt;code&gt;os/exec&lt;/code&gt; for WASI containers. &lt;code&gt;sh&lt;/code&gt; runs on the engine, where pipelines
 through the coreutils work. &lt;strong&gt;The current base image is
@@ -56,8 +61,10 @@ commands start with &lt;code&gt;proc_spawn3&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;code&gt;sh&lt;/code&gt; does pipelines, redirections, here-documents, command substitution, &lt;code&gt;cd&lt;/code&gt;,
 exported variables, &lt;code&gt;$?&lt;/code&gt;, &lt;code&gt;set -e/-u/-x/-f/-a&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;, &lt;code&gt;sh -c&lt;/code&gt;, &lt;code&gt;sh file&lt;/code&gt; and
-an interactive prompt on a TTY, with a line editor since v0.2.0. &lt;strong&gt;Coreutils v0.5.0&lt;/strong&gt;
-(released; the current image, &lt;code&gt;:0.2.0&lt;/code&gt;, carries v0.4.0) brings &lt;code&gt;grep&lt;/code&gt; flags (&lt;code&gt;-F -r -l -c -o -q -w -H -h&lt;/code&gt;, combined flags,
+an interactive prompt on a TTY, with a line editor since v0.2.0. &lt;strong&gt;Coreutils v0.6.0&lt;/strong&gt;
+adds &lt;code&gt;env CMD&lt;/code&gt;, &lt;code&gt;xargs&lt;/code&gt; and &lt;code&gt;find -exec&lt;/code&gt; (programs run through &lt;code&gt;wasix/exec&lt;/code&gt; on
+wasip1 and &lt;code&gt;os/exec&lt;/code&gt; natively). &lt;strong&gt;Coreutils v0.5.0&lt;/strong&gt; (the image &lt;code&gt;:0.2.0&lt;/code&gt; carries
+v0.4.0) brought &lt;code&gt;grep&lt;/code&gt; flags (&lt;code&gt;-F -r -l -c -o -q -w -H -h&lt;/code&gt;, combined flags,
 POSIX exit 2), a &lt;code&gt;tee&lt;/code&gt; that writes its files as the input arrives, POSIX
 &lt;code&gt;ls FILE&lt;/code&gt;, &lt;code&gt;find&lt;/code&gt; expressions, &lt;code&gt;sort&lt;/code&gt; keys, &lt;code&gt;head&lt;/code&gt; and &lt;code&gt;tail&lt;/code&gt; (&lt;code&gt;-c&lt;/code&gt;, &lt;code&gt;+N&lt;/code&gt;,
 &lt;code&gt;tail -f&lt;/code&gt;), &lt;code&gt;date +FORMAT&lt;/code&gt;, &lt;code&gt;tr&lt;/code&gt; and a full POSIX &lt;code&gt;printf&lt;/code&gt;, and adds &lt;code&gt;hostname&lt;/code&gt;,

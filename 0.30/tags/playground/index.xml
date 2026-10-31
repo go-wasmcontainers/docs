@@ -2,10 +2,19 @@
 &lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a dashboard of WASI
 containers, images and volumes with a terminal running &lt;code&gt;wctr&lt;/code&gt;, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.4.0&lt;/strong&gt;, on engine
-v0.27.2.&lt;/p&gt;
-&lt;h2 data-hextra-search-id="what-is-new-in-v040"&gt;What is new in v0.4.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v040"&gt;&lt;/span&gt;
-&lt;a href="#what-is-new-in-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.4.1&lt;/strong&gt;, on engine
+v0.30.0.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-is-new-in-v041"&gt;What is new in v0.4.1&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v041"&gt;&lt;/span&gt;
+&lt;a href="#what-is-new-in-v041" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Engine v0.30.0&lt;/strong&gt;: &lt;code&gt;run -i/-t&lt;/code&gt;, &lt;code&gt;attach&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt; in the page. A line
+whose own &lt;code&gt;wctr&lt;/code&gt; flags say &lt;code&gt;-i&lt;/code&gt; (&lt;code&gt;run&lt;/code&gt;, &lt;code&gt;start&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;; also &lt;code&gt;-dit&lt;/code&gt;) gets what
+you type; the end-to-end test runs &lt;code&gt;wctr run --rm -it shell&lt;/code&gt; and &lt;code&gt;exec -it c sh&lt;/code&gt;
+and checks the exit status.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The usercontent shell forgets requests the playground never answers&lt;/strong&gt;
+(&lt;code&gt;shell.js&lt;/code&gt; and &lt;code&gt;sw.js&lt;/code&gt;): a pending-request leak fixed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v040"&gt;What was new in v0.4.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v040"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;GPU surfaces and compute&lt;/strong&gt;: the &lt;code&gt;compute&lt;/code&gt; and &lt;code&gt;triangle&lt;/code&gt; images (copies of
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/gpu/"&gt;gpu&lt;/a&gt; v0.5.1&amp;rsquo;s examples) run with &lt;code&gt;--gpu&lt;/code&gt;; a surface is a
 pane under the dashboard&amp;rsquo;s &lt;strong&gt;Surfaces&lt;/strong&gt; view. A container without &lt;code&gt;--gpu&lt;/code&gt;, or a
@@ -151,9 +160,8 @@ update&amp;rdquo;. Only one tab runs the engine at a time; another tab can take 
 &lt;a href="#limits-per-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB of logs, and 64
 containers at once.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
-&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line (pipes need the &lt;code&gt;shell&lt;/code&gt; image&amp;rsquo;s &lt;code&gt;sh&lt;/code&gt;); &lt;strong&gt;no &lt;code&gt;run -i&lt;/code&gt;,
-&lt;code&gt;-t&lt;/code&gt; or &lt;code&gt;attach&lt;/code&gt;&lt;/strong&gt; (engine v0.30.0 has them; the playground, v0.4.0, is built on
-engine v0.27.2); &lt;strong&gt;no &lt;code&gt;-p&lt;/code&gt; published ports in the browser&lt;/strong&gt; (in progress, through a
+&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line (pipes need the &lt;code&gt;shell&lt;/code&gt; image&amp;rsquo;s &lt;code&gt;sh&lt;/code&gt;); the dashboard in the
+page is v0.6.0, so GPU panes send no input yet; &lt;strong&gt;no &lt;code&gt;-p&lt;/code&gt; published ports in the browser&lt;/strong&gt; (in progress, through a
 second origin that is deployed; natively &lt;code&gt;-p&lt;/code&gt; works since engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/limitations/"&gt;Limitations&lt;/a&gt; and the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;

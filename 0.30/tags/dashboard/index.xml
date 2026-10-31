@@ -2,7 +2,7 @@
 &lt;p&gt;&lt;strong&gt;A graphical dashboard for the engine — containers, images, volumes, networks
 and a &lt;code&gt;wctr&lt;/code&gt; terminal — built with &lt;a href="https://github.com/go-widgets" target="_blank" rel="noopener"&gt;go-widgets&lt;/a&gt;,
 running in the browser on the same engine and API as &lt;code&gt;wctr&lt;/code&gt;. Every action
-shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.7.0, on engine v0.29.1.&lt;/p&gt;
+shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.8.0.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="what-it-does"&gt;What it does&lt;span class="hx:absolute hx:-mt-20" id="what-it-does"&gt;&lt;/span&gt;
 &lt;a href="#what-it-does" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;The Start, Stop and Restart buttons use the engine&amp;rsquo;s &lt;code&gt;/start&lt;/code&gt;, &lt;code&gt;/stop&lt;/code&gt; and
@@ -26,7 +26,15 @@ container, and a &lt;strong&gt;Join class…&lt;/strong&gt; dialog for a teacher
 (&lt;code&gt;wasi-gfx:surface&lt;/code&gt;, rendered by the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/gpu/"&gt;gpu&lt;/a&gt; module in the
 engine&amp;rsquo;s worker), titled with the container and the surface number, with its
 size and frame rate. A closed surface keeps its last frame, greyed, until you
-dismiss it. Input back to the guest is planned.&lt;/li&gt;
+dismiss it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Surface input&lt;/strong&gt; (v0.8.0): a pane forwards pointer events (down, up, move, in
+surface pixels, scaled from the letterboxed frame; events outside the frame are
+dropped) and key events (the &lt;code&gt;KeyboardEvent.code&lt;/code&gt;, the text when it is one
+character, the modifiers) to the guest, through gpu v0.6.0&amp;rsquo;s
+&lt;code&gt;webgpu.SurfaceInput&lt;/code&gt;. A press on a pane&amp;rsquo;s frame gives it the focus (drawn in the
+accent colour); only the focused pane sends keys, and it takes every key except
+F6, which leaves it. Pointer moves are coalesced to one per surface per frame. A
+closed surface takes no input. The playground (v0.4.1) still uses dashboard v0.6.0.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Open shell&lt;/strong&gt; (v0.7.0): an &amp;ldquo;Open shell&amp;rdquo; toolbar action and a Shell tab in a
 container&amp;rsquo;s detail, the equivalent of &lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt;. It starts a
 TTY exec of &lt;code&gt;/bin/sh&lt;/code&gt; at the terminal&amp;rsquo;s size, sends the keys as raw bytes,

@@ -35,7 +35,7 @@ and its references are in
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;surface input: &lt;code&gt;on-pointer-up/down/move&lt;/code&gt; and &lt;code&gt;on-key-up/down&lt;/code&gt; streams for the guest, &lt;code&gt;webgpu.SurfaceInput&lt;/code&gt; for the page&lt;/td&gt;
-&lt;td&gt;done (v0.6.0); no dashboard release forwards pane events yet&lt;/td&gt;
+&lt;td&gt;done (v0.6.0); the dashboard forwards pane events since its v0.8.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;on-resize&lt;/code&gt; and &lt;code&gt;on-frame&lt;/code&gt; streams, vertex buffers, depth-stencil&lt;/td&gt;
