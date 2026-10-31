@@ -83,8 +83,38 @@ $ wctr run --rm -e NAME=you greet
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
 | `net` | a networking probe: `serve`, `get`, `bench`, `udp-echo`, `udp`, `lookup`, `dial` |
 | `mnist` | classifies a handwritten digit with wasi-nn |
-| `age:1.3.2`, `go-md2man:2.0.7`, `shfmt:3.14.1` | [pkgx](https://github.com/go-pkgx) `wasip1` bottles |
-| `lua` 5.4.9, `sqlite3` 3.53.4, `minigzip` (zlib 1.3.2) | C tools built by [go-pkgx](https://github.com/go-pkgx) for wasip1 |
+| every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 7 images from 6 bottles today (`age`, `go-md2man`, `shfmt`, `lua`, `luac`, `sqlite3`, `minigzip`) | derived from pkgx's signed catalogue at build time, see below |
+
+### pkgx images are derived, not listed
+
+The site build (`cmd/site build --pkgx`) reads pkgx's signed `wasip1/wasm`
+catalogue (`go-pkgx.dev/catalog`; the signature is verified) and mirrors the
+newest version of every project that has one published. No list is typed in the
+playground: a bottle published tomorrow is an image after the next build, and
+`wctr images` and the dashboard's Images view show whatever `catalog.json`
+holds, each entry with its project, version and layer size.
+
+- **Version**: the highest by numeric components, then rebuild counter, then
+  raw string; the catalogue's order is not trusted.
+- **Names**: one image per name in the project's `provides` that has a
+  `bin/<name>.wasm` (`lua` gives `lua` and `luac`); all of a bottle's images
+  share its layer. When no `provides` name has a module, the bottle's modules are
+  the images (zlib gives `minigzip`). A name taken by two projects goes to the one
+  whose last path segment equals it, else the smallest project name; the other is
+  published as `<project-with-dashes>-<name>`.
+- **Dependencies are ignored**: a `wasip1` module is statically linked.
+- **Limits**: 400 projects, 900 images, 8 images per bottle, 100 MiB per
+  compressed layer, 512 MiB and 20 000 entries unpacked, 3 minutes for the
+  catalogue and 30 in all. An unverifiable or empty catalogue stops the build;
+  there is no built-in list. A bottle over a limit, or whose tar has an absolute
+  path, a `..` or a link leaving the root, is refused and listed in
+  `findings.json`.
+- **Page cost**: one `catalog.json` of about 330 bytes per image, read once;
+  an image's blobs are fetched only when a command uses it.
+- **Smoke test**: CI runs every derived image with `--version` and `--help` (or a
+  named probe such as `lua -v`) under the engine and under wasmtime and compares
+  exit status, stdout and stderr byte for byte; a failure or difference that is
+  not named, with its reason, fails the job.
 
 Lua's errors, which use WebAssembly exception handling, work in Chromium,
 Firefox and natively. The first `lua` run took 69–108 ms in Chromium and 170 ms
