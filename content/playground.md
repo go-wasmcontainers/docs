@@ -1,17 +1,25 @@
 ---
 title: "Playground"
 weight: 5
-description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.4.1: run -it, GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
+description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.5.0: published ports (-p) in a tab of their own, run -it, GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
 tags: [playground]
 ---
 
 **<https://go-wasmcontainers.github.io/playground/>** is a dashboard of WASI
 containers, images and volumes with a terminal running `wctr`, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-`runtime/browser`, new in engine v0.2.0). This is **playground v0.4.1**, on engine
+`runtime/browser`, new in engine v0.2.0). This is **playground v0.5.0**, on engine
 v0.30.0.
 
-## What is new in v0.4.1
+## What is new in v0.5.0
+
+- **`-p` in the browser**: `wctr run -d -p 8080:80 net serve`, then **open :8080**
+  in the bar above the terminal. The container's pages open in a tab of their own,
+  on the usercontent origin (see [Published ports](#published-ports--p)).
+- **Every pkgx image comes from the signed catalogue**, and Pages rebuilds daily, so
+  new pkgx bottles appear without a release.
+
+## What was new in v0.4.1
 
 - **Engine v0.30.0**: `run -i/-t`, `attach` and `start -ai` in the page. A line
   whose own `wctr` flags say `-i` (`run`, `start`, `exec`; also `-dit`) gets what
@@ -37,7 +45,7 @@ v0.30.0.
   `cmd/wctr`.
 - **The shell of a second origin** for containers' pages
   (<https://go-wasmcontainers-usercontent.github.io/>) and the route policy: the
-  first half of `-p` in the browser. **`-p` is not live yet.**
+  first half of `-p` in the browser. The second half came in v0.5.0.
 
 ## What was new in v0.3.0
 
@@ -55,6 +63,32 @@ v0.30.0.
 - **wasi-nn in the browser**: the `mnist` image reads a handwritten digit (see
   [GPU]({{< relref "gpu" >}})).
 - It still works offline and keeps its images and containers across a reload.
+
+## Published ports (`-p`)
+
+```console
+$ wctr run -d -p 8080:80 net serve
+```
+
+The bar above the terminal then shows **open :8080**, which opens the
+container's web pages in a tab of their own. They are served on another site,
+<https://go-wasmcontainers-usercontent.github.io/>, never on the playground's
+origin: a container's page there could otherwise read the playground's storage and
+script it.
+
+- The engine publishes the port in memory, and gives each opened port a
+  **session**: a random id that names its pages (`/s/<session>/8080/`), bound to
+  that one port.
+- The view tab relays each request of the container's page to the playground tab,
+  which runs the engine, and the answer back. Nothing leaves the browser.
+- **Cookies work, but not as you might expect.** The engine keeps one cookie jar
+  per session. The container's `Set-Cookie` never reaches the browser, and
+  `document.cookie` in its page does not see them.
+- **Closing the view tab ends the session.** The playground tab must stay open, as
+  it runs the engine.
+
+Measured in Chromium: 8 MiB from a container to its page, through every hop, in
+32 ms (about 265 MB/s).
 
 ## Completion and editing
 
@@ -75,7 +109,8 @@ engine: pure Go, usable by anyone who embeds the engine's CLI.
 `wctr pull`, `run`, `ps`, `logs`, `rm`, `rmi`, `images`, `inspect` and `kill`,
 `start`, `stop`, `restart`, `diff`, `stats`, `events`, `volume`, `network` and
 `system df|prune`, plus `help` and `clear`. `run` takes `--rm`, `-d`, `--name`,
-`-e`, `-w`, `-m`, `--entrypoint`, `-v NAME:/path[:ro]` and `--network NAME`. Exit
+`-e`, `-w`, `-m`, `--entrypoint`, `-v NAME:/path[:ro]`, `--network NAME` and
+`-p HOST:CONTAINER` (see [Published ports](#published-ports--p)). Exit
 codes are the native engine's: the container's own, or 125, 126, 127, 134 and 137;
 see [Commands]({{< relref "commands" >}}).
 
@@ -150,8 +185,8 @@ containers at once.
 ## Not yet
 
 One `wctr` command per line (pipes need the `shell` image's `sh`); the dashboard in the
-page is v0.6.0, so GPU panes send no input yet; **no `-p` published ports in the browser** (in progress, through a
-second origin that is deployed; natively `-p` works since engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
+page is v0.6.0, so GPU panes send no input yet; published ports are HTTP only, shown
+in a tab, with no UDP and no raw TCP from outside the page. Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 [Limitations]({{< relref "limitations" >}}) and the [roadmap]({{< relref "roadmap" >}}).
 
