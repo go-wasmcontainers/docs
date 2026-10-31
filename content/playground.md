@@ -83,7 +83,7 @@ $ wctr run --rm -e NAME=you greet
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
 | `net` | a networking probe: `serve`, `get`, `bench`, `udp-echo`, `udp`, `lookup`, `dial` |
 | `mnist` | classifies a handwritten digit with wasi-nn |
-| every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 8 images from 7 bottles today (`age`, `go-md2man`, `shfmt`, `lua`, `luac`, `sqlite3`, `minigzip`, `simdjson-minify`) | derived from pkgx's signed catalogue at build time, see below |
+| every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 43 images from 41 bottles today (`yq`, `gojq`, `jj`, `shfmt`, `actionlint`, `age`, `lua`, `luac`, `sqlite3`, `zstd`, `simdjson-minify` and more; `wctr images` lists them all) | derived from pkgx's signed catalogue at build time, see below |
 
 ### pkgx images are derived, not listed
 
@@ -111,6 +111,14 @@ holds, each entry with its project, version and layer size.
   there is no built-in list. A bottle over a limit, or whose tar has an absolute
   path, a `..` or a link leaving the root, is refused and listed in
   `findings.json`.
+- **Checked**: each `catalog.json` entry has `checked`: `true` when the build ran
+  the image under the engine and under wasmtime (probes with real input for
+  `yq`, `gojq`, `jj`, `tomljson` and others) and nothing failed or differed
+  (40 of 43 today), `false` when it is only mirrored.
+- **Site size**: GitHub Pages refuses a site over 1 GB. With 43 images the mirror
+  is 112 MB (about 2.6 MB per image, each image stored separately) and the whole
+  site 167 MB. The build stops if the layers exceed 700 MiB; the plan beyond that
+  is to drop the largest, then to shard across a second Pages site.
 - **Page cost**: one `catalog.json` of about 330 bytes per image, read once;
   an image's blobs are fetched only when a command uses it.
 - **Smoke test**: CI runs every derived image with `--version` and `--help` (or a
