@@ -185,7 +185,7 @@
 &lt;td&gt;coreutils v0.6.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Shell v0.3.0&lt;/strong&gt;: coreutils v0.5.0 and the &lt;code&gt;env&lt;/code&gt;/&lt;code&gt;xargs&lt;/code&gt;/&lt;code&gt;find -exec&lt;/code&gt; commit in the image, and engine v0.29.2 (the line editor keeps typed-ahead keys)&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;Shell v0.3.0&lt;/strong&gt;: the public image &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.3.0&lt;/code&gt; (digest &lt;code&gt;sha256:bc3b16b7…c5c5ec&lt;/code&gt;) with coreutils v0.6.0 (&lt;code&gt;env&lt;/code&gt;, &lt;code&gt;xargs&lt;/code&gt;, &lt;code&gt;find -exec&lt;/code&gt;), and engine v0.29.2 (the line editor keeps typed-ahead keys)&lt;/td&gt;
 &lt;td&gt;shell v0.3.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
