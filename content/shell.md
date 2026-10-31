@@ -22,29 +22,31 @@ serves that subset from v0.17.0** (`wctrd --wasi engine`, the default): see
 **Status: shell v0.3.0 is released.** v0.3.0 updates its dependencies: coreutils
 v0.5.0, then the coreutils commit that adds `env CMD`, `xargs` and `find -exec`
 (released as coreutils v0.6.0), and engine v0.29.2 (typed-ahead keys survive the
-switch to raw mode, which the line editor relies on). **This page names the image
-only as far as it was confirmed**: the latest one confirmed published is
-`shell:0.2.0`, described next. v0.2.0 added **a line editor on a terminal**
+switch to raw mode, which the line editor relies on). v0.2.0 added **a line
+editor on a terminal**
 (arrow keys, history, Ctrl-C, Ctrl-D) and made **`wasix` a module of its own**
 (`github.com/go-wasmcontainers/shell/wasix`, tag `wasix/v0.1.0`) with
 **`wasix/exec`**, which mirrors `os/exec` for WASI containers. `sh` runs on the engine, where pipelines
 through the coreutils work. **The current base image is
-`ghcr.io/go-wasmcontainers/shell:0.2.0`** (also tagged `latest`), built by the
-release workflow of shell v0.2.0 and pushed with manifest digest
-`sha256:32bb0127f92334ed27698f59ff5c3f7f439387026fc626fc37d0e0df35c505a7`
-(`wasip1/wasm`, one layer of 51 entries): `sh` with the line editor,
+`ghcr.io/go-wasmcontainers/shell:0.3.0`** (also tagged `latest`), built by the
+release workflow of shell v0.3.0 and pushed with manifest digest
+`sha256:bc3b16b7ef328e8e7a2f30e93f2e14456b7119c7d674d156914038ee38c5c5ec`
+(`wasip1/wasm`, one layer of 59 entries): `sh` with the line editor,
 `/bin/coreutils.wasm` (the multicall module of
 [wasmdesk/coreutils](https://github.com/wasmdesk/coreutils)) with its tools as
 symbolic links, a root-only `/etc/passwd`, and the config
-`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **This image
-carries coreutils v0.4.0, not v0.5.0**: shell v0.2.0's `go.mod` requires
-coreutils v0.4.0, and coreutils v0.5.0 reached the repository after the tag. The
-earlier image, `shell:0.1.0` (shell v0.1.0, 42 tools), stays available and is the
-one the examples elsewhere in these pages use. **The images are public**; pull
-the current one with:
+`Shell ["/bin/sh","-c"]`, which is what a shell-form `RUN` runs. **It carries
+coreutils at the commit released as v0.6.0** (shell v0.3.0's `go.mod` requires
+the pseudo-version `v0.5.1-0.20261031200158-fe13df492e30`), so `env CMD`,
+`xargs` and `find -exec` run in it; the shell agent's pull test runs `ls`,
+`xargs` and `find -exec` against it. Earlier images stay available:
+`shell:0.2.0` (coreutils v0.4.0, 51 entries, digest
+`sha256:32bb0127…505a7`) and `shell:0.1.0` (shell v0.1.0, 42 tools), which is
+the one some examples elsewhere in these pages use. **The images are public**;
+pull the current one with:
 
 ```console
-$ wctr pull ghcr.io/go-wasmcontainers/shell:0.2.0
+$ wctr pull ghcr.io/go-wasmcontainers/shell:0.3.0
 ```
 
 - **`wasix`**: `//go:wasmimport` bindings for the subset, with a Go API; a
@@ -62,7 +64,7 @@ exported variables, `$?`, `set -e/-u/-x/-f/-a`, `exec`, `sh -c`, `sh file` and
 an interactive prompt on a TTY, with a line editor since v0.2.0. **Coreutils v0.6.0**
 adds `env CMD`, `xargs` and `find -exec` (programs run through `wasix/exec` on
 wasip1 and `os/exec` natively). **Coreutils v0.5.0** (the image `:0.2.0` carries
-v0.4.0) brought `grep` flags (`-F -r -l -c -o -q -w -H -h`, combined flags,
+v0.4.0, `:0.3.0` v0.6.0) brought `grep` flags (`-F -r -l -c -o -q -w -H -h`, combined flags,
 POSIX exit 2), a `tee` that writes its files as the input arrives, POSIX
 `ls FILE`, `find` expressions, `sort` keys, `head` and `tail` (`-c`, `+N`,
 `tail -f`), `date +FORMAT`, `tr` and a full POSIX `printf`, and adds `hostname`,
