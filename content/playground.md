@@ -83,7 +83,7 @@ $ wctr run --rm -e NAME=you greet
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
 | `net` | a networking probe: `serve`, `get`, `bench`, `udp-echo`, `udp`, `lookup`, `dial` |
 | `mnist` | classifies a handwritten digit with wasi-nn |
-| every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 7 images from 6 bottles today (`age`, `go-md2man`, `shfmt`, `lua`, `luac`, `sqlite3`, `minigzip`) | derived from pkgx's signed catalogue at build time, see below |
+| every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 8 images from 7 bottles today (`age`, `go-md2man`, `shfmt`, `lua`, `luac`, `sqlite3`, `minigzip`, `simdjson-minify`) | derived from pkgx's signed catalogue at build time, see below |
 
 ### pkgx images are derived, not listed
 
@@ -96,10 +96,12 @@ holds, each entry with its project, version and layer size.
 
 - **Version**: the highest by numeric components, then rebuild counter, then
   raw string; the catalogue's order is not trusted.
-- **Names**: one image per name in the project's `provides` that has a
-  `bin/<name>.wasm` (`lua` gives `lua` and `luac`); all of a bottle's images
-  share its layer. When no `provides` name has a module, the bottle's modules are
-  the images (zlib gives `minigzip`). A name taken by two projects goes to the one
+- **Names**: one image per `bin/<name>.wasm` in the bottle (`lua` gives `lua`
+  and `luac`), at most 8 per bottle; all of a bottle's images share its layer.
+  The catalogue's `provides` is only a hint (on wasip1/wasm it is copied from
+  the host recipe and wrong both ways): a name without a module and a module it
+  does not list are reported as findings. The image's entrypoint is the bare
+  binary name, so argv[0] is `lua`. A name taken by two projects goes to the one
   whose last path segment equals it, else the smallest project name; the other is
   published as `<project-with-dashes>-<name>`.
 - **Dependencies are ignored**: a `wasip1` module is statically linked.
