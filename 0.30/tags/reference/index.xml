@@ -1,0 +1,344 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Reference</title><link>https://go-wasmcontainers.github.io/docs/0.30/tags/reference/</link><description>Recent content in Reference on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.30/tags/reference/index.xml" rel="self" type="application/rss+xml"/><item><title>Commands</title><link>https://go-wasmcontainers.github.io/docs/0.30/commands/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.30/commands/</guid><description>
+&lt;h2 data-hextra-search-id="wctr"&gt;&lt;code&gt;wctr&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="wctr"&gt;&lt;/span&gt;
+&lt;a href="#wctr" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The client. It finds the daemon at &lt;code&gt;-H unix:///path&lt;/code&gt;, else &lt;code&gt;$WCTR_HOST&lt;/code&gt;, else
+&lt;code&gt;unix:///var/run/wctr.sock&lt;/code&gt;.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Command&lt;/th&gt;
+&lt;th&gt;Flags&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;pull IMAGE&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;IMAGE&lt;/code&gt; is a registry reference or &lt;code&gt;oci:&amp;lt;dir&amp;gt;[:&amp;lt;ref.name&amp;gt;]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;images&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-q&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;run IMAGE [COMMAND] [ARG...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--rm&lt;/code&gt;, &lt;code&gt;-d/--detach&lt;/code&gt;, &lt;code&gt;--name&lt;/code&gt;, &lt;code&gt;-e/--env KEY=value&lt;/code&gt; (or &lt;code&gt;KEY&lt;/code&gt; from the shell), &lt;code&gt;--entrypoint&lt;/code&gt;, &lt;code&gt;-w/--workdir&lt;/code&gt;, &lt;code&gt;-m/--memory&lt;/code&gt;, &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt; (v0.8.0), &lt;code&gt;--network NAME&lt;/code&gt; (v0.10.0), &lt;code&gt;--network-alias NAME&lt;/code&gt; (v0.14.0), &lt;code&gt;--gpu&lt;/code&gt; (v0.13.0), &lt;code&gt;-p/--publish [ip:][hostPort:]containerPort[/tcp|udp]&lt;/code&gt; (the ip defaults to &lt;strong&gt;127.0.0.1&lt;/strong&gt;), &lt;code&gt;-P/--publish-all&lt;/code&gt;, &lt;code&gt;--expose PORT[/proto]&lt;/code&gt; (v0.22.0), &lt;code&gt;--restart no|always|unless-stopped|on-failure[:N]&lt;/code&gt; (v0.25.0; not with &lt;code&gt;--rm&lt;/code&gt;; see &lt;a href="#restart-policies"&gt;Restart policies&lt;/a&gt;), &lt;code&gt;--health-cmd&lt;/code&gt; and the other &lt;code&gt;--health-*&lt;/code&gt; flags, &lt;code&gt;--no-healthcheck&lt;/code&gt; (v0.28.0), &lt;code&gt;-i/--interactive&lt;/code&gt;, &lt;code&gt;-t/--tty&lt;/code&gt;, &lt;code&gt;--detach-keys&lt;/code&gt; (v0.30.0; see &amp;ldquo;Terminals and input&amp;rdquo; below)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;attach [--no-stdin] [--detach-keys K] CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;this terminal to a running container: its output, and its input if it was created with &lt;code&gt;-i&lt;/code&gt;; Ctrl-P Ctrl-Q detaches and leaves it running; exits with its status when it stops (v0.30.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;port CONTAINER [PRIVATE_PORT[/PROTO]]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;where a running container&amp;rsquo;s ports are published, e.g. &lt;code&gt;80/tcp -&amp;gt; 127.0.0.1:8080&lt;/code&gt; (v0.22.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;ps&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a/--all&lt;/code&gt;, &lt;code&gt;-q&lt;/code&gt;; a PORTS column as Docker writes it (v0.22.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;logs CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f/--follow&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rm CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f/--force&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rmi IMAGE...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f/--force&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;commit CONTAINER [REPO[:TAG]]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-m/--message&lt;/code&gt;, &lt;code&gt;-a/--author&lt;/code&gt;, &lt;code&gt;-c/--change&lt;/code&gt; (&lt;code&gt;CMD&lt;/code&gt;, &lt;code&gt;ENTRYPOINT&lt;/code&gt;, &lt;code&gt;ENV&lt;/code&gt;, &lt;code&gt;EXPOSE&lt;/code&gt;, &lt;code&gt;LABEL&lt;/code&gt;, &lt;code&gt;ONBUILD&lt;/code&gt;, &lt;code&gt;STOPSIGNAL&lt;/code&gt;, &lt;code&gt;USER&lt;/code&gt;, &lt;code&gt;VOLUME&lt;/code&gt;, &lt;code&gt;WORKDIR&lt;/code&gt;): the container&amp;rsquo;s changes as one OCI layer on the parent&amp;rsquo;s, with a history entry; without a name, a &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt; image addressable by ID (v0.12.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;tag SOURCE TARGET&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;another name for an image; a tag that moves leaves the old image as &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt; (v0.12.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;inspect NAME|ID...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;containers, then images&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;build&lt;/code&gt;, &lt;code&gt;compose&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href="https://go-wasmcontainers.github.io/docs/0.30/build/"&gt;&lt;code&gt;wctr build&lt;/code&gt;&lt;/a&gt; and &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/compose/"&gt;&lt;code&gt;wctr compose&lt;/code&gt;&lt;/a&gt;, built into &lt;code&gt;wctr&lt;/code&gt; since &lt;code&gt;cmd/wctr&lt;/code&gt; v0.1.0; they use wctr&amp;rsquo;s &lt;code&gt;-H&lt;/code&gt;, which goes before the subcommand&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;exec [-d] [-i] [-t] [-e K=V] [-w DIR] CONTAINER CMD...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a further process in a running container, in its process group; needs &lt;code&gt;--wasi engine&lt;/code&gt;; exits with the command&amp;rsquo;s status; &lt;code&gt;-t&lt;/code&gt; gives it a terminal (the engine does the line editing and echo); &lt;code&gt;-u&lt;/code&gt; accepts only &lt;code&gt;root&lt;/code&gt; or &lt;code&gt;0&lt;/code&gt; (engine v0.20.0). In the browser executor since v0.26.0: the process runs in its own worker inside the container&amp;rsquo;s process group, counts against its limits and is killed with it. &lt;code&gt;-t&lt;/code&gt; follows window resizes since v0.27.0: SIGWINCH on unix, a 2 Hz size sampling on Windows, wasip1 and js&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;kill CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;start CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a/--attach&lt;/code&gt; (one container: prints this run&amp;rsquo;s output and exits with its status) and &lt;code&gt;-i&lt;/code&gt; (also sends this terminal&amp;rsquo;s input, for a container created with &lt;code&gt;-i&lt;/code&gt;) (v0.30.0); &lt;code&gt;-a/--all&lt;/code&gt; (v0.5.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stop CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-t&lt;/code&gt;, accepted and ignored (v0.5.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;restart CONTAINER...&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-t&lt;/code&gt;, accepted and ignored (v0.5.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;diff CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;events&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--since&lt;/code&gt;, &lt;code&gt;--until&lt;/code&gt;, filters on type, event, container, image, volume and label (v0.6.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stats&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.7.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;volume create|ls|inspect|rm|prune&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.8.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network create|ls|inspect|rm&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.10.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network connect [--alias NAME] NETWORK CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a running container at once (v0.14.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network disconnect [-f] NETWORK CONTAINER&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;(v0.14.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;network prune [-f] [--filter label=K[=V]]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;unused networks (v0.14.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;system df&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-v&lt;/code&gt; (v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;system prune&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a&lt;/code&gt;, &lt;code&gt;-f&lt;/code&gt; (v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;version&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;completion bash|zsh|fish|powershell&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;prints the completion script for that shell (v0.3.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;code&gt;wctr run&lt;/code&gt; pulls an image it does not have.&lt;/p&gt;
+&lt;p&gt;A WebAssembly guest has no signals, so &lt;code&gt;wctr stop&lt;/code&gt; kills the container at once:
+&lt;code&gt;-t&lt;/code&gt; is accepted for compatibility and ignored. In the API, &lt;code&gt;/attach&lt;/code&gt; is a plain
+streamed response, not a hijacked connection.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="terminals-and-input-v0300"&gt;Terminals and input (v0.30.0)&lt;span class="hx:absolute hx:-mt-20" id="terminals-and-input-v0300"&gt;&lt;/span&gt;
+&lt;a href="#terminals-and-input-v0300" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr run -i/-t&lt;/code&gt;, &lt;code&gt;wctr attach&lt;/code&gt; and &lt;code&gt;wctr start -ai&lt;/code&gt; give a container&amp;rsquo;s first
+process its own stdin and terminal. They use Docker&amp;rsquo;s fields &lt;code&gt;Config.Tty&lt;/code&gt;,
+&lt;code&gt;Config.OpenStdin&lt;/code&gt;, &lt;code&gt;Config.StdinOnce&lt;/code&gt; and &lt;code&gt;HostConfig.ConsoleSize&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A container&amp;rsquo;s first process can get a stdin that attached clients write into.
+With &lt;code&gt;-t&lt;/code&gt; it also gets a terminal: the engine handles line editing, echo and
+CR LF, and keeps keys typed ahead when a program switches to raw mode (the
+hand-over of the typed line is engine v0.29.2).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;POST /containers/{id}/attach&lt;/code&gt; accepts &lt;code&gt;stdin=1&lt;/code&gt; and &lt;code&gt;detachKeys&lt;/code&gt;. Like exec
+start, it does not hijack the connection: the request body carries stdin and
+the response streams the output. &lt;code&gt;POST /containers/{id}/resize&lt;/code&gt; is new.&lt;/li&gt;
+&lt;li&gt;Ctrl-P Ctrl-Q detaches; detach keys use Docker&amp;rsquo;s format.&lt;/li&gt;
+&lt;li&gt;It works in both executors, the native one and the browser&amp;rsquo;s. No host call
+blocks on stdin (v0.29.1).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;wctr&lt;/code&gt; as &lt;code&gt;go install&lt;/code&gt; gives it (&lt;code&gt;cmd/wctr&lt;/code&gt; v0.2.0) requires engine v0.22.0,
+so these commands are in engine v0.30.0&amp;rsquo;s &lt;code&gt;cli&lt;/code&gt; package and reach &lt;code&gt;wctr&lt;/code&gt; when
+&lt;code&gt;cmd/wctr&lt;/code&gt; requires it; the daemon (&lt;code&gt;wctrd&lt;/code&gt; v0.30.0) serves the API.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="for-builders-v0120-api-only-for-now"&gt;For builders (v0.12.0, API only for now)&lt;span class="hx:absolute hx:-mt-20" id="for-builders-v0120-api-only-for-now"&gt;&lt;/span&gt;
+&lt;a href="#for-builders-v0120-api-only-for-now" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /images/load&lt;/code&gt; takes an OCI image layout as a tar; each &lt;code&gt;index.json&lt;/code&gt; entry
+is named by &lt;code&gt;io.containerd.image.name&lt;/code&gt; or &lt;code&gt;org.opencontainers.image.ref.name&lt;/code&gt;,
+else &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt;. It is checked as a pull is, and nothing is read from the host.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;PUT /containers/{id}/archive?path=DIR&lt;/code&gt; extracts a tar into a container
+(relative clean names only, no devices, paths resolved inside the container, its
+quota applies), and &lt;code&gt;GET&lt;/code&gt; returns a tar of a path. These two routes accept
+uploads up to &lt;strong&gt;1 GiB&lt;/strong&gt; by default; every other request is limited to 1 MiB.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GET /images/{name}/json&lt;/code&gt; shows the full image config, the history, and
+&lt;code&gt;RootFS.Layers&lt;/code&gt; as &lt;code&gt;diff_ids&lt;/code&gt;. Dangling images appear as &lt;code&gt;&amp;lt;none&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;HEAD&lt;/code&gt; on the archive route returns only the path&amp;rsquo;s stat, without building a tar
+(v0.14.0).&lt;/li&gt;
+&lt;li&gt;The Go client filters lists through &lt;code&gt;ContainersFiltered&lt;/code&gt;, &lt;code&gt;NetworksFiltered&lt;/code&gt; and
+&lt;code&gt;VolumesFiltered&lt;/code&gt;, which take an &lt;code&gt;api.Filters&lt;/code&gt;. v0.18.0 had changed the
+signatures of &lt;code&gt;Containers&lt;/code&gt;, &lt;code&gt;Networks&lt;/code&gt; and &lt;code&gt;Volumes&lt;/code&gt; to take filters, which broke
+the dashboard; &lt;strong&gt;v0.21.0 restored them&lt;/strong&gt;, and a new CI job compiles downstream
+modules against the engine.&lt;/li&gt;
+&lt;li&gt;A start refused before the process exists (a port, a network, a volume) is
+recorded as an exit with code 128 and the reason, as Docker records it: a &lt;code&gt;run --rm&lt;/code&gt; returns at once and its container is removed (v0.22.0). &lt;strong&gt;Since v0.23.0,
+&lt;code&gt;wctr run&lt;/code&gt; exits 125 when the daemon refuses the start.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Other modules add commands to &lt;code&gt;wctr&lt;/code&gt; through an extension hook,
+&lt;code&gt;cli.Options.Extra&lt;/code&gt;; &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/build/"&gt;&lt;code&gt;wctr build&lt;/code&gt;&lt;/a&gt; and
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.30/compose/"&gt;&lt;code&gt;wctr compose&lt;/code&gt;&lt;/a&gt; use it. &lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; needs a
+&lt;code&gt;wctrd&lt;/code&gt; of v0.12.0 or later&lt;/strong&gt; (v0.17.0 for shell-form &lt;code&gt;RUN&lt;/code&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="events-v060"&gt;Events (v0.6.0)&lt;span class="hx:absolute hx:-mt-20" id="events-v060"&gt;&lt;/span&gt;
+&lt;a href="#events-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr events&lt;/code&gt; and &lt;code&gt;GET /events&lt;/code&gt; stream NDJSON. &lt;code&gt;--since&lt;/code&gt; and &lt;code&gt;--until&lt;/code&gt; bound
+the range, and the filters are type, event, container, image, volume, network and label.
+The last 1024 events are kept, and a reader that is too slow is cut off.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="stats-v070"&gt;Stats (v0.7.0)&lt;span class="hx:absolute hx:-mt-20" id="stats-v070"&gt;&lt;/span&gt;
+&lt;a href="#stats-v070" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr stats&lt;/code&gt; and the stats endpoint report memory against its limit, bytes
+written, layer and log size, and pids. &lt;strong&gt;CPU is not measured&lt;/strong&gt;: a WebAssembly
+guest gives no CPU accounting, so it is shown as &lt;code&gt;--&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="volumes-v080"&gt;Volumes (v0.8.0)&lt;span class="hx:absolute hx:-mt-20" id="volumes-v080"&gt;&lt;/span&gt;
+&lt;a href="#volumes-v080" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr volume create|ls|inspect|rm|prune&lt;/code&gt;, and &lt;code&gt;wctr run -v NAME:/path[:ro]&lt;/code&gt;.
+Only named volumes exist: a host path is refused. A volume is shared between
+containers, &lt;code&gt;:ro&lt;/code&gt; is enforced, and volumes survive a restart and a page reload.
+They appear in &lt;code&gt;system df&lt;/code&gt; and in &lt;code&gt;inspect&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="persistence-v040"&gt;Persistence (v0.4.0)&lt;span class="hx:absolute hx:-mt-20" id="persistence-v040"&gt;&lt;/span&gt;
+&lt;a href="#persistence-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Containers survive a &lt;code&gt;wctrd&lt;/code&gt; restart: they are kept under &lt;code&gt;--data-root&lt;/code&gt; in
+&lt;code&gt;containers/&lt;/code&gt; (state, exit code, logs and written files). A container that was
+running comes back &lt;code&gt;exited&lt;/code&gt; with code 137, and a &lt;code&gt;--rm&lt;/code&gt; container is removed. An
+entry that is corrupted is dropped and reported.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="exit-status-of-wctr-run"&gt;Exit status of &lt;code&gt;wctr run&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="exit-status-of-wctr-run"&gt;&lt;/span&gt;
+&lt;a href="#exit-status-of-wctr-run" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The container&amp;rsquo;s own, or:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Code&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;125&lt;/td&gt;
+&lt;td&gt;the CLI or the daemon failed&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;126&lt;/td&gt;
+&lt;td&gt;not a WebAssembly module&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;127&lt;/td&gt;
+&lt;td&gt;module not found&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;134&lt;/td&gt;
+&lt;td&gt;the module trapped&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;137&lt;/td&gt;
+&lt;td&gt;killed, or the wall-clock timeout&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 data-hextra-search-id="restart-policies"&gt;Restart policies&lt;span class="hx:absolute hx:-mt-20" id="restart-policies"&gt;&lt;/span&gt;
+&lt;a href="#restart-policies" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;run --restart&lt;/code&gt; and &lt;code&gt;HostConfig.RestartPolicy&lt;/code&gt; (engine v0.25.0), as Docker&amp;rsquo;s:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;always&lt;/code&gt; restarts a container whenever it exits, and starts it with the engine;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;unless-stopped&lt;/code&gt; does the same, except that the engine leaves it stopped if a user
+stopped it;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;on-failure[:N]&lt;/code&gt; restarts it when it exits with a code other than 0, at most N
+times (0: no bound);&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;no&lt;/code&gt; is the default.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A user&amp;rsquo;s &lt;code&gt;stop&lt;/code&gt; or &lt;code&gt;kill&lt;/code&gt; ends the policy until the next &lt;code&gt;start&lt;/code&gt;, which counts from
+zero. Each restart waits first: 100 ms, doubled after every run shorter than 10 s, at
+most a minute. Meanwhile the container is &lt;code&gt;restarting&lt;/code&gt;: &lt;code&gt;ps&lt;/code&gt; lists it as &lt;code&gt;Restarting (code) … ago&lt;/code&gt;, and &lt;code&gt;rm&lt;/code&gt; needs &lt;code&gt;-f&lt;/code&gt;. A start the engine refuses (a volume, a network, a
+port) is not retried. &lt;code&gt;inspect&lt;/code&gt; shows &lt;code&gt;HostConfig.RestartPolicy&lt;/code&gt;, &lt;code&gt;RestartCount&lt;/code&gt; and
+&lt;code&gt;State.Restarting&lt;/code&gt;. A policy cannot be combined with &lt;code&gt;--rm&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="health-checks"&gt;Health checks&lt;span class="hx:absolute hx:-mt-20" id="health-checks"&gt;&lt;/span&gt;
+&lt;a href="#health-checks" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;run --health-cmd CMD&lt;/code&gt;, &lt;code&gt;--health-interval&lt;/code&gt;, &lt;code&gt;--health-timeout&lt;/code&gt;,
+&lt;code&gt;--health-start-period&lt;/code&gt;, &lt;code&gt;--health-start-interval&lt;/code&gt;, &lt;code&gt;--health-retries&lt;/code&gt; and
+&lt;code&gt;--no-healthcheck&lt;/code&gt; (engine v0.28.0), as well as an image&amp;rsquo;s &lt;code&gt;HEALTHCHECK&lt;/code&gt; and
+&lt;code&gt;Config.Healthcheck&lt;/code&gt;. The test (&lt;code&gt;CMD&lt;/code&gt; argv, &lt;code&gt;CMD-SHELL&lt;/code&gt; through &lt;code&gt;/bin/sh -c&lt;/code&gt;, or
+&lt;code&gt;NONE&lt;/code&gt;) runs inside the running container through the exec machinery, every interval
+(default 30 s; 5 s during the start period), and is killed after the timeout
+(default 30 s, exit code −1). A pass makes the container &lt;code&gt;healthy&lt;/code&gt;; &lt;code&gt;retries&lt;/code&gt;
+consecutive failures (default 3) make it &lt;code&gt;unhealthy&lt;/code&gt;; failures in the start period do
+not count. Fields left empty are taken from the image&amp;rsquo;s check. &lt;code&gt;inspect&lt;/code&gt; shows
+&lt;code&gt;State.Health&lt;/code&gt; (&lt;code&gt;Status&lt;/code&gt;, &lt;code&gt;FailingStreak&lt;/code&gt;, and the last 5 results with at most 4 KiB
+of output each), &lt;code&gt;ps&lt;/code&gt; shows &lt;code&gt;Up … (healthy)&lt;/code&gt;, and each change of status is a
+&lt;code&gt;health_status&lt;/code&gt; event (&lt;code&gt;healthy&lt;/code&gt; or &lt;code&gt;unhealthy&lt;/code&gt;; &lt;code&gt;--filter event=health_status&lt;/code&gt;).
+Probes stop with the container and are not exec events. Unlike Docker, an interval or
+timeout below &lt;strong&gt;100 ms&lt;/strong&gt; is refused. A &lt;code&gt;CMD-SHELL&lt;/code&gt; probe needs a &lt;code&gt;/bin/sh&lt;/code&gt; in the
+image (the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/shell/"&gt;shell&lt;/a&gt; image has one).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;For embedders.&lt;/strong&gt; An in-process engine must register &lt;code&gt;wasi.WASIX&lt;/code&gt; in its
+&lt;code&gt;HostModules&lt;/code&gt;, as &lt;code&gt;wctrd&lt;/code&gt; does, to run the shell image or health checks.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="wctrd"&gt;&lt;code&gt;wctrd&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="wctrd"&gt;&lt;/span&gt;
+&lt;a href="#wctrd" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Flag&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;th&gt;Default&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;-H&lt;/code&gt;, &lt;code&gt;--host unix:///path&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the socket to serve (unix only; TCP is refused, the API has no authentication)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;unix:///var/run/wctr.sock&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--data-root&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;where images are kept&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;$XDG_DATA_HOME/wasmcontainers&lt;/code&gt;, else &lt;code&gt;~/.local/share/wasmcontainers&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--memory&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;linear-memory limit per container&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;256m&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--run-timeout&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;wall-clock limit per run (&lt;code&gt;0&lt;/code&gt; = none)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;10m&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--storage-quota&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;bytes a container may write&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;256m&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--max-containers&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;containers at once&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;256&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;--insecure-registry host:port&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;allow plain HTTP to that registry (loopback registries are always plain HTTP)&lt;/td&gt;
+&lt;td&gt;none&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 data-hextra-search-id="bounds-on-untrusted-content"&gt;Bounds on untrusted content&lt;span class="hx:absolute hx:-mt-20" id="bounds-on-untrusted-content"&gt;&lt;/span&gt;
+&lt;a href="#bounds-on-untrusted-content" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;What&lt;/th&gt;
+&lt;th&gt;Bound&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;blob&lt;/td&gt;
+&lt;td&gt;512 MiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;image&lt;/td&gt;
+&lt;td&gt;1 GiB, 128 layers&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;unpacked layers&lt;/td&gt;
+&lt;td&gt;1 GiB, 131072 files&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;gzip expansion ratio&lt;/td&gt;
+&lt;td&gt;200:1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;logs kept&lt;/td&gt;
+&lt;td&gt;8 MiB per container&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</description></item></channel></rss>

@@ -1,0 +1,58 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Dashboard</title><link>https://go-wasmcontainers.github.io/docs/0.30/tags/dashboard/</link><description>Recent content in Dashboard on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.30/tags/dashboard/index.xml" rel="self" type="application/rss+xml"/><item><title>Dashboard</title><link>https://go-wasmcontainers.github.io/docs/0.30/dashboard/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.30/dashboard/</guid><description>
+&lt;p&gt;&lt;strong&gt;A graphical dashboard for the engine — containers, images, volumes, networks
+and a &lt;code&gt;wctr&lt;/code&gt; terminal — built with &lt;a href="https://github.com/go-widgets" target="_blank" rel="noopener"&gt;go-widgets&lt;/a&gt;,
+running in the browser on the same engine and API as &lt;code&gt;wctr&lt;/code&gt;. Every action
+shows the &lt;code&gt;wctr&lt;/code&gt; command it stands for.&lt;/strong&gt; This is dashboard v0.7.0, on engine v0.29.1.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-it-does"&gt;What it does&lt;span class="hx:absolute hx:-mt-20" id="what-it-does"&gt;&lt;/span&gt;
+&lt;a href="#what-it-does" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;The Start, Stop and Restart buttons use the engine&amp;rsquo;s &lt;code&gt;/start&lt;/code&gt;, &lt;code&gt;/stop&lt;/code&gt; and
+&lt;code&gt;/restart&lt;/code&gt;, and show the matching &lt;code&gt;wctr start|stop|restart NAME&lt;/code&gt; line in the
+footer and in the terminal. Stop returns once the container has exited.&lt;/li&gt;
+&lt;li&gt;The status bar shows the storage, from &lt;code&gt;GET /system/df&lt;/code&gt; (for example
+&lt;code&gt;IndexedDB 2MB of 1GB (persistent)&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;It follows &lt;code&gt;GET /events&lt;/code&gt; instead of polling. When the stream drops, it
+refreshes and reconnects from the last event.&lt;/li&gt;
+&lt;li&gt;The Volumes view shows each volume&amp;rsquo;s size and use count, and can create,
+inspect, remove (with force) and prune; each action shows its
+&lt;code&gt;wctr volume …&lt;/code&gt; line.&lt;/li&gt;
+&lt;li&gt;A container&amp;rsquo;s detail shows its mounts and a Stats tab: a memory gauge against
+the limit, a sparkline of recent readings, bytes written, log size and pids.
+CPU is shown as &lt;code&gt;--&lt;/code&gt; because it is not measured.&lt;/li&gt;
+&lt;li&gt;The run dialog accepts &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Networks view and Join class&lt;/strong&gt; (v0.5.0): the networks, the networks of each
+container, and a &lt;strong&gt;Join class…&lt;/strong&gt; dialog for a teacher&amp;rsquo;s
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.30/relay/"&gt;relay&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Surfaces view&lt;/strong&gt; (v0.6.0): one pane per GPU surface a container opens
+(&lt;code&gt;wasi-gfx:surface&lt;/code&gt;, rendered by the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/gpu/"&gt;gpu&lt;/a&gt; module in the
+engine&amp;rsquo;s worker), titled with the container and the surface number, with its
+size and frame rate. A closed surface keeps its last frame, greyed, until you
+dismiss it. Input back to the guest is planned.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Open shell&lt;/strong&gt; (v0.7.0): an &amp;ldquo;Open shell&amp;rdquo; toolbar action and a Shell tab in a
+container&amp;rsquo;s detail, the equivalent of &lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt;. It starts a
+TTY exec of &lt;code&gt;/bin/sh&lt;/code&gt; at the terminal&amp;rsquo;s size, sends the keys as raw bytes,
+follows resizes, and shows the exit code when the shell ends. Request bodies of
+unknown length are streamed over the bridge, which carries the shell&amp;rsquo;s stdin.
+The container&amp;rsquo;s image needs a &lt;code&gt;/bin/sh&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;It was tested live in Chromium and Firefox.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Live demo: &lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/dashboard/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/dashboard/&lt;/a&gt;&lt;/strong&gt;. Source:
+&lt;a href="https://github.com/go-wasmcontainers/dashboard" target="_blank" rel="noopener"&gt;go-wasmcontainers/dashboard&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="the-terminal-widget"&gt;The terminal widget&lt;span class="hx:absolute hx:-mt-20" id="the-terminal-widget"&gt;&lt;/span&gt;
+&lt;a href="#the-terminal-widget" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal in the dashboard is the &lt;code&gt;Terminal&lt;/code&gt; widget that go-widgets/toolkit
+v0.342.0 adds: a subset of xterm, safe for untrusted output. It has no reply
+channel (nothing the output prints is ever sent back), and OSC, DCS and APC
+sequences are dropped.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="limitations"&gt;Limitations&lt;span class="hx:absolute hx:-mt-20" id="limitations"&gt;&lt;/span&gt;
+&lt;a href="#limitations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;The standalone demo keeps its state in memory: nothing persists across a
+reload. In the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/playground/"&gt;playground&lt;/a&gt; the dashboard runs
+on the persistent engine worker instead.&lt;/li&gt;
+&lt;li&gt;Browsers keep Ctrl-W, Ctrl-T and Ctrl-N, so the terminal cannot use them.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;dashboard.wasm&lt;/code&gt; was 20.45 MB raw and 5.32 MB gzipped when measured. Dashboard
+v0.4.2 made it smaller (go-widgets toolkit v0.345.1), and &lt;strong&gt;no newer figure has
+been measured&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="in-the-playground"&gt;In the playground&lt;span class="hx:absolute hx:-mt-20" id="in-the-playground"&gt;&lt;/span&gt;
+&lt;a href="#in-the-playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The dashboard is the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/playground/"&gt;playground&lt;/a&gt;&amp;rsquo;s default UI since
+playground v0.3.0 (Containers, Images, Volumes, Networks, Terminal). The
+terminal-only page stays at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/p&gt;</description></item></channel></rss>

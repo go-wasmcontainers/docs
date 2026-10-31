@@ -1,0 +1,59 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Shell</title><link>https://go-wasmcontainers.github.io/docs/0.30/tags/shell/</link><description>Recent content in Shell on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.30/tags/shell/index.xml" rel="self" type="application/rss+xml"/><item><title>Shell</title><link>https://go-wasmcontainers.github.io/docs/0.30/shell/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.30/shell/</guid><description>
+&lt;p&gt;&lt;strong&gt;A POSIX shell for WASI containers, in pure Go&lt;/strong&gt;, built for
+&lt;code&gt;GOOS=wasip1 GOARCH=wasm&lt;/code&gt;:
+&lt;a href="https://github.com/go-wasmcontainers/shell" target="_blank" rel="noopener"&gt;go-wasmcontainers/shell&lt;/a&gt;. It is
+what makes shell-form commands work: &lt;code&gt;RUN a &amp;amp;&amp;amp; b&lt;/code&gt; in a Containerfile,
+&lt;code&gt;wctr run IMAGE sh -c '…'&lt;/code&gt;, and &lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;A WebAssembly module cannot start another program: Go&amp;rsquo;s port has no fork or
+exec, and WASI preview 1 has no process calls. So the shell uses a small subset
+of &lt;a href="https://wasix.org/" target="_blank" rel="noopener"&gt;WASIX&lt;/a&gt;, in WASIX&amp;rsquo;s own import module (&lt;code&gt;wasix_32v1&lt;/code&gt;):
+&lt;code&gt;proc_spawn3&lt;/code&gt;, &lt;code&gt;proc_join&lt;/code&gt;, &lt;code&gt;fd_pipe&lt;/code&gt;, &lt;code&gt;proc_id&lt;/code&gt;, &lt;code&gt;proc_parent&lt;/code&gt;, &lt;code&gt;tty_get&lt;/code&gt; and
+&lt;code&gt;tty_set&lt;/code&gt;, and nothing else (no fork, exec, threads or signals). &lt;strong&gt;The engine
+serves that subset from v0.17.0&lt;/strong&gt; (&lt;code&gt;wctrd --wasi engine&lt;/code&gt;, the default): see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.30/architecture/"&gt;Architecture&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Status: shell v0.2.0 is released.&lt;/strong&gt; v0.2.0 adds &lt;strong&gt;a line editor on a terminal&lt;/strong&gt;
+(arrow keys, history, Ctrl-C, Ctrl-D) and makes &lt;strong&gt;&lt;code&gt;wasix&lt;/code&gt; a module of its own&lt;/strong&gt;
+(&lt;code&gt;github.com/go-wasmcontainers/shell/wasix&lt;/code&gt;, tag &lt;code&gt;wasix/v0.1.0&lt;/code&gt;) with
+&lt;strong&gt;&lt;code&gt;wasix/exec&lt;/code&gt;&lt;/strong&gt;, which mirrors &lt;code&gt;os/exec&lt;/code&gt; for WASI containers. The base image
+documented below is &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;. &lt;code&gt;sh&lt;/code&gt; runs on the engine, where pipelines
+through the coreutils work. The base image is
+&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt; (&lt;code&gt;wasip1/wasm&lt;/code&gt;, one layer): &lt;code&gt;/bin/sh&lt;/code&gt;,
+&lt;code&gt;/bin/coreutils.wasm&lt;/code&gt; (the multicall module of
+&lt;a href="https://github.com/wasmdesk/coreutils" target="_blank" rel="noopener"&gt;wasmdesk/coreutils&lt;/a&gt;, v0.4.0 in this image,
+with 42 tools as symbolic links; coreutils v0.5.0 is released, see below), a root-only &lt;code&gt;/etc/passwd&lt;/code&gt;, and the config
+&lt;code&gt;Shell [&amp;quot;/bin/sh&amp;quot;,&amp;quot;-c&amp;quot;]&lt;/code&gt;, which is what a shell-form &lt;code&gt;RUN&lt;/code&gt; runs. &lt;strong&gt;The image is
+public&lt;/strong&gt;; pull it with:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr pull ghcr.io/go-wasmcontainers/shell:0.1.0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;wasix&lt;/code&gt;&lt;/strong&gt;: &lt;code&gt;//go:wasmimport&lt;/code&gt; bindings for the subset, with a Go API; a
+module of its own since &lt;code&gt;wasix/v0.1.0&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;wasix/exec&lt;/code&gt;&lt;/strong&gt;: &lt;code&gt;os/exec&lt;/code&gt; for WASI containers (&lt;code&gt;Command&lt;/code&gt;, &lt;code&gt;Cmd&lt;/code&gt;, &lt;code&gt;Start&lt;/code&gt;,
+&lt;code&gt;Wait&lt;/code&gt;, &lt;code&gt;Run&lt;/code&gt;, &lt;code&gt;Output&lt;/code&gt;, &lt;code&gt;CombinedOutput&lt;/code&gt;, the stdin, stdout and stderr pipes,
+&lt;code&gt;ExitError&lt;/code&gt;, &lt;code&gt;LookPath&lt;/code&gt;). It has no &lt;code&gt;Kill&lt;/code&gt; or &lt;code&gt;CommandContext&lt;/code&gt;, because signals
+are not in the WASIX subset. &lt;code&gt;sh&lt;/code&gt; starts its children through it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;sh&lt;/code&gt;&lt;/strong&gt;: the mvdan.cc/sh v3.14.1 interpreter (patched with one change: a pipe
+function, since upstream&amp;rsquo;s &lt;code&gt;os.Pipe&lt;/code&gt; is &lt;code&gt;ENOSYS&lt;/code&gt; on wasip1), whose external
+commands start with &lt;code&gt;proc_spawn3&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;sh&lt;/code&gt; does pipelines, redirections, here-documents, command substitution, &lt;code&gt;cd&lt;/code&gt;,
+exported variables, &lt;code&gt;$?&lt;/code&gt;, &lt;code&gt;set -e/-u/-x/-f/-a&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;, &lt;code&gt;sh -c&lt;/code&gt;, &lt;code&gt;sh file&lt;/code&gt; and
+an interactive prompt on a TTY, with a line editor since v0.2.0. &lt;strong&gt;Coreutils v0.5.0&lt;/strong&gt;
+(released; the image documented above is &lt;code&gt;:0.1.0&lt;/code&gt;) brings &lt;code&gt;grep&lt;/code&gt; flags (&lt;code&gt;-F -r -l -c -o -q -w -H -h&lt;/code&gt;, combined flags,
+POSIX exit 2), a &lt;code&gt;tee&lt;/code&gt; that writes its files as the input arrives, POSIX
+&lt;code&gt;ls FILE&lt;/code&gt;, &lt;code&gt;find&lt;/code&gt; expressions, &lt;code&gt;sort&lt;/code&gt; keys, &lt;code&gt;head&lt;/code&gt; and &lt;code&gt;tail&lt;/code&gt; (&lt;code&gt;-c&lt;/code&gt;, &lt;code&gt;+N&lt;/code&gt;,
+&lt;code&gt;tail -f&lt;/code&gt;), &lt;code&gt;date +FORMAT&lt;/code&gt;, &lt;code&gt;tr&lt;/code&gt; and a full POSIX &lt;code&gt;printf&lt;/code&gt;, and adds &lt;code&gt;hostname&lt;/code&gt;,
+&lt;code&gt;uname&lt;/code&gt;, &lt;code&gt;id&lt;/code&gt;, &lt;code&gt;whoami&lt;/code&gt;, &lt;code&gt;clear&lt;/code&gt; and &lt;code&gt;which&lt;/code&gt;. By design of the subset it has no signals, no
+job control and no process substitution.&lt;/p&gt;</description></item></channel></rss>
