@@ -99,15 +99,41 @@ data-copied-label="Copied!"
 &lt;td&gt;classifies a handwritten digit with wasi-nn&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;code&gt;age:1.3.2&lt;/code&gt;, &lt;code&gt;go-md2man:2.0.7&lt;/code&gt;, &lt;code&gt;shfmt:3.14.1&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;&lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1&lt;/code&gt; bottles&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;lua&lt;/code&gt; 5.4.9, &lt;code&gt;sqlite3&lt;/code&gt; 3.53.4, &lt;code&gt;minigzip&lt;/code&gt; (zlib 1.3.2)&lt;/td&gt;
-&lt;td&gt;C tools built by &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;go-pkgx&lt;/a&gt; for wasip1&lt;/td&gt;
+&lt;td&gt;every &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1/wasm&lt;/code&gt; bottle: 7 images from 6 bottles today (&lt;code&gt;age&lt;/code&gt;, &lt;code&gt;go-md2man&lt;/code&gt;, &lt;code&gt;shfmt&lt;/code&gt;, &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;luac&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;, &lt;code&gt;minigzip&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;derived from pkgx&amp;rsquo;s signed catalogue at build time, see below&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;h3 data-hextra-search-id="pkgx-images-are-derived-not-listed"&gt;pkgx images are derived, not listed&lt;span class="hx:absolute hx:-mt-20" id="pkgx-images-are-derived-not-listed"&gt;&lt;/span&gt;
+&lt;a href="#pkgx-images-are-derived-not-listed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The site build (&lt;code&gt;cmd/site build --pkgx&lt;/code&gt;) reads pkgx&amp;rsquo;s signed &lt;code&gt;wasip1/wasm&lt;/code&gt;
+catalogue (&lt;code&gt;go-pkgx.dev/catalog&lt;/code&gt;; the signature is verified) and mirrors the
+newest version of every project that has one published. No list is typed in the
+playground: a bottle published tomorrow is an image after the next build, and
+&lt;code&gt;wctr images&lt;/code&gt; and the dashboard&amp;rsquo;s Images view show whatever &lt;code&gt;catalog.json&lt;/code&gt;
+holds, each entry with its project, version and layer size.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Version&lt;/strong&gt;: the highest by numeric components, then rebuild counter, then
+raw string; the catalogue&amp;rsquo;s order is not trusted.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Names&lt;/strong&gt;: one image per name in the project&amp;rsquo;s &lt;code&gt;provides&lt;/code&gt; that has a
+&lt;code&gt;bin/&amp;lt;name&amp;gt;.wasm&lt;/code&gt; (&lt;code&gt;lua&lt;/code&gt; gives &lt;code&gt;lua&lt;/code&gt; and &lt;code&gt;luac&lt;/code&gt;); all of a bottle&amp;rsquo;s images
+share its layer. When no &lt;code&gt;provides&lt;/code&gt; name has a module, the bottle&amp;rsquo;s modules are
+the images (zlib gives &lt;code&gt;minigzip&lt;/code&gt;). A name taken by two projects goes to the one
+whose last path segment equals it, else the smallest project name; the other is
+published as &lt;code&gt;&amp;lt;project-with-dashes&amp;gt;-&amp;lt;name&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Dependencies are ignored&lt;/strong&gt;: a &lt;code&gt;wasip1&lt;/code&gt; module is statically linked.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Limits&lt;/strong&gt;: 400 projects, 900 images, 8 images per bottle, 100 MiB per
+compressed layer, 512 MiB and 20 000 entries unpacked, 3 minutes for the
+catalogue and 30 in all. An unverifiable or empty catalogue stops the build;
+there is no built-in list. A bottle over a limit, or whose tar has an absolute
+path, a &lt;code&gt;..&lt;/code&gt; or a link leaving the root, is refused and listed in
+&lt;code&gt;findings.json&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Page cost&lt;/strong&gt;: one &lt;code&gt;catalog.json&lt;/code&gt; of about 330 bytes per image, read once;
+an image&amp;rsquo;s blobs are fetched only when a command uses it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Smoke test&lt;/strong&gt;: CI runs every derived image with &lt;code&gt;--version&lt;/code&gt; and &lt;code&gt;--help&lt;/code&gt; (or a
+named probe such as &lt;code&gt;lua -v&lt;/code&gt;) under the engine and under wasmtime and compares
+exit status, stdout and stderr byte for byte; a failure or difference that is
+not named, with its reason, fails the job.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Lua&amp;rsquo;s errors, which use WebAssembly exception handling, work in Chromium,
 Firefox and natively. The first &lt;code&gt;lua&lt;/code&gt; run took 69–108 ms in Chromium and 170 ms
 in Firefox, measured in CI.&lt;/p&gt;
