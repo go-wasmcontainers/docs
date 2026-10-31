@@ -1,14 +1,14 @@
 ---
 title: "Dashboard"
 weight: 6
-description: "A graphical dashboard for the engine, built with go-widgets, running in the browser. Dashboard v0.7.0, with Open shell and a Surfaces view for GPU frames."
+description: "A graphical dashboard for the engine, built with go-widgets, running in the browser. Dashboard v0.8.0, with surface input, Open shell and a Surfaces view for GPU frames."
 tags: [dashboard]
 ---
 
 **A graphical dashboard for the engine — containers, images, volumes, networks
 and a `wctr` terminal — built with [go-widgets](https://github.com/go-widgets),
 running in the browser on the same engine and API as `wctr`. Every action
-shows the `wctr` command it stands for.** This is dashboard v0.7.0, on engine v0.29.1.
+shows the `wctr` command it stands for.** This is dashboard v0.8.0.
 
 ## What it does
 
@@ -33,7 +33,15 @@ shows the `wctr` command it stands for.** This is dashboard v0.7.0, on engine v0
   (`wasi-gfx:surface`, rendered by the [gpu]({{< relref "gpu" >}}) module in the
   engine's worker), titled with the container and the surface number, with its
   size and frame rate. A closed surface keeps its last frame, greyed, until you
-  dismiss it. Input back to the guest is planned.
+  dismiss it.
+- **Surface input** (v0.8.0): a pane forwards pointer events (down, up, move, in
+  surface pixels, scaled from the letterboxed frame; events outside the frame are
+  dropped) and key events (the `KeyboardEvent.code`, the text when it is one
+  character, the modifiers) to the guest, through gpu v0.6.0's
+  `webgpu.SurfaceInput`. A press on a pane's frame gives it the focus (drawn in the
+  accent colour); only the focused pane sends keys, and it takes every key except
+  F6, which leaves it. Pointer moves are coalesced to one per surface per frame. A
+  closed surface takes no input. The playground (v0.4.1) still uses dashboard v0.6.0.
 - **Open shell** (v0.7.0): an "Open shell" toolbar action and a Shell tab in a
   container's detail, the equivalent of `wctr exec -it CONTAINER sh`. It starts a
   TTY exec of `/bin/sh` at the terminal's size, sends the keys as raw bytes,

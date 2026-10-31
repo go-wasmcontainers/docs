@@ -50,6 +50,10 @@ tags: [roadmap]
 | **Coreutils**: `grep` flags, `tee` streaming, `ls FILE`, `find`, `sort`, `head`/`tail`, `date`, `tr`, `printf` in full; `hostname`, `uname`, `id`, `whoami`, `clear`, `which` | coreutils v0.5.0 |
 | **GPU surface input**: `wasi-gfx:surface` pointer and key streams for the guest, `webgpu.SurfaceInput` for the page | gpu v0.6.0 |
 | **Open shell** in the dashboard (`wctr exec -it CONTAINER sh`), request bodies streamed over the bridge | dashboard v0.7.0 |
+| **Playground v0.4.1**, on engine v0.30.0: `run -it` and `start -ai` in the page (the end-to-end test runs `wctr run --rm -it shell`); the usercontent shell forgets requests the playground never answers | playground v0.4.1, live |
+| **Dashboard surface input**: pointer and key events from a GPU pane reach the guest through `webgpu.SurfaceInput` (gpu v0.6.0); a press gives a pane the focus, F6 leaves it; pointer moves are coalesced to one per frame | dashboard v0.8.0 |
+| **Coreutils**: `env CMD`, `xargs` and `find -exec` run programs (`fsx.Env.Exec`, `pkg/procx`: `wasix/exec` on wasip1, `os/exec` natively) | coreutils v0.6.0 |
+| **Shell v0.3.0**: coreutils v0.5.0 and the `env`/`xargs`/`find -exec` commit in the image, and engine v0.29.2 (the line editor keeps typed-ahead keys) | shell v0.3.0 |
 | **Playground v0.4.0**, on engine v0.27.2: GPU surfaces and compute (the `compute` and `triangle` images), WASIX, the `shell` image pinned by digest, typing into `exec -i`, `wctr build` and `wctr compose` in the page, and the shell of the second origin for containers' pages (`-p` is not live yet) | playground v0.4.0, live |
 | **Compose health checks**: `healthcheck` applied (`CMD`, `CMD-SHELL`, `NONE`, durations, retries; `disable: true` is `NONE`; merged field by field with the image's check); `depends_on` `service_healthy` really waits (errors on unhealthy, on stop, on no check and after `up --wait-timeout`, default 5 minutes; `required: false` is a warning); `CMD-SHELL` needs `/bin/sh` in the image; needs engine v0.28.0 or later | compose v0.6.0 |
 | **Compose restart policies**: `restart` and `deploy.restart_policy` applied (`condition` none/on-failure/any → no/on-failure/always, `max_attempts` → retry count; `deploy.restart_policy` wins over `restart`; `delay` and `window` not applied, with a warning); `compose stop` ends a restart loop; needs engine v0.25.0 or later | compose v0.5.0 |
@@ -81,10 +85,9 @@ Nothing below exists yet.
 
 | Item | What it is |
 | --- | --- |
-| Playground: `run -i/-t` and `attach` | the playground (v0.4.0) types into `exec -i` and has a shell, but is built on engine v0.27.2, which has no `run -i`; it waits for a playground built on engine v0.30.0 |
 | Published ports in the browser | `run -p` in the playground: **in progress**, through a second origin (the origin is deployed; the rest is not live); natively it shipped in engine v0.22.0 |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
-| Surface input from the dashboard's pane | the guest side shipped in gpu v0.6.0; no dashboard release (v0.7.0 is the latest) forwards pane events yet |
+| Surface input in the playground | gpu v0.6.0 and dashboard v0.8.0 have it; the playground (v0.4.1) still uses dashboard v0.6.0 and gpu v0.5.1 |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0, headless Linux fixed in v0.5.1) and input in v0.6.0; these are not served yet; see [GPU]({{< relref "gpu" >}}) |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
 | apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip), which are now in the playground's catalogue; a base image plus tools is still planned |

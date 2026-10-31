@@ -1,17 +1,26 @@
 ---
 title: "Playground"
 weight: 5
-description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.4.0: GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
+description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.4.1: run -it, GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
 tags: [playground]
 ---
 
 **<https://go-wasmcontainers.github.io/playground/>** is a dashboard of WASI
 containers, images and volumes with a terminal running `wctr`, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-`runtime/browser`, new in engine v0.2.0). This is **playground v0.4.0**, on engine
-v0.27.2.
+`runtime/browser`, new in engine v0.2.0). This is **playground v0.4.1**, on engine
+v0.30.0.
 
-## What is new in v0.4.0
+## What is new in v0.4.1
+
+- **Engine v0.30.0**: `run -i/-t`, `attach` and `start -ai` in the page. A line
+  whose own `wctr` flags say `-i` (`run`, `start`, `exec`; also `-dit`) gets what
+  you type; the end-to-end test runs `wctr run --rm -it shell` and `exec -it c sh`
+  and checks the exit status.
+- **The usercontent shell forgets requests the playground never answers**
+  (`shell.js` and `sw.js`): a pending-request leak fixed.
+
+## What was new in v0.4.0
 
 - **GPU surfaces and compute**: the `compute` and `triangle` images (copies of
   [gpu]({{< relref "gpu" >}}) v0.5.1's examples) run with `--gpu`; a surface is a
@@ -140,9 +149,8 @@ containers at once.
 
 ## Not yet
 
-One `wctr` command per line (pipes need the `shell` image's `sh`); **no `run -i`,
-`-t` or `attach`** (engine v0.30.0 has them; the playground, v0.4.0, is built on
-engine v0.27.2); **no `-p` published ports in the browser** (in progress, through a
+One `wctr` command per line (pipes need the `shell` image's `sh`); the dashboard in the
+page is v0.6.0, so GPU panes send no input yet; **no `-p` published ports in the browser** (in progress, through a
 second origin that is deployed; natively `-p` works since engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 [Limitations]({{< relref "limitations" >}}) and the [roadmap]({{< relref "roadmap" >}}).
