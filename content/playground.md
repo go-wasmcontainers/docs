@@ -1,17 +1,36 @@
 ---
 title: "Playground"
 weight: 5
-description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.3.0: networking, Join class, wasi-nn."
+description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.4.0: GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
 tags: [playground]
 ---
 
 **<https://go-wasmcontainers.github.io/playground/>** is a dashboard of WASI
 containers, images and volumes with a terminal running `wctr`, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-`runtime/browser`, new in engine v0.2.0). This is **playground v0.3.0**, on engine
-v0.14.0.
+`runtime/browser`, new in engine v0.2.0). This is **playground v0.4.0**, on engine
+v0.27.2.
 
-## What is new in v0.3.0
+## What is new in v0.4.0
+
+- **GPU surfaces and compute**: the `compute` and `triangle` images (copies of
+  [gpu]({{< relref "gpu" >}}) v0.5.1's examples) run with `--gpu`; a surface is a
+  pane under the dashboard's **Surfaces** view. A container without `--gpu`, or a
+  browser without WebGPU, gets no adapter: these images print `no GPU adapter` and
+  exit 2.
+- **WASIX**: programs started by a shell run as WASIX processes in the page.
+- **The `shell` image**, `ghcr.io/go-wasmcontainers/shell:0.1.0`, mirrored verbatim
+  and pinned by its digest: `wctr run --rm shell sh -c 'echo a | cat'` and
+  `wctr exec -it CONTAINER sh` work in the page.
+- **Typing into `exec -i`**: a line whose own `wctr` flags say `-i` gets what you
+  type, Ctrl-C and Ctrl-D included.
+- **`wctr build` and `wctr compose`** are wired into the page's `wctr`, as in
+  `cmd/wctr`.
+- **The shell of a second origin** for containers' pages
+  (<https://go-wasmcontainers-usercontent.github.io/>) and the route policy: the
+  first half of `-p` in the browser. **`-p` is not live yet.**
+
+## What was new in v0.3.0
 
 - **The dashboard is the main UI**: the [dashboard]({{< relref "dashboard" >}})
   (Containers, Images, Volumes, Networks, Terminal) runs on the persistent engine
@@ -91,10 +110,10 @@ containers at once.
 
 ## Not yet
 
-One `wctr` command per line, no shell, no pipes, no stdin for a container;
-**`wctr exec` is not in this playground build yet** (the engine's browser executor has it since v0.26.0; the playground, v0.3.0, is built on engine v0.14.0); **no `-p` published ports in
-the browser** (in progress, through a second origin; natively `-p` works since
-engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
+One `wctr` command per line (pipes need the `shell` image's `sh`); **no `run -i`,
+`-t` or `attach`** (engine v0.30.0 has them; the playground, v0.4.0, is built on
+engine v0.27.2); **no `-p` published ports in the browser** (in progress, through a
+second origin that is deployed; natively `-p` works since engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 [Limitations]({{< relref "limitations" >}}) and the [roadmap]({{< relref "roadmap" >}}).
 

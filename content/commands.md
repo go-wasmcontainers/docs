@@ -14,7 +14,8 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 |---|---|
 | `pull IMAGE` | `IMAGE` is a registry reference or `oci:<dir>[:<ref.name>]` |
 | `images` | `-q` |
-| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0), `-p/--publish [ip:][hostPort:]containerPort[/tcp\|udp]` (the ip defaults to **127.0.0.1**), `-P/--publish-all`, `--expose PORT[/proto]` (v0.22.0), `--restart no\|always\|unless-stopped\|on-failure[:N]` (v0.25.0; not with `--rm`; see [Restart policies](#restart-policies)) |
+| `run IMAGE [COMMAND] [ARG...]` | `--rm`, `-d/--detach`, `--name`, `-e/--env KEY=value` (or `KEY` from the shell), `--entrypoint`, `-w/--workdir`, `-m/--memory`, `-v NAME:/path[:ro]` (v0.8.0), `--network NAME` (v0.10.0), `--network-alias NAME` (v0.14.0), `--gpu` (v0.13.0), `-p/--publish [ip:][hostPort:]containerPort[/tcp\|udp]` (the ip defaults to **127.0.0.1**), `-P/--publish-all`, `--expose PORT[/proto]` (v0.22.0), `--restart no\|always\|unless-stopped\|on-failure[:N]` (v0.25.0; not with `--rm`; see [Restart policies](#restart-policies)), `--health-cmd` and the other `--health-*` flags, `--no-healthcheck` (v0.28.0), `-i/--interactive`, `-t/--tty`, `--detach-keys` (v0.30.0; see "Terminals and input" below) |
+| `attach [--no-stdin] [--detach-keys K] CONTAINER` | this terminal to a running container: its output, and its input if it was created with `-i`; Ctrl-P Ctrl-Q detaches and leaves it running; exits with its status when it stops (v0.30.0) |
 | `port CONTAINER [PRIVATE_PORT[/PROTO]]` | where a running container's ports are published, e.g. `80/tcp -> 127.0.0.1:8080` (v0.22.0) |
 | `ps` | `-a/--all`, `-q`; a PORTS column as Docker writes it (v0.22.0) |
 | `logs CONTAINER` | `-f/--follow` |
@@ -26,7 +27,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `build`, `compose` | [`wctr build`]({{< relref "build" >}}) and [`wctr compose`]({{< relref "compose" >}}), built into `wctr` since `cmd/wctr` v0.1.0; they use wctr's `-H`, which goes before the subcommand |
 | `exec [-d] [-i] [-t] [-e K=V] [-w DIR] CONTAINER CMD...` | a further process in a running container, in its process group; needs `--wasi engine`; exits with the command's status; `-t` gives it a terminal (the engine does the line editing and echo); `-u` accepts only `root` or `0` (engine v0.20.0). In the browser executor since v0.26.0: the process runs in its own worker inside the container's process group, counts against its limits and is killed with it. `-t` follows window resizes since v0.27.0: SIGWINCH on unix, a 2 Hz size sampling on Windows, wasip1 and js |
 | `kill CONTAINER...` | |
-| `start CONTAINER...` | `-a/--all` (v0.5.0) |
+| `start CONTAINER...` | `-a/--attach` (one container: prints this run's output and exits with its status) and `-i` (also sends this terminal's input, for a container created with `-i`) (v0.30.0); `-a/--all` (v0.5.0) |
 | `stop CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
 | `restart CONTAINER...` | `-t`, accepted and ignored (v0.5.0) |
 | `diff CONTAINER` | (v0.4.0) |
@@ -47,6 +48,26 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 A WebAssembly guest has no signals, so `wctr stop` kills the container at once:
 `-t` is accepted for compatibility and ignored. In the API, `/attach` is a plain
 streamed response, not a hijacked connection.
+
+## Terminals and input (v0.30.0)
+
+`wctr run -i/-t`, `wctr attach` and `wctr start -ai` give a container's first
+process its own stdin and terminal. They use Docker's fields `Config.Tty`,
+`Config.OpenStdin`, `Config.StdinOnce` and `HostConfig.ConsoleSize`.
+
+- A container's first process can get a stdin that attached clients write into.
+  With `-t` it also gets a terminal: the engine handles line editing, echo and
+  CR LF, and keeps keys typed ahead when a program switches to raw mode (the
+  hand-over of the typed line is engine v0.29.2).
+- `POST /containers/{id}/attach` accepts `stdin=1` and `detachKeys`. Like exec
+  start, it does not hijack the connection: the request body carries stdin and
+  the response streams the output. `POST /containers/{id}/resize` is new.
+- Ctrl-P Ctrl-Q detaches; detach keys use Docker's format.
+- It works in both executors, the native one and the browser's. No host call
+  blocks on stdin (v0.29.1).
+- `wctr` as `go install` gives it (`cmd/wctr` v0.2.0) requires engine v0.22.0,
+  so these commands are in engine v0.30.0's `cli` package and reach `wctr` when
+  `cmd/wctr` requires it; the daemon (`wctrd` v0.30.0) serves the API.
 
 ## For builders (v0.12.0, API only for now)
 

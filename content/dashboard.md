@@ -1,14 +1,14 @@
 ---
 title: "Dashboard"
 weight: 6
-description: "A graphical dashboard for the engine, built with go-widgets, running in the browser. Dashboard v0.6.0, with a Surfaces view for GPU frames."
+description: "A graphical dashboard for the engine, built with go-widgets, running in the browser. Dashboard v0.7.0, with Open shell and a Surfaces view for GPU frames."
 tags: [dashboard]
 ---
 
 **A graphical dashboard for the engine — containers, images, volumes, networks
 and a `wctr` terminal — built with [go-widgets](https://github.com/go-widgets),
 running in the browser on the same engine and API as `wctr`. Every action
-shows the `wctr` command it stands for.** This is dashboard v0.6.0.
+shows the `wctr` command it stands for.** This is dashboard v0.7.0, on engine v0.29.1.
 
 ## What it does
 
@@ -34,6 +34,12 @@ shows the `wctr` command it stands for.** This is dashboard v0.6.0.
   engine's worker), titled with the container and the surface number, with its
   size and frame rate. A closed surface keeps its last frame, greyed, until you
   dismiss it. Input back to the guest is planned.
+- **Open shell** (v0.7.0): an "Open shell" toolbar action and a Shell tab in a
+  container's detail, the equivalent of `wctr exec -it CONTAINER sh`. It starts a
+  TTY exec of `/bin/sh` at the terminal's size, sends the keys as raw bytes,
+  follows resizes, and shows the exit code when the shell ends. Request bodies of
+  unknown length are streamed over the bridge, which carries the shell's stdin.
+  The container's image needs a `/bin/sh`.
 - It was tested live in Chromium and Firefox.
 
 Live demo: **<https://go-wasmcontainers.github.io/dashboard/>**. Source:
