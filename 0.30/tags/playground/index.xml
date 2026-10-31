@@ -151,7 +151,7 @@ data-copied-label="Copied!"
 &lt;td&gt;classifies a handwritten digit with wasi-nn&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;every &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1/wasm&lt;/code&gt; bottle: 7 images from 6 bottles today (&lt;code&gt;age&lt;/code&gt;, &lt;code&gt;go-md2man&lt;/code&gt;, &lt;code&gt;shfmt&lt;/code&gt;, &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;luac&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;, &lt;code&gt;minigzip&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;every &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1/wasm&lt;/code&gt; bottle: 43 images from 41 bottles today (&lt;code&gt;yq&lt;/code&gt;, &lt;code&gt;gojq&lt;/code&gt;, &lt;code&gt;jj&lt;/code&gt;, &lt;code&gt;shfmt&lt;/code&gt;, &lt;code&gt;actionlint&lt;/code&gt;, &lt;code&gt;age&lt;/code&gt;, &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;luac&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;, &lt;code&gt;zstd&lt;/code&gt;, &lt;code&gt;simdjson-minify&lt;/code&gt; and more; &lt;code&gt;wctr images&lt;/code&gt; lists them all)&lt;/td&gt;
 &lt;td&gt;derived from pkgx&amp;rsquo;s signed catalogue at build time, see below&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
@@ -166,10 +166,12 @@ holds, each entry with its project, version and layer size.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;Version&lt;/strong&gt;: the highest by numeric components, then rebuild counter, then
 raw string; the catalogue&amp;rsquo;s order is not trusted.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Names&lt;/strong&gt;: one image per name in the project&amp;rsquo;s &lt;code&gt;provides&lt;/code&gt; that has a
-&lt;code&gt;bin/&amp;lt;name&amp;gt;.wasm&lt;/code&gt; (&lt;code&gt;lua&lt;/code&gt; gives &lt;code&gt;lua&lt;/code&gt; and &lt;code&gt;luac&lt;/code&gt;); all of a bottle&amp;rsquo;s images
-share its layer. When no &lt;code&gt;provides&lt;/code&gt; name has a module, the bottle&amp;rsquo;s modules are
-the images (zlib gives &lt;code&gt;minigzip&lt;/code&gt;). A name taken by two projects goes to the one
+&lt;li&gt;&lt;strong&gt;Names&lt;/strong&gt;: one image per &lt;code&gt;bin/&amp;lt;name&amp;gt;.wasm&lt;/code&gt; in the bottle (&lt;code&gt;lua&lt;/code&gt; gives &lt;code&gt;lua&lt;/code&gt;
+and &lt;code&gt;luac&lt;/code&gt;), at most 8 per bottle; all of a bottle&amp;rsquo;s images share its layer.
+The catalogue&amp;rsquo;s &lt;code&gt;provides&lt;/code&gt; is only a hint (on wasip1/wasm it is copied from
+the host recipe and wrong both ways): a name without a module and a module it
+does not list are reported as findings. The image&amp;rsquo;s entrypoint is the bare
+binary name, so argv[0] is &lt;code&gt;lua&lt;/code&gt;. A name taken by two projects goes to the one
 whose last path segment equals it, else the smallest project name; the other is
 published as &lt;code&gt;&amp;lt;project-with-dashes&amp;gt;-&amp;lt;name&amp;gt;&lt;/code&gt;.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Dependencies are ignored&lt;/strong&gt;: a &lt;code&gt;wasip1&lt;/code&gt; module is statically linked.&lt;/li&gt;
@@ -179,6 +181,14 @@ catalogue and 30 in all. An unverifiable or empty catalogue stops the build;
 there is no built-in list. A bottle over a limit, or whose tar has an absolute
 path, a &lt;code&gt;..&lt;/code&gt; or a link leaving the root, is refused and listed in
 &lt;code&gt;findings.json&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Checked&lt;/strong&gt;: each &lt;code&gt;catalog.json&lt;/code&gt; entry has &lt;code&gt;checked&lt;/code&gt;: &lt;code&gt;true&lt;/code&gt; when the build ran
+the image under the engine and under wasmtime (probes with real input for
+&lt;code&gt;yq&lt;/code&gt;, &lt;code&gt;gojq&lt;/code&gt;, &lt;code&gt;jj&lt;/code&gt;, &lt;code&gt;tomljson&lt;/code&gt; and others) and nothing failed or differed
+(40 of 43 today), &lt;code&gt;false&lt;/code&gt; when it is only mirrored.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Site size&lt;/strong&gt;: GitHub Pages refuses a site over 1 GB. With 43 images the mirror
+is 112 MB (about 2.6 MB per image, each image stored separately) and the whole
+site 167 MB. The build stops if the layers exceed 700 MiB; the plan beyond that
+is to drop the largest, then to shard across a second Pages site.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Page cost&lt;/strong&gt;: one &lt;code&gt;catalog.json&lt;/code&gt; of about 330 bytes per image, read once;
 an image&amp;rsquo;s blobs are fetched only when a command uses it.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Smoke test&lt;/strong&gt;: CI runs every derived image with &lt;code&gt;--version&lt;/code&gt; and &lt;code&gt;--help&lt;/code&gt; (or a
