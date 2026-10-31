@@ -153,7 +153,7 @@
 &lt;td&gt;&lt;code&gt;cmd/wctr&lt;/code&gt; v0.2.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;A line editor on a terminal&lt;/strong&gt; (arrow keys, history, ^C, ^D) in &lt;code&gt;sh&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;A line editor on a terminal&lt;/strong&gt; (arrow keys, history, ^C, ^D) in &lt;code&gt;sh&lt;/code&gt;; the public image &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.2.0&lt;/code&gt; (digest &lt;code&gt;sha256:32bb0127…505a7&lt;/code&gt;, coreutils v0.4.0)&lt;/td&gt;
 &lt;td&gt;shell v0.2.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
