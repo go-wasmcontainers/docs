@@ -20,7 +20,7 @@ and its references are in
 | `nn/webgpu`: wasi-nn on the GPU, WGSL kernels (browser) | done (v0.3.0) |
 | wasi:webgpu compute (host and Go guest), `examples/compute` | done (v0.4.0) |
 | rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
-| surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); no dashboard release forwards pane events yet |
+| surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); the dashboard forwards pane events since its v0.8.0 |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | not yet |
 
 A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later). The

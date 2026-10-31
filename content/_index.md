@@ -20,14 +20,13 @@ pipelines, shell-form `RUN`), networks with aliases and several networks per
 container, `wctr commit` and `tag`, `wctr build` and `wctr compose` built into
 `wctr`, networking ([Networking]({{< relref "networking" >}})), `tar+zstd` layers,
 named volumes, `wctr events` and `wctr stats`, containers that survive a restart,
-and shell completion. **The playground is live** (v0.4.0, with networking, Join
-class, wasi-nn, GPU surfaces, WASIX and a shell image):
+and shell completion. **The playground is live** (v0.4.1, on engine v0.30.0, with networking, Join
+class, wasi-nn, GPU surfaces, WASIX, a shell image and `run -it`):
 <https://go-wasmcontainers.github.io/playground/> runs a dashboard and `wctr` in
 a browser tab, with no server, and works offline. A second origin for containers'
 pages, <https://go-wasmcontainers-usercontent.github.io/>, is deployed, but
-**`-p` in the browser is not live yet** (the rest of it is in progress), and the
-playground (v0.4.0, built on engine v0.27.2) does not carry the engine's new
-`run -i`: see [Limitations]({{< relref "limitations" >}}). Everything on the
+**`-p` in the browser is not live yet** (the rest of it is in progress): see
+[Limitations]({{< relref "limitations" >}}). Everything on the
 [roadmap]({{< relref "roadmap" >}}) under "Planned" is **planned**. These pages
 describe engine v0.30.0.
 {{< /callout >}}
@@ -42,12 +41,12 @@ they will at work.
 ## Pages
 
 - [Playground]({{< relref "playground" >}}): `wctr` in a browser tab
-- [Dashboard]({{< relref "dashboard" >}}): a graphical dashboard for the engine (v0.7.0)
+- [Dashboard]({{< relref "dashboard" >}}): a graphical dashboard for the engine (v0.8.0)
 - [Getting started]({{< relref "getting-started" >}}): install, and a real session
 - [Networking]({{< relref "networking" >}}): sockets, DNS by container name and networks
 - [Build]({{< relref "build" >}}): `wctr build` from a Containerfile (build v0.4.0)
 - [Compose]({{< relref "compose" >}}): multi-container applications, YAML, JSON or HCL2, with ports, restart policies and health checks (compose v0.6.0)
-- [Shell]({{< relref "shell" >}}): a POSIX shell for WASI containers (shell v0.2.0, image `shell:0.2.0` with coreutils v0.4.0; coreutils v0.5.0 is released)
+- [Shell]({{< relref "shell" >}}): a POSIX shell for WASI containers (shell v0.3.0, coreutils v0.6.0)
 - [GPU]({{< relref "gpu" >}}): wasi-nn on the CPU and WebGPU, wasi:webgpu compute, rendering to surfaces and surface input (gpu v0.6.0)
 - [Commands]({{< relref "commands" >}}): `wctr`, `wctrd`, exit codes and limits
 - [Architecture]({{< relref "architecture" >}}): the engine, its API, the executors, the images
@@ -67,10 +66,10 @@ they will at work.
 | [relay](https://github.com/go-wasmcontainers/relay) | v0.3.1 released |
 | [build](https://github.com/go-wasmcontainers/build) | v0.4.0 released (built into `wctr`) |
 | [compose](https://github.com/go-wasmcontainers/compose) | v0.6.0 released (built into `wctr`; ports need engine v0.22.0 or later, restart policies v0.25.0, health checks v0.28.0) |
-| [shell](https://github.com/go-wasmcontainers/shell) | v0.2.0 released (a line editor on a terminal; `wasix/v0.1.0` with `wasix/exec`; runs on engine v0.17.0 or later; public base image `ghcr.io/go-wasmcontainers/shell:0.2.0`, with coreutils v0.4.0) |
+| [shell](https://github.com/go-wasmcontainers/shell) | v0.3.0 released (a line editor on a terminal; `wasix/v0.1.0` with `wasix/exec`; runs on engine v0.17.0 or later; the latest image confirmed published is `ghcr.io/go-wasmcontainers/shell:0.2.0`, with coreutils v0.4.0) |
 | [gpu](https://github.com/go-wasmcontainers/gpu) | v0.6.0 released (wasi-nn, wasi:webgpu compute, rendering to surfaces, surface input) |
-| [playground](https://github.com/go-wasmcontainers/playground) | v0.4.0 released, live in the browser |
-| [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.7.0 released (Open shell); [live demo](https://go-wasmcontainers.github.io/dashboard/) |
+| [playground](https://github.com/go-wasmcontainers/playground) | v0.4.1 released, live in the browser |
+| [dashboard](https://github.com/go-wasmcontainers/dashboard) | v0.8.0 released (Open shell; surface input for GPU panes); [live demo](https://go-wasmcontainers.github.io/dashboard/) |
 | [docs](https://github.com/go-wasmcontainers/docs) | this site |
 | [go-wasmcontainers.github.io](https://github.com/go-wasmcontainers/go-wasmcontainers.github.io) | the landing page |
 | [brand](https://github.com/go-wasmcontainers/brand) | logo, icons and social images |

@@ -7,10 +7,11 @@ tags: [limits]
 
 ## Playground
 
-The playground (v0.4.0, built on engine v0.27.2) takes one `wctr` command per
-line, with no pipes in that line. It has `exec`, a shell (the `shell` image) and
-typing into `exec -i`; it does **not** have `run -i`, `-t` or `attach`, which are
-in engine v0.30.0 and wait for a playground built on it. There is
+The playground (v0.4.1, built on engine v0.30.0) takes one `wctr` command per
+line, with no pipes in that line. It has `exec`, a shell (the `shell` image),
+typing into `exec -i`, and `run -it` and `start -ai` (its end-to-end test runs
+`wctr run --rm -it shell`). Its dashboard is v0.6.0, so GPU panes do not send
+input there yet. There is
 **no `-p` in the browser** yet: the second origin for containers' pages is
 deployed, but the rest of it is in progress and not live. Networks
 stay inside the page: no Internet, no published ports. Ctrl-C stops waiting for a container but leaves it running.
