@@ -2,10 +2,18 @@
 &lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a dashboard of WASI
 containers, images and volumes with a terminal running &lt;code&gt;wctr&lt;/code&gt;, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.4.1&lt;/strong&gt;, on engine
+&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.5.0&lt;/strong&gt;, on engine
 v0.30.0.&lt;/p&gt;
-&lt;h2 data-hextra-search-id="what-is-new-in-v041"&gt;What is new in v0.4.1&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v041"&gt;&lt;/span&gt;
-&lt;a href="#what-is-new-in-v041" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;h2 data-hextra-search-id="what-is-new-in-v050"&gt;What is new in v0.5.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v050"&gt;&lt;/span&gt;
+&lt;a href="#what-is-new-in-v050" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;-p&lt;/code&gt; in the browser&lt;/strong&gt;: &lt;code&gt;wctr run -d -p 8080:80 net serve&lt;/code&gt;, then &lt;strong&gt;open :8080&lt;/strong&gt;
+in the bar above the terminal. The container&amp;rsquo;s pages open in a tab of their own,
+on the usercontent origin (see &lt;a href="#published-ports--p"&gt;Published ports&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Every pkgx image comes from the signed catalogue&lt;/strong&gt;, and Pages rebuilds daily, so
+new pkgx bottles appear without a release.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v041"&gt;What was new in v0.4.1&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v041"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v041" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;Engine v0.30.0&lt;/strong&gt;: &lt;code&gt;run -i/-t&lt;/code&gt;, &lt;code&gt;attach&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt; in the page. A line
 whose own &lt;code&gt;wctr&lt;/code&gt; flags say &lt;code&gt;-i&lt;/code&gt; (&lt;code&gt;run&lt;/code&gt;, &lt;code&gt;start&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;; also &lt;code&gt;-dit&lt;/code&gt;) gets what
 you type; the end-to-end test runs &lt;code&gt;wctr run --rm -it shell&lt;/code&gt; and &lt;code&gt;exec -it c sh&lt;/code&gt;
@@ -30,7 +38,7 @@ type, Ctrl-C and Ctrl-D included.&lt;/li&gt;
 &lt;code&gt;cmd/wctr&lt;/code&gt;.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;The shell of a second origin&lt;/strong&gt; for containers&amp;rsquo; pages
 (&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) and the route policy: the
-first half of &lt;code&gt;-p&lt;/code&gt; in the browser. &lt;strong&gt;&lt;code&gt;-p&lt;/code&gt; is not live yet.&lt;/strong&gt;&lt;/li&gt;
+first half of &lt;code&gt;-p&lt;/code&gt; in the browser. The second half came in v0.5.0.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 data-hextra-search-id="what-was-new-in-v030"&gt;What was new in v0.3.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v030"&gt;&lt;/span&gt;
 &lt;a href="#what-was-new-in-v030" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
@@ -49,6 +57,40 @@ worker, and never stored.&lt;/li&gt;
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/gpu/"&gt;GPU&lt;/a&gt;).&lt;/li&gt;
 &lt;li&gt;It still works offline and keeps its images and containers across a reload.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2 data-hextra-search-id="published-ports--p"&gt;Published ports (&lt;code&gt;-p&lt;/code&gt;)&lt;span class="hx:absolute hx:-mt-20" id="published-ports--p"&gt;&lt;/span&gt;
+&lt;a href="#published-ports--p" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d -p 8080:80 net serve
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The bar above the terminal then shows &lt;strong&gt;open :8080&lt;/strong&gt;, which opens the
+container&amp;rsquo;s web pages in a tab of their own. They are served on another site,
+&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;, never on the playground&amp;rsquo;s
+origin: a container&amp;rsquo;s page there could otherwise read the playground&amp;rsquo;s storage and
+script it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The engine publishes the port in memory, and gives each opened port a
+&lt;strong&gt;session&lt;/strong&gt;: a random id that names its pages (&lt;code&gt;/s/&amp;lt;session&amp;gt;/8080/&lt;/code&gt;), bound to
+that one port.&lt;/li&gt;
+&lt;li&gt;The view tab relays each request of the container&amp;rsquo;s page to the playground tab,
+which runs the engine, and the answer back. Nothing leaves the browser.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cookies work, but not as you might expect.&lt;/strong&gt; The engine keeps one cookie jar
+per session. The container&amp;rsquo;s &lt;code&gt;Set-Cookie&lt;/code&gt; never reaches the browser, and
+&lt;code&gt;document.cookie&lt;/code&gt; in its page does not see them.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Closing the view tab ends the session.&lt;/strong&gt; The playground tab must stay open, as
+it runs the engine.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Measured in Chromium: 8 MiB from a container to its page, through every hop, in
+32 ms (about 265 MB/s).&lt;/p&gt;
 &lt;h2 data-hextra-search-id="completion-and-editing"&gt;Completion and editing&lt;span class="hx:absolute hx:-mt-20" id="completion-and-editing"&gt;&lt;/span&gt;
 &lt;a href="#completion-and-editing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal completes with Tab, as a shell does: subcommands, flags, &lt;code&gt;-m&lt;/code&gt;
 sizes, local images (for &lt;code&gt;run&lt;/code&gt; and &lt;code&gt;rmi&lt;/code&gt;), the catalogue of images to pull,
@@ -64,7 +106,8 @@ engine: pure Go, usable by anyone who embeds the engine&amp;rsquo;s CLI.&lt;/p&g
 &lt;a href="#what-you-can-type" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr pull&lt;/code&gt;, &lt;code&gt;run&lt;/code&gt;, &lt;code&gt;ps&lt;/code&gt;, &lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt;, &lt;code&gt;rmi&lt;/code&gt;, &lt;code&gt;images&lt;/code&gt;, &lt;code&gt;inspect&lt;/code&gt; and &lt;code&gt;kill&lt;/code&gt;,
 &lt;code&gt;start&lt;/code&gt;, &lt;code&gt;stop&lt;/code&gt;, &lt;code&gt;restart&lt;/code&gt;, &lt;code&gt;diff&lt;/code&gt;, &lt;code&gt;stats&lt;/code&gt;, &lt;code&gt;events&lt;/code&gt;, &lt;code&gt;volume&lt;/code&gt;, &lt;code&gt;network&lt;/code&gt; and
 &lt;code&gt;system df|prune&lt;/code&gt;, plus &lt;code&gt;help&lt;/code&gt; and &lt;code&gt;clear&lt;/code&gt;. &lt;code&gt;run&lt;/code&gt; takes &lt;code&gt;--rm&lt;/code&gt;, &lt;code&gt;-d&lt;/code&gt;, &lt;code&gt;--name&lt;/code&gt;,
-&lt;code&gt;-e&lt;/code&gt;, &lt;code&gt;-w&lt;/code&gt;, &lt;code&gt;-m&lt;/code&gt;, &lt;code&gt;--entrypoint&lt;/code&gt;, &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt; and &lt;code&gt;--network NAME&lt;/code&gt;. Exit
+&lt;code&gt;-e&lt;/code&gt;, &lt;code&gt;-w&lt;/code&gt;, &lt;code&gt;-m&lt;/code&gt;, &lt;code&gt;--entrypoint&lt;/code&gt;, &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt;, &lt;code&gt;--network NAME&lt;/code&gt; and
+&lt;code&gt;-p HOST:CONTAINER&lt;/code&gt; (see &lt;a href="#published-ports--p"&gt;Published ports&lt;/a&gt;). Exit
 codes are the native engine&amp;rsquo;s: the container&amp;rsquo;s own, or 125, 126, 127, 134 and 137;
 see &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/commands/"&gt;Commands&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
@@ -161,8 +204,8 @@ update&amp;rdquo;. Only one tab runs the engine at a time; another tab can take 
 containers at once.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
 &lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line (pipes need the &lt;code&gt;shell&lt;/code&gt; image&amp;rsquo;s &lt;code&gt;sh&lt;/code&gt;); the dashboard in the
-page is v0.6.0, so GPU panes send no input yet; &lt;strong&gt;no &lt;code&gt;-p&lt;/code&gt; published ports in the browser&lt;/strong&gt; (in progress, through a
-second origin that is deployed; natively &lt;code&gt;-p&lt;/code&gt; works since engine v0.22.0). Networks stay inside the page: there is no route to the Internet. Ctrl-C
+page is v0.6.0, so GPU panes send no input yet; published ports are HTTP only, shown
+in a tab, with no UDP and no raw TCP from outside the page. Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/limitations/"&gt;Limitations&lt;/a&gt; and the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="speed"&gt;Speed&lt;span class="hx:absolute hx:-mt-20" id="speed"&gt;&lt;/span&gt;
