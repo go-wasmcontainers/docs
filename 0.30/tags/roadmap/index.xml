@@ -290,10 +290,6 @@
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
-&lt;td&gt;Published ports in the browser&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;run -p&lt;/code&gt; in the playground: &lt;strong&gt;in progress&lt;/strong&gt;, through a second origin (the origin is deployed; the rest is not live); natively it shipped in engine v0.22.0&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
 &lt;td&gt;Classroom relay, the rest&lt;/td&gt;
 &lt;td&gt;students&amp;rsquo; containers reaching each other through the relay from the playground: the engine&amp;rsquo;s network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/design/classroom-network/"&gt;design&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;

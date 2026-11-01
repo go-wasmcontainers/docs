@@ -2,10 +2,17 @@
 &lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a dashboard of WASI
 containers, images and volumes with a terminal running &lt;code&gt;wctr&lt;/code&gt;, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.5.0&lt;/strong&gt;, on engine
+&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.6.0&lt;/strong&gt;, on engine
 v0.30.0.&lt;/p&gt;
-&lt;h2 data-hextra-search-id="what-is-new-in-v050"&gt;What is new in v0.5.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v050"&gt;&lt;/span&gt;
-&lt;a href="#what-is-new-in-v050" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;h2 data-hextra-search-id="what-is-new-in-v060"&gt;What is new in v0.6.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v060"&gt;&lt;/span&gt;
+&lt;a href="#what-is-new-in-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;A file server in the tab&lt;/strong&gt;: the &lt;code&gt;fileshare&lt;/code&gt; image, then &lt;strong&gt;explore :8080&lt;/strong&gt; in
+the ports bar (see &lt;a href="#a-file-server-in-the-tab-the-fileshare-image"&gt;A file server in the tab&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The &lt;code&gt;-p&lt;/code&gt; route relays WebDAV&amp;rsquo;s methods&lt;/strong&gt; (&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;,
+&lt;code&gt;COPY&lt;/code&gt;, &lt;code&gt;MOVE&lt;/code&gt;, &lt;code&gt;LOCK&lt;/code&gt;, &lt;code&gt;UNLOCK&lt;/code&gt;; RFC 4918) as well as HTTP&amp;rsquo;s.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v050"&gt;What was new in v0.5.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v050"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v050" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;-p&lt;/code&gt; in the browser&lt;/strong&gt;: &lt;code&gt;wctr run -d -p 8080:80 net serve&lt;/code&gt;, then &lt;strong&gt;open :8080&lt;/strong&gt;
 in the bar above the terminal. The container&amp;rsquo;s pages open in a tab of their own,
 on the usercontent origin (see &lt;a href="#published-ports--p"&gt;Published ports&lt;/a&gt;).&lt;/li&gt;
@@ -91,6 +98,66 @@ it runs the engine.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Measured in Chromium: 8 MiB from a container to its page, through every hop, in
 32 ms (about 265 MB/s).&lt;/p&gt;
+&lt;h3 data-hextra-search-id="a-file-server-in-the-tab-the-fileshare-image"&gt;A file server in the tab: the &lt;code&gt;fileshare&lt;/code&gt; image&lt;span class="hx:absolute hx:-mt-20" id="a-file-server-in-the-tab-the-fileshare-image"&gt;&lt;/span&gt;
+&lt;a href="#a-file-server-in-the-tab-the-fileshare-image" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d -p 8080:80 --name files fileshare
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The image is &lt;a href="https://github.com/go-fileshare/fileshare" target="_blank" rel="noopener"&gt;go-fileshare/fileshare&lt;/a&gt;
+v0.32.0, built for &lt;code&gt;wasip1&lt;/code&gt; and serving WebDAV only (6.5 MB gzip):&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;one share, &lt;code&gt;files&lt;/code&gt;, with a README in it;&lt;/li&gt;
+&lt;li&gt;one person: user &lt;code&gt;alice&lt;/code&gt;, password &lt;code&gt;playground&lt;/code&gt;. The password is a demo,
+written into the image on purpose, since nothing the share holds belongs to
+anybody;&lt;/li&gt;
+&lt;li&gt;plaintext WebDAV, because TLS ends at the browser&amp;rsquo;s origin and the hop to the
+container is the engine&amp;rsquo;s, in memory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;open :8080&lt;/strong&gt; shows the server&amp;rsquo;s page. The route relays WebDAV&amp;rsquo;s methods
+(&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;, &lt;code&gt;COPY&lt;/code&gt;, &lt;code&gt;MOVE&lt;/code&gt;, &lt;code&gt;LOCK&lt;/code&gt;, &lt;code&gt;UNLOCK&lt;/code&gt;; RFC 4918) as
+well as HTTP&amp;rsquo;s, so a WebDAV client in the page works. WebDAV through
+&lt;strong&gt;open :8080&lt;/strong&gt; needs the usercontent origin
+(&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) re-rendered from playground
+v0.6.0, which is being deployed; until then that origin refuses these methods.
+The end-to-end test &lt;code&gt;TestFileshare&lt;/code&gt; checks, from inside the container&amp;rsquo;s page:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;without credentials: 401 with a &lt;code&gt;Basic&lt;/code&gt; challenge;&lt;/li&gt;
+&lt;li&gt;with a wrong password: 401;&lt;/li&gt;
+&lt;li&gt;with alice&amp;rsquo;s: a PROPFIND of the share (207) lists &lt;code&gt;README.txt&lt;/code&gt;, which reads;&lt;/li&gt;
+&lt;li&gt;a PUT lands (201) and reads back.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;explore :8080&lt;/strong&gt; opens the &lt;a href="https://github.com/go-fileshare/explorer" target="_blank" rel="noopener"&gt;go-fileshare explorer&lt;/a&gt;
+(v0.4.0, built into the site as &lt;code&gt;explorer.wasm&lt;/code&gt;, fetched only when used) as a
+browser client of the server:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It asks for a user and a password first. They are sent as HTTP Basic with
+each request, and they stay in the page&amp;rsquo;s memory. They are dropped when the
+explorer closes; nothing is stored.&lt;/li&gt;
+&lt;li&gt;The explorer runs in a frame of the playground, in its bridge mode. Its
+requests go straight to the engine, on a relay session of its own, with no
+view tab and no usercontent origin.&lt;/li&gt;
+&lt;li&gt;The explorer is the site&amp;rsquo;s own code, not the container&amp;rsquo;s, and it draws on a
+canvas. Nothing the container answers becomes HTML in the playground.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;explorer.html&lt;/code&gt; is the only page that may be framed, and only by the
+playground (&lt;code&gt;frame-ancestors 'self'&lt;/code&gt;; everything else keeps &lt;code&gt;'none'&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;The session&amp;rsquo;s credentials replace any &lt;code&gt;Authorization&lt;/code&gt; header the frame sends.&lt;/li&gt;
+&lt;li&gt;A download is read whole, up to the route&amp;rsquo;s 256 MiB bound, and saved under a
+sanitised name.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;TestFileshareExplorer&lt;/code&gt; checks that a wrong password gives 401 and the explorer
+says the server refused the login, that alice&amp;rsquo;s lists the share, that a PUT
+through the bridge (201) reads back, that a frame-supplied &lt;code&gt;Authorization&lt;/code&gt; is
+replaced, and that after close the bridge refuses.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="completion-and-editing"&gt;Completion and editing&lt;span class="hx:absolute hx:-mt-20" id="completion-and-editing"&gt;&lt;/span&gt;
 &lt;a href="#completion-and-editing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal completes with Tab, as a shell does: subcommands, flags, &lt;code&gt;-m&lt;/code&gt;
 sizes, local images (for &lt;code&gt;run&lt;/code&gt; and &lt;code&gt;rmi&lt;/code&gt;), the catalogue of images to pull,
@@ -145,6 +212,10 @@ data-copied-label="Copied!"
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;net&lt;/code&gt;&lt;/td&gt;
 &lt;td&gt;a networking probe: &lt;code&gt;serve&lt;/code&gt;, &lt;code&gt;get&lt;/code&gt;, &lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt;, &lt;code&gt;dial&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;fileshare&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a WebDAV file server (&lt;a href="https://github.com/go-fileshare/fileshare" target="_blank" rel="noopener"&gt;go-fileshare&lt;/a&gt; v0.32.0, 6.5 MB gzip): share &lt;code&gt;files&lt;/code&gt;, user &lt;code&gt;alice&lt;/code&gt;, password &lt;code&gt;playground&lt;/code&gt; (a demo)&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;mnist&lt;/code&gt;&lt;/td&gt;
