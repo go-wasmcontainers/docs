@@ -11,9 +11,12 @@ of &lt;a href="https://wasix.org/" target="_blank" rel="noopener"&gt;WASIX&lt;/a
 &lt;code&gt;tty_set&lt;/code&gt;, and nothing else (no fork, exec, threads or signals). &lt;strong&gt;The engine
 serves that subset from v0.17.0&lt;/strong&gt; (&lt;code&gt;wctrd --wasi engine&lt;/code&gt;, the default): see
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/architecture/"&gt;Architecture&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Status: shell v0.4.0 is released.&lt;/strong&gt; v0.4.0 replaces the shell&amp;rsquo;s own line editor
-with the engine&amp;rsquo;s shared &lt;code&gt;lineedit&lt;/code&gt; (see below) and updates coreutils to v0.6.0; no
-image tag is named for it here, the image described below is &lt;code&gt;shell:0.3.0&lt;/code&gt;. v0.3.0 updates its dependencies: coreutils
+&lt;p&gt;&lt;strong&gt;Status: shell v0.5.0 is released.&lt;/strong&gt; v0.5.0 adds &lt;strong&gt;Tab completion&lt;/strong&gt; (see below). The
+image &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.5.0&lt;/code&gt; is published (manifest digest
+&lt;code&gt;sha256:d122bdb78a44bc761148b1d77878bf23093995f57f425210f4d01e895df433ed&lt;/code&gt;, one layer,
+read back with the shell&amp;rsquo;s published-image test); the description of the image below
+is that of &lt;code&gt;shell:0.3.0&lt;/code&gt;; v0.4.0 and v0.5.0 change &lt;code&gt;sh&lt;/code&gt; only. v0.4.0 replaces the shell&amp;rsquo;s own line editor
+with the engine&amp;rsquo;s shared &lt;code&gt;lineedit&lt;/code&gt; (see below) and updates coreutils to v0.6.0. v0.3.0 updates its dependencies: coreutils
 v0.5.0, then the coreutils commit that adds &lt;code&gt;env CMD&lt;/code&gt;, &lt;code&gt;xargs&lt;/code&gt; and &lt;code&gt;find -exec&lt;/code&gt;
 (released as coreutils v0.6.0), and engine v0.29.2 (typed-ahead keys survive the
 switch to raw mode, which the line editor relies on). v0.2.0 added &lt;strong&gt;a line
@@ -22,7 +25,7 @@ editor on a terminal&lt;/strong&gt;
 (&lt;code&gt;github.com/go-wasmcontainers/shell/wasix&lt;/code&gt;, tag &lt;code&gt;wasix/v0.1.0&lt;/code&gt;) with
 &lt;strong&gt;&lt;code&gt;wasix/exec&lt;/code&gt;&lt;/strong&gt;, which mirrors &lt;code&gt;os/exec&lt;/code&gt; for WASI containers. &lt;code&gt;sh&lt;/code&gt; runs on the engine, where pipelines
 through the coreutils work. &lt;strong&gt;The current base image is
-&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.3.0&lt;/code&gt;&lt;/strong&gt; (also tagged &lt;code&gt;latest&lt;/code&gt;), built by the
+&lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.5.0&lt;/code&gt;&lt;/strong&gt; (also tagged &lt;code&gt;latest&lt;/code&gt;; the numbers below are those of &lt;code&gt;:0.3.0&lt;/code&gt;), built by the
 release workflow of shell v0.3.0 and pushed with manifest digest
 &lt;code&gt;sha256:bc3b16b7ef328e8e7a2f30e93f2e14456b7119c7d674d156914038ee38c5c5ec&lt;/code&gt;
 (&lt;code&gt;wasip1/wasm&lt;/code&gt;, one layer of 59 entries): &lt;code&gt;sh&lt;/code&gt; with the line editor,
@@ -39,7 +42,7 @@ the pseudo-version &lt;code&gt;v0.5.1-0.20261031200158-fe13df492e30&lt;/code&gt;
 the one some examples elsewhere in these pages use. &lt;strong&gt;The images are public&lt;/strong&gt;;
 pull the current one with:&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
-&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr pull ghcr.io/go-wasmcontainers/shell:0.3.0
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr pull ghcr.io/go-wasmcontainers/shell:0.5.0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
 class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
@@ -68,8 +71,17 @@ exported variables, &lt;code&gt;$?&lt;/code&gt;, &lt;code&gt;set -e/-u/-x/-f/-a&
 an interactive prompt on a TTY, with a line editor since v0.2.0; since v0.4.0 that
 editor is the engine&amp;rsquo;s shared &lt;code&gt;lineedit&lt;/code&gt; module (&lt;code&gt;lineedit/v0.1.0&lt;/code&gt;, standard library
 only), which adds reverse search (^R), columns counted for wide and combining
-characters, and wrapping of long lines. The core has a completion hook, but &lt;code&gt;sh&lt;/code&gt;
-passes no completer yet. &lt;code&gt;sh.wasm&lt;/code&gt; grows by 79,097 bytes (+1.16 %). &lt;strong&gt;Coreutils v0.6.0&lt;/strong&gt;
+characters, and wrapping of long lines. &lt;code&gt;sh.wasm&lt;/code&gt; grew by 79,097 bytes (+1.16 %) with that editor.
+&lt;strong&gt;Since v0.5.0, Tab completes&lt;/strong&gt;, after bash&amp;rsquo;s defaults: the first word of a command (and the
+word after &lt;code&gt;|&lt;/code&gt;, &lt;code&gt;||&lt;/code&gt;, &lt;code&gt;&amp;amp;&lt;/code&gt;, &lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt;, &lt;code&gt;;&lt;/code&gt; or a reserved word such as &lt;code&gt;then&lt;/code&gt;) completes to the
+builtins, the shell functions, the reserved words and the programs on &lt;code&gt;PATH&lt;/code&gt; (&lt;code&gt;name&lt;/code&gt; or
+&lt;code&gt;name.wasm&lt;/code&gt;); any other word, or a first word with a slash, completes to file names relative to
+the working directory. A directory gets a trailing &lt;code&gt;/&lt;/code&gt; and no space, dot files appear only when
+the prefix starts with a dot, and a name with a space is quoted (&lt;code&gt;my\ file&lt;/code&gt;). Several candidates
+complete to their longest common prefix, and a second Tab lists them in columns, as bash and
+&lt;code&gt;wctr&lt;/code&gt; do, asking first past 100. It is bounded: 4,096 directory entries per directory (read 256
+at a time), 32 &lt;code&gt;PATH&lt;/code&gt; directories and 1,000 candidates. Not done: &lt;code&gt;~&lt;/code&gt; and &lt;code&gt;$VAR&lt;/code&gt;, aliases,
+programmable completion. &lt;code&gt;sh.wasm&lt;/code&gt; grows by 38,944 bytes (+0.55 %, 7,050,287 to 7,089,231). &lt;strong&gt;Coreutils v0.6.0&lt;/strong&gt;
 adds &lt;code&gt;env CMD&lt;/code&gt;, &lt;code&gt;xargs&lt;/code&gt; and &lt;code&gt;find -exec&lt;/code&gt; (programs run through &lt;code&gt;wasix/exec&lt;/code&gt; on
 wasip1 and &lt;code&gt;os/exec&lt;/code&gt; natively). &lt;strong&gt;Coreutils v0.5.0&lt;/strong&gt; (the image &lt;code&gt;:0.2.0&lt;/code&gt; carries
 v0.4.0, &lt;code&gt;:0.3.0&lt;/code&gt; v0.6.0) brought &lt;code&gt;grep&lt;/code&gt; flags (&lt;code&gt;-F -r -l -c -o -q -w -H -h&lt;/code&gt;, combined flags,
