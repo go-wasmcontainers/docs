@@ -1,6 +1,6 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Limits</title><link>https://go-wasmcontainers.github.io/docs/0.30/tags/limits/</link><description>Recent content in Limits on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.30/tags/limits/index.xml" rel="self" type="application/rss+xml"/><item><title>Limitations</title><link>https://go-wasmcontainers.github.io/docs/0.30/limitations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.30/limitations/</guid><description>
 &lt;h2 data-hextra-search-id="playground"&gt;Playground&lt;span class="hx:absolute hx:-mt-20" id="playground"&gt;&lt;/span&gt;
-&lt;a href="#playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground (v0.6.0, built on engine v0.30.0) takes one &lt;code&gt;wctr&lt;/code&gt; command per
+&lt;a href="#playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground (v0.7.0, built on engine v0.30.1) takes one &lt;code&gt;wctr&lt;/code&gt; command per
 line, with no pipes in that line. It has &lt;code&gt;exec&lt;/code&gt;, a shell (the &lt;code&gt;shell&lt;/code&gt; image),
 typing into &lt;code&gt;exec -i&lt;/code&gt;, and &lt;code&gt;run -it&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt; (its end-to-end test runs
 &lt;code&gt;wctr run --rm -it shell&lt;/code&gt;). Its dashboard is v0.8.0, so GPU panes send input
@@ -16,7 +16,7 @@ terminal page (728 ms against 1070 ms in Chromium on the live site), because
 v0.4.2 made it smaller and no newer figure has been measured. The terminal-only
 page is at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="engine"&gt;Engine&lt;span class="hx:absolute hx:-mt-20" id="engine"&gt;&lt;/span&gt;
-&lt;a href="#engine" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Engine v0.30.0 does &lt;strong&gt;not&lt;/strong&gt; have:&lt;/p&gt;
+&lt;a href="#engine" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Engine v0.30.1 does &lt;strong&gt;not&lt;/strong&gt; have:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;CPU accounting: a WebAssembly guest gives none, so &lt;code&gt;wctr stats&lt;/code&gt; shows CPU as
 &lt;code&gt;--&lt;/code&gt;;&lt;/li&gt;

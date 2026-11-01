@@ -8,8 +8,8 @@
 and &lt;code&gt;wctr compose&lt;/code&gt; built in&lt;/strong&gt;, so there are two &lt;code&gt;go install&lt;/code&gt; commands, one per
 module (one command naming both no longer works):&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
-&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.2.0
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.30.0&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.3.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.30.1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
 class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
 title="Copy code"
@@ -21,11 +21,10 @@ data-copied-label="Copied!"
 &lt;/button&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;p&gt;&lt;code&gt;cmd/wctr&lt;/code&gt; v0.2.0 requires engine v0.22.0 (with compose v0.3.2 and build v0.4.0),
-so the &lt;code&gt;wctr&lt;/code&gt; it installs carries that version&amp;rsquo;s commands; the daemon (&lt;code&gt;wctrd&lt;/code&gt;,
-engine v0.30.0) serves everything else, including health checks and a container&amp;rsquo;s
-own stdin and terminal (&lt;code&gt;run -i/-t&lt;/code&gt; and &lt;code&gt;attach&lt;/code&gt; reach &lt;code&gt;wctr&lt;/code&gt; when &lt;code&gt;cmd/wctr&lt;/code&gt;
-requires engine v0.30.0).&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;cmd/wctr&lt;/code&gt; v0.3.0 requires engine v0.30.0 (with compose v0.3.2 and build v0.4.0),
+so the &lt;code&gt;wctr&lt;/code&gt; it installs has &lt;code&gt;run -i/-t&lt;/code&gt;, &lt;code&gt;attach&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt;; the daemon
+(&lt;code&gt;wctrd&lt;/code&gt;, engine v0.30.1) serves everything else. (&lt;code&gt;cmd/wctr&lt;/code&gt; v0.2.0 required
+engine v0.22.0 and has none of them.)&lt;/p&gt;
 &lt;p&gt;Shell completion for &lt;code&gt;wctr&lt;/code&gt; (bash, zsh, fish or PowerShell), for example in
 zsh:&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;

@@ -2,10 +2,22 @@
 &lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a dashboard of WASI
 containers, images and volumes with a terminal running &lt;code&gt;wctr&lt;/code&gt;, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.6.0&lt;/strong&gt;, on engine
-v0.30.0.&lt;/p&gt;
-&lt;h2 data-hextra-search-id="what-is-new-in-v060"&gt;What is new in v0.6.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v060"&gt;&lt;/span&gt;
-&lt;a href="#what-is-new-in-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.7.0&lt;/strong&gt;, on engine
+v0.30.1.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-is-new-in-v070"&gt;What is new in v0.7.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v070"&gt;&lt;/span&gt;
+&lt;a href="#what-is-new-in-v070" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Engine v0.30.1&lt;/strong&gt;: piped standard input, output and error are no longer
+reported to a guest as a terminal, and a guest&amp;rsquo;s exit codes 0 to 255 are kept
+(see &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/commands/"&gt;Commands&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;[checked]&lt;/code&gt; or &lt;code&gt;[mirrored]&lt;/code&gt;&lt;/strong&gt; next to each image in &lt;code&gt;wctr images&lt;/code&gt; and in
+completion, read from &lt;code&gt;catalog.json&lt;/code&gt;: &lt;code&gt;[checked]&lt;/code&gt; when the build ran the image
+under the engine and under wasmtime and nothing differed. The live catalogue has
+52 images, 43 of them pkgx bottles, 41 of those checked against wasmtime 50.0.1.&lt;/li&gt;
+&lt;li&gt;A stale &lt;code&gt;yq&lt;/code&gt; expectation is removed (it now matches wasmtime byte for byte);
+&lt;code&gt;gnostic&lt;/code&gt; stays a named difference.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v060"&gt;What was new in v0.6.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v060"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;A file server in the tab&lt;/strong&gt;: the &lt;code&gt;fileshare&lt;/code&gt; image, then &lt;strong&gt;explore :8080&lt;/strong&gt; in
 the ports bar (see &lt;a href="#a-file-server-in-the-tab-the-fileshare-image"&gt;A file server in the tab&lt;/a&gt;).&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;The &lt;code&gt;-p&lt;/code&gt; route relays WebDAV&amp;rsquo;s methods&lt;/strong&gt; (&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;,
@@ -259,7 +271,8 @@ path, a &lt;code&gt;..&lt;/code&gt; or a link leaving the root, is refused and l
 &lt;li&gt;&lt;strong&gt;Checked&lt;/strong&gt;: each &lt;code&gt;catalog.json&lt;/code&gt; entry has &lt;code&gt;checked&lt;/code&gt;: &lt;code&gt;true&lt;/code&gt; when the build ran
 the image under the engine and under wasmtime (probes with real input for
 &lt;code&gt;yq&lt;/code&gt;, &lt;code&gt;gojq&lt;/code&gt;, &lt;code&gt;jj&lt;/code&gt;, &lt;code&gt;tomljson&lt;/code&gt; and others) and nothing failed or differed
-(40 of 43 today), &lt;code&gt;false&lt;/code&gt; when it is only mirrored.&lt;/li&gt;
+(41 of 43 pkgx images on 2026-11-01, against wasmtime 50.0.1), &lt;code&gt;false&lt;/code&gt; when it is
+only mirrored.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Site size&lt;/strong&gt;: GitHub Pages refuses a site over 1 GB. With 43 images the mirror
 is 112 MB (about 2.6 MB per image, each image stored separately) and the whole
 site 167 MB. The build stops if the layers exceed 700 MiB; the plan beyond that

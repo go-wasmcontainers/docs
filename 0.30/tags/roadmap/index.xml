@@ -153,6 +153,18 @@
 &lt;td&gt;&lt;code&gt;cmd/wctr&lt;/code&gt; v0.2.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;&lt;code&gt;cmd/wctr&lt;/code&gt; v0.3.0&lt;/strong&gt;: requires engine v0.30.0, so the installed &lt;code&gt;wctr&lt;/code&gt; has &lt;code&gt;run -i/-t&lt;/code&gt;, &lt;code&gt;attach&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;cmd/wctr&lt;/code&gt; v0.3.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Engine v0.30.1&lt;/strong&gt;: piped standard input, output and error are no longer reported to a guest as a terminal (file type &lt;code&gt;unknown&lt;/code&gt;, as in wasmtime); a guest&amp;rsquo;s exit codes 0 to 255 are kept and only values outside become 1&lt;/td&gt;
+&lt;td&gt;engine v0.30.1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Playground v0.7.0&lt;/strong&gt;, on engine v0.30.1: &lt;code&gt;wctr images&lt;/code&gt; and completion show &lt;code&gt;[checked]&lt;/code&gt; or &lt;code&gt;[mirrored]&lt;/code&gt;; the live catalogue has 52 images, 43 pkgx bottles, 41 of them checked against wasmtime 50.0.1&lt;/td&gt;
+&lt;td&gt;playground v0.7.0, live&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
 &lt;td&gt;&lt;strong&gt;A line editor on a terminal&lt;/strong&gt; (arrow keys, history, ^C, ^D) in &lt;code&gt;sh&lt;/code&gt;; the public image &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.2.0&lt;/code&gt; (digest &lt;code&gt;sha256:32bb0127…505a7&lt;/code&gt;, coreutils v0.4.0)&lt;/td&gt;
 &lt;td&gt;shell v0.2.0&lt;/td&gt;
 &lt;/tr&gt;
