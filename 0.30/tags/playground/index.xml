@@ -126,10 +126,9 @@ container is the engine&amp;rsquo;s, in memory.&lt;/li&gt;
 &lt;p&gt;&lt;strong&gt;open :8080&lt;/strong&gt; shows the server&amp;rsquo;s page. The route relays WebDAV&amp;rsquo;s methods
 (&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;, &lt;code&gt;COPY&lt;/code&gt;, &lt;code&gt;MOVE&lt;/code&gt;, &lt;code&gt;LOCK&lt;/code&gt;, &lt;code&gt;UNLOCK&lt;/code&gt;; RFC 4918) as
 well as HTTP&amp;rsquo;s, so a WebDAV client in the page works. WebDAV through
-&lt;strong&gt;open :8080&lt;/strong&gt; needs the usercontent origin
-(&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) re-rendered from playground
-v0.6.0, which is being deployed; until then that origin refuses these methods.
-The end-to-end test &lt;code&gt;TestFileshare&lt;/code&gt; checks, from inside the container&amp;rsquo;s page:&lt;/p&gt;
+&lt;strong&gt;open :8080&lt;/strong&gt; works on the live playground: the usercontent origin
+(&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) is rendered from playground
+v0.6.0 and relays these methods. The end-to-end test &lt;code&gt;TestFileshare&lt;/code&gt; checks, from inside the container&amp;rsquo;s page:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;without credentials: 401 with a &lt;code&gt;Basic&lt;/code&gt; challenge;&lt;/li&gt;
 &lt;li&gt;with a wrong password: 401;&lt;/li&gt;
