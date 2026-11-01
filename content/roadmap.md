@@ -52,6 +52,7 @@ tags: [roadmap]
 | **Open shell** in the dashboard (`wctr exec -it CONTAINER sh`), request bodies streamed over the bridge | dashboard v0.7.0 |
 | **Playground v0.4.1**, on engine v0.30.0: `run -it` and `start -ai` in the page (the end-to-end test runs `wctr run --rm -it shell`); the usercontent shell forgets requests the playground never answers | playground v0.4.1, live |
 | **Dashboard surface input**: pointer and key events from a GPU pane reach the guest through `webgpu.SurfaceInput` (gpu v0.6.0); a press gives a pane the focus, F6 leaves it; pointer moves are coalesced to one per frame | dashboard v0.8.0 |
+| **GPU surface input in the playground**: click a surface's pane to give it the focus, and its pointer presses and keys reach the guest (`{t:"input"}` to the engine worker, then `webgpu.SurfaceInput`); `wctr run --rm --gpu triangle [frames [input]]` prints what it receives; the end-to-end test `TestGPUSurfaceInput` checks the coordinates and Shift+A; the playground uses dashboard v0.8.0 and gpu v0.6.0 | playground v0.6.0, live |
 | **Coreutils**: `env CMD`, `xargs` and `find -exec` run programs (`fsx.Env.Exec`, `pkg/procx`: `wasix/exec` on wasip1, `os/exec` natively) | coreutils v0.6.0 |
 | **Shell v0.3.0**: the public image `ghcr.io/go-wasmcontainers/shell:0.3.0` (digest `sha256:bc3b16b7…c5c5ec`) with coreutils v0.6.0 (`env`, `xargs`, `find -exec`), and engine v0.29.2 (the line editor keeps typed-ahead keys) | shell v0.3.0 |
 | **Playground v0.4.0**, on engine v0.27.2: GPU surfaces and compute (the `compute` and `triangle` images), WASIX, the `shell` image pinned by digest, typing into `exec -i`, `wctr build` and `wctr compose` in the page, and the shell of the second origin for containers' pages (`-p` is not live yet) | playground v0.4.0, live |
@@ -86,7 +87,6 @@ Nothing below exists yet.
 | Item | What it is |
 | --- | --- |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
-| Surface input in the playground | gpu v0.6.0 and dashboard v0.8.0 have it; the playground (v0.4.1) still uses dashboard v0.6.0 and gpu v0.5.1 |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0, headless Linux fixed in v0.5.1) and input in v0.6.0; these are not served yet; see [GPU]({{< relref "gpu" >}}) |
 | Mini-Kubernetes | enough of the orchestrator's API to teach its concepts |
 | apt-like images | a base image plus tools, from [pkgx](https://github.com/go-pkgx) `wasip1` bottles. go-pkgx builds C tools for wasip1 (lua 5.4.9, sqlite 3.53.4, zlib 1.3.2 with minigzip), which are now in the playground's catalogue; a base image plus tools is still planned |
