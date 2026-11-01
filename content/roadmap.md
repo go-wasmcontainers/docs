@@ -47,6 +47,8 @@ tags: [roadmap]
 | **`cmd/wctr` v0.2.0**: engine v0.22.0, compose v0.3.2, build v0.4.0 | `cmd/wctr` v0.2.0 |
 | **`cmd/wctr` v0.3.0**: requires engine v0.30.0, so the installed `wctr` has `run -i/-t`, `attach` and `start -ai` | `cmd/wctr` v0.3.0 |
 | **Engine v0.30.1**: piped standard input, output and error are no longer reported to a guest as a terminal (file type `unknown`, as in wasmtime); a guest's exit codes 0 to 255 are kept and only values outside become 1 | engine v0.30.1 |
+| **`lineedit`, one line editor for `wctr` and the guest shell**: a nested module, `github.com/go-wasmcontainers/engine/lineedit` (`lineedit/v0.1.0`), whose only dependency is the standard library; wide and combining characters have their display widths; CSI sequences such as `ESC[?25h` are no longer inserted as text; `cli/lineedit` becomes an adapter over it | engine v0.31.0 |
+| **Shell v0.4.0**: `sh` uses the shared `lineedit` (replacing its own editor): reverse search (^R), wide characters counted, long lines wrap; the core's completion hook is not wired into `sh` yet; `sh.wasm` grows by 79,097 bytes (+1.16 %) | shell v0.4.0 |
 | **Playground v0.7.0**, on engine v0.30.1: `wctr images` and completion show `[checked]` or `[mirrored]`; the live catalogue has 52 images, 43 pkgx bottles, 41 of them checked against wasmtime 50.0.1 | playground v0.7.0, live |
 | **A line editor on a terminal** (arrow keys, history, ^C, ^D) in `sh`; the public image `ghcr.io/go-wasmcontainers/shell:0.2.0` (digest `sha256:32bb0127…505a7`, coreutils v0.4.0) | shell v0.2.0 |
 | **`wasix/exec`**, `os/exec` for WASI containers, in `wasix`, a module of its own | shell v0.2.0, `wasix/v0.1.0` |

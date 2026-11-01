@@ -67,7 +67,7 @@ process its own stdin and terminal. They use Docker's fields `Config.Tty`,
   blocks on stdin (v0.29.1).
 - These commands are in engine v0.30.0's `cli` package. `cmd/wctr` v0.2.0
   required engine v0.22.0 and does not have them; **`cmd/wctr` v0.3.0 requires
-  engine v0.30.0 and does**. The daemon (`wctrd` v0.30.1) serves the API.
+  engine v0.30.0 and does**. The daemon (`wctrd` v0.31.0) serves the API.
 
 ## For builders (v0.12.0, API only for now)
 

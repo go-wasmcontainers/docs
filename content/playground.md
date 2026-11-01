@@ -177,7 +177,11 @@ kept per tab (in `sessionStorage`). From a keypress to the line on screen took
 7 to 14 ms in Chromium and 23 ms in Firefox, measured in CI.
 
 The line editor and its completion are the package `cli/lineedit` of the
-engine: pure Go, usable by anyone who embeds the engine's CLI.
+engine: pure Go, usable by anyone who embeds the engine's CLI. Since engine
+v0.31.0, `cli/lineedit` is a thin adapter over `lineedit`, a module of its own
+(`github.com/go-wasmcontainers/engine/lineedit`, tag `lineedit/v0.1.0`, standard
+library only) that the guest shell uses too. The playground (v0.7.0) is built on
+engine v0.30.1.
 
 ## What you can type
 

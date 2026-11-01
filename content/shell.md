@@ -1,7 +1,7 @@
 ---
 title: "Shell"
 weight: 27
-description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.3.0, a public base image; the engine runs it from v0.17.0."
+description: "A POSIX shell for WASI containers, built on mvdan.cc/sh and a WASIX subset. Shell v0.4.0, a public base image; the engine runs it from v0.17.0."
 tags: [shell]
 ---
 
@@ -19,7 +19,9 @@ of [WASIX](https://wasix.org/), in WASIX's own import module (`wasix_32v1`):
 serves that subset from v0.17.0** (`wctrd --wasi engine`, the default): see
 [Architecture]({{< relref "architecture" >}}).
 
-**Status: shell v0.3.0 is released.** v0.3.0 updates its dependencies: coreutils
+**Status: shell v0.4.0 is released.** v0.4.0 replaces the shell's own line editor
+with the engine's shared `lineedit` (see below) and updates coreutils to v0.6.0; no
+image tag is named for it here, the image described below is `shell:0.3.0`. v0.3.0 updates its dependencies: coreutils
 v0.5.0, then the coreutils commit that adds `env CMD`, `xargs` and `find -exec`
 (released as coreutils v0.6.0), and engine v0.29.2 (typed-ahead keys survive the
 switch to raw mode, which the line editor relies on). v0.2.0 added **a line
@@ -61,7 +63,11 @@ $ wctr pull ghcr.io/go-wasmcontainers/shell:0.3.0
 
 `sh` does pipelines, redirections, here-documents, command substitution, `cd`,
 exported variables, `$?`, `set -e/-u/-x/-f/-a`, `exec`, `sh -c`, `sh file` and
-an interactive prompt on a TTY, with a line editor since v0.2.0. **Coreutils v0.6.0**
+an interactive prompt on a TTY, with a line editor since v0.2.0; since v0.4.0 that
+editor is the engine's shared `lineedit` module (`lineedit/v0.1.0`, standard library
+only), which adds reverse search (^R), columns counted for wide and combining
+characters, and wrapping of long lines. The core has a completion hook, but `sh`
+passes no completer yet. `sh.wasm` grows by 79,097 bytes (+1.16 %). **Coreutils v0.6.0**
 adds `env CMD`, `xargs` and `find -exec` (programs run through `wasix/exec` on
 wasip1 and `os/exec` natively). **Coreutils v0.5.0** (the image `:0.2.0` carries
 v0.4.0, `:0.3.0` v0.6.0) brought `grep` flags (`-F -r -l -c -o -q -w -H -h`, combined flags,
