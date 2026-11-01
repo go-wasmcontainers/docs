@@ -19,9 +19,12 @@ of [WASIX](https://wasix.org/), in WASIX's own import module (`wasix_32v1`):
 serves that subset from v0.17.0** (`wctrd --wasi engine`, the default): see
 [Architecture]({{< relref "architecture" >}}).
 
-**Status: shell v0.4.0 is released.** v0.4.0 replaces the shell's own line editor
-with the engine's shared `lineedit` (see below) and updates coreutils to v0.6.0; no
-image tag is named for it here, the image described below is `shell:0.3.0`. v0.3.0 updates its dependencies: coreutils
+**Status: shell v0.5.0 is released.** v0.5.0 adds **Tab completion** (see below). The
+image `ghcr.io/go-wasmcontainers/shell:0.5.0` is published (manifest digest
+`sha256:d122bdb78a44bc761148b1d77878bf23093995f57f425210f4d01e895df433ed`, one layer,
+read back with the shell's published-image test); the description of the image below
+is that of `shell:0.3.0`; v0.4.0 and v0.5.0 change `sh` only. v0.4.0 replaces the shell's own line editor
+with the engine's shared `lineedit` (see below) and updates coreutils to v0.6.0. v0.3.0 updates its dependencies: coreutils
 v0.5.0, then the coreutils commit that adds `env CMD`, `xargs` and `find -exec`
 (released as coreutils v0.6.0), and engine v0.29.2 (typed-ahead keys survive the
 switch to raw mode, which the line editor relies on). v0.2.0 added **a line
@@ -30,7 +33,7 @@ editor on a terminal**
 (`github.com/go-wasmcontainers/shell/wasix`, tag `wasix/v0.1.0`) with
 **`wasix/exec`**, which mirrors `os/exec` for WASI containers. `sh` runs on the engine, where pipelines
 through the coreutils work. **The current base image is
-`ghcr.io/go-wasmcontainers/shell:0.3.0`** (also tagged `latest`), built by the
+`ghcr.io/go-wasmcontainers/shell:0.5.0`** (also tagged `latest`; the numbers below are those of `:0.3.0`), built by the
 release workflow of shell v0.3.0 and pushed with manifest digest
 `sha256:bc3b16b7ef328e8e7a2f30e93f2e14456b7119c7d674d156914038ee38c5c5ec`
 (`wasip1/wasm`, one layer of 59 entries): `sh` with the line editor,
@@ -48,7 +51,7 @@ the one some examples elsewhere in these pages use. **The images are public**;
 pull the current one with:
 
 ```console
-$ wctr pull ghcr.io/go-wasmcontainers/shell:0.3.0
+$ wctr pull ghcr.io/go-wasmcontainers/shell:0.5.0
 ```
 
 - **`wasix`**: `//go:wasmimport` bindings for the subset, with a Go API; a
@@ -66,8 +69,17 @@ exported variables, `$?`, `set -e/-u/-x/-f/-a`, `exec`, `sh -c`, `sh file` and
 an interactive prompt on a TTY, with a line editor since v0.2.0; since v0.4.0 that
 editor is the engine's shared `lineedit` module (`lineedit/v0.1.0`, standard library
 only), which adds reverse search (^R), columns counted for wide and combining
-characters, and wrapping of long lines. The core has a completion hook, but `sh`
-passes no completer yet. `sh.wasm` grows by 79,097 bytes (+1.16 %). **Coreutils v0.6.0**
+characters, and wrapping of long lines. `sh.wasm` grew by 79,097 bytes (+1.16 %) with that editor.
+**Since v0.5.0, Tab completes**, after bash's defaults: the first word of a command (and the
+word after `|`, `||`, `&`, `&&`, `;` or a reserved word such as `then`) completes to the
+builtins, the shell functions, the reserved words and the programs on `PATH` (`name` or
+`name.wasm`); any other word, or a first word with a slash, completes to file names relative to
+the working directory. A directory gets a trailing `/` and no space, dot files appear only when
+the prefix starts with a dot, and a name with a space is quoted (`my\ file`). Several candidates
+complete to their longest common prefix, and a second Tab lists them in columns, as bash and
+`wctr` do, asking first past 100. It is bounded: 4,096 directory entries per directory (read 256
+at a time), 32 `PATH` directories and 1,000 candidates. Not done: `~` and `$VAR`, aliases,
+programmable completion. `sh.wasm` grows by 38,944 bytes (+0.55 %, 7,050,287 to 7,089,231). **Coreutils v0.6.0**
 adds `env CMD`, `xargs` and `find -exec` (programs run through `wasix/exec` on
 wasip1 and `os/exec` natively). **Coreutils v0.5.0** (the image `:0.2.0` carries
 v0.4.0, `:0.3.0` v0.6.0) brought `grep` flags (`-F -r -l -c -o -q -w -H -h`, combined flags,
