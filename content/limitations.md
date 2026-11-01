@@ -10,8 +10,8 @@ tags: [limits]
 The playground (v0.6.0, built on engine v0.30.0) takes one `wctr` command per
 line, with no pipes in that line. It has `exec`, a shell (the `shell` image),
 typing into `exec -i`, and `run -it` and `start -ai` (its end-to-end test runs
-`wctr run --rm -it shell`). Its dashboard is v0.6.0, so GPU panes do not send
-input there yet. `-p` works in the
+`wctr run --rm -it shell`). Its dashboard is v0.8.0, so GPU panes send input
+there (click a pane to focus it; vertex buffers and depth-stencil are not served). `-p` works in the
 browser since v0.5.0, in a tab of its own, for HTTP and (v0.6.0) WebDAV methods;
 there is no UDP and no raw TCP from outside the page. Networks
 stay inside the page: no Internet. Ctrl-C stops waiting for a container but leaves it running.

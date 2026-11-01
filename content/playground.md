@@ -17,6 +17,11 @@ v0.30.0.
   the ports bar (see [A file server in the tab](#a-file-server-in-the-tab-the-fileshare-image)).
 - **The `-p` route relays WebDAV's methods** (`PROPFIND`, `PROPPATCH`, `MKCOL`,
   `COPY`, `MOVE`, `LOCK`, `UNLOCK`; RFC 4918) as well as HTTP's.
+- **GPU surface input**: click a surface's pane under **Surfaces** to give it the
+  focus, and its pointer presses and keys reach the guest (gpu v0.6.0, dashboard
+  v0.8.0). `wctr run --rm --gpu triangle [frames [input]]` with `input` prints what the guest receives,
+  such as `pointer-down 80,80` and `key-down key-a "A" shift=true`; the end-to-end
+  test `TestGPUSurfaceInput` checks the coordinates and Shift+A.
 
 ## What was new in v0.5.0
 
@@ -253,8 +258,8 @@ containers at once.
 
 ## Not yet
 
-One `wctr` command per line (pipes need the `shell` image's `sh`); the dashboard in the
-page is v0.6.0, so GPU panes send no input yet; published ports are HTTP only, shown
+One `wctr` command per line (pipes need the `shell` image's `sh`); vertex buffers and
+depth-stencil are not served to GPU guests; published ports are HTTP and WebDAV only, shown
 in a tab, with no UDP and no raw TCP from outside the page. Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 [Limitations]({{< relref "limitations" >}}) and the [roadmap]({{< relref "roadmap" >}}).

@@ -41,7 +41,7 @@ shows the `wctr` command it stands for.** This is dashboard v0.8.0.
   `webgpu.SurfaceInput`. A press on a pane's frame gives it the focus (drawn in the
   accent colour); only the focused pane sends keys, and it takes every key except
   F6, which leaves it. Pointer moves are coalesced to one per surface per frame. A
-  closed surface takes no input. The playground (v0.4.1) still uses dashboard v0.6.0.
+  closed surface takes no input. The playground uses dashboard v0.8.0 since playground v0.6.0.
 - **Open shell** (v0.7.0): an "Open shell" toolbar action and a Shell tab in a
   container's detail, the equivalent of `wctr exec -it CONTAINER sh`. It starts a
   TTY exec of `/bin/sh` at the terminal's size, sends the keys as raw bytes,
