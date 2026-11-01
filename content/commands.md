@@ -65,9 +65,9 @@ process its own stdin and terminal. They use Docker's fields `Config.Tty`,
 - Ctrl-P Ctrl-Q detaches; detach keys use Docker's format.
 - It works in both executors, the native one and the browser's. No host call
   blocks on stdin (v0.29.1).
-- `wctr` as `go install` gives it (`cmd/wctr` v0.2.0) requires engine v0.22.0,
-  so these commands are in engine v0.30.0's `cli` package and reach `wctr` when
-  `cmd/wctr` requires it; the daemon (`wctrd` v0.30.0) serves the API.
+- These commands are in engine v0.30.0's `cli` package. `cmd/wctr` v0.2.0
+  required engine v0.22.0 and does not have them; **`cmd/wctr` v0.3.0 requires
+  engine v0.30.0 and does**. The daemon (`wctrd` v0.30.1) serves the API.
 
 ## For builders (v0.12.0, API only for now)
 
@@ -134,14 +134,14 @@ The container's own, or:
 | 134 | the module trapped |
 | 137 | killed, or the wall-clock timeout |
 
-A guest's own `proc_exit` code is a Docker status: 0 to 255 is kept, so a
+A guest's own `proc_exit` code is a Docker status (engine v0.30.1): 0 to 255 is kept, so a
 guest that exits 126, 127 or 130 reports exactly that. A code outside that
 range (`os.Exit(-1)` arrives as 4294967295, or 256 and above) is reported as 1,
 which is also what wasmtime reports for it. wasmtime additionally turns 126 to
 255 into 1; the engine does not, because Docker is the target.
 
 Standard input, output and error are reported to the guest as a character
-device only under `run -t` or `exec -t`; otherwise (a pipe) they are of type
+device only under `run -t` or `exec -t` (a pipe is no longer reported as one since engine v0.30.1); otherwise (a pipe) they are of type
 `unknown`, as in wasmtime, so `isatty()` and Go's terminal checks answer false
 for piped input.
 
