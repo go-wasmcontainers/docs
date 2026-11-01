@@ -85,7 +85,6 @@ Nothing below exists yet.
 
 | Item | What it is |
 | --- | --- |
-| Published ports in the browser | `run -p` in the playground: **in progress**, through a second origin (the origin is deployed; the rest is not live); natively it shipped in engine v0.22.0 |
 | Classroom relay, the rest | students' containers reaching each other through the relay from the playground: the engine's network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the [design]({{< relref "design/classroom-network" >}}) |
 | Surface input in the playground | gpu v0.6.0 and dashboard v0.8.0 have it; the playground (v0.4.1) still uses dashboard v0.6.0 and gpu v0.5.1 |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | rendering shipped (gpu v0.5.0, headless Linux fixed in v0.5.1) and input in v0.6.0; these are not served yet; see [GPU]({{< relref "gpu" >}}) |

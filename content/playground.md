@@ -1,17 +1,24 @@
 ---
 title: "Playground"
 weight: 5
-description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.5.0: published ports (-p) in a tab of their own, run -it, GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
+description: "A dashboard of WASI containers with a wctr terminal, in a browser tab, with no server. Playground v0.6.0: a WebDAV file server in the tab (fileshare, explore :PORT), published ports (-p) in a tab of their own, run -it, GPU surfaces, a shell, WASIX, networking, Join class, wasi-nn."
 tags: [playground]
 ---
 
 **<https://go-wasmcontainers.github.io/playground/>** is a dashboard of WASI
 containers, images and volumes with a terminal running `wctr`, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-`runtime/browser`, new in engine v0.2.0). This is **playground v0.5.0**, on engine
+`runtime/browser`, new in engine v0.2.0). This is **playground v0.6.0**, on engine
 v0.30.0.
 
-## What is new in v0.5.0
+## What is new in v0.6.0
+
+- **A file server in the tab**: the `fileshare` image, then **explore :8080** in
+  the ports bar (see [A file server in the tab](#a-file-server-in-the-tab-the-fileshare-image)).
+- **The `-p` route relays WebDAV's methods** (`PROPFIND`, `PROPPATCH`, `MKCOL`,
+  `COPY`, `MOVE`, `LOCK`, `UNLOCK`; RFC 4918) as well as HTTP's.
+
+## What was new in v0.5.0
 
 - **`-p` in the browser**: `wctr run -d -p 8080:80 net serve`, then **open :8080**
   in the bar above the terminal. The container's pages open in a tab of their own,
@@ -90,6 +97,58 @@ script it.
 Measured in Chromium: 8 MiB from a container to its page, through every hop, in
 32 ms (about 265 MB/s).
 
+### A file server in the tab: the `fileshare` image
+
+```console
+$ wctr run -d -p 8080:80 --name files fileshare
+```
+
+The image is [go-fileshare/fileshare](https://github.com/go-fileshare/fileshare)
+v0.32.0, built for `wasip1` and serving WebDAV only (6.5 MB gzip):
+
+- one share, `files`, with a README in it;
+- one person: user `alice`, password `playground`. The password is a demo,
+  written into the image on purpose, since nothing the share holds belongs to
+  anybody;
+- plaintext WebDAV, because TLS ends at the browser's origin and the hop to the
+  container is the engine's, in memory.
+
+**open :8080** shows the server's page. The route relays WebDAV's methods
+(`PROPFIND`, `PROPPATCH`, `MKCOL`, `COPY`, `MOVE`, `LOCK`, `UNLOCK`; RFC 4918) as
+well as HTTP's, so a WebDAV client in the page works. WebDAV through
+**open :8080** needs the usercontent origin
+(<https://go-wasmcontainers-usercontent.github.io/>) re-rendered from playground
+v0.6.0, which is being deployed; until then that origin refuses these methods.
+The end-to-end test `TestFileshare` checks, from inside the container's page:
+
+- without credentials: 401 with a `Basic` challenge;
+- with a wrong password: 401;
+- with alice's: a PROPFIND of the share (207) lists `README.txt`, which reads;
+- a PUT lands (201) and reads back.
+
+**explore :8080** opens the [go-fileshare explorer](https://github.com/go-fileshare/explorer)
+(v0.4.0, built into the site as `explorer.wasm`, fetched only when used) as a
+browser client of the server:
+
+- It asks for a user and a password first. They are sent as HTTP Basic with
+  each request, and they stay in the page's memory. They are dropped when the
+  explorer closes; nothing is stored.
+- The explorer runs in a frame of the playground, in its bridge mode. Its
+  requests go straight to the engine, on a relay session of its own, with no
+  view tab and no usercontent origin.
+- The explorer is the site's own code, not the container's, and it draws on a
+  canvas. Nothing the container answers becomes HTML in the playground.
+- `explorer.html` is the only page that may be framed, and only by the
+  playground (`frame-ancestors 'self'`; everything else keeps `'none'`).
+- The session's credentials replace any `Authorization` header the frame sends.
+- A download is read whole, up to the route's 256 MiB bound, and saved under a
+  sanitised name.
+
+`TestFileshareExplorer` checks that a wrong password gives 401 and the explorer
+says the server refused the login, that alice's lists the share, that a PUT
+through the bridge (201) reads back, that a frame-supplied `Authorization` is
+replaced, and that after close the bridge refuses.
+
 ## Completion and editing
 
 The terminal completes with Tab, as a shell does: subcommands, flags, `-m`
@@ -126,6 +185,7 @@ $ wctr run --rm -e NAME=you greet
 | `hello`, `greet` | the small demonstration modules |
 | `lab` | a module with subcommands: `echo`, `env`, `pwd`, `ls`, `cat`, `write`, `count`, `sleep`, `spin`, `hog`, `bench`, `fs`, `exit`, `esc` |
 | `net` | a networking probe: `serve`, `get`, `bench`, `udp-echo`, `udp`, `lookup`, `dial` |
+| `fileshare` | a WebDAV file server ([go-fileshare](https://github.com/go-fileshare/fileshare) v0.32.0, 6.5 MB gzip): share `files`, user `alice`, password `playground` (a demo) |
 | `mnist` | classifies a handwritten digit with wasi-nn |
 | every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 43 images from 41 bottles today (`yq`, `gojq`, `jj`, `shfmt`, `actionlint`, `age`, `lua`, `luac`, `sqlite3`, `zstd`, `simdjson-minify` and more; `wctr images` lists them all) | derived from pkgx's signed catalogue at build time, see below |
 

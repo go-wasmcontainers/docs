@@ -7,14 +7,14 @@ tags: [limits]
 
 ## Playground
 
-The playground (v0.4.1, built on engine v0.30.0) takes one `wctr` command per
+The playground (v0.6.0, built on engine v0.30.0) takes one `wctr` command per
 line, with no pipes in that line. It has `exec`, a shell (the `shell` image),
 typing into `exec -i`, and `run -it` and `start -ai` (its end-to-end test runs
 `wctr run --rm -it shell`). Its dashboard is v0.6.0, so GPU panes do not send
-input there yet. There is
-**no `-p` in the browser** yet: the second origin for containers' pages is
-deployed, but the rest of it is in progress and not live. Networks
-stay inside the page: no Internet, no published ports. Ctrl-C stops waiting for a container but leaves it running.
+input there yet. `-p` works in the
+browser since v0.5.0, in a tab of its own, for HTTP and (v0.6.0) WebDAV methods;
+there is no UDP and no raw TCP from outside the page. Networks
+stay inside the page: no Internet. Ctrl-C stops waiting for a container but leaves it running.
 Each container is bounded: 256 MiB of memory, a 5-minute run, 64 MiB of writes,
 4 MiB of logs, and 64 containers at once.
 
@@ -34,8 +34,8 @@ Engine v0.30.0 does **not** have:
 - signals: processes are the WASIX subset, a child is stopped only with its
   container, and Ctrl-C in a terminal erases the line (a container's first
   process has its own stdin and terminal since v0.30.0: `run -it`, `attach`);
-- **published ports in the browser** (`-p` works natively since v0.22.0; in the
-  browser it is in progress, through a second origin, with the groundwork `portmap.Virtual` in v0.24.0; natively there is no SCTP,
+- **published ports with sockets in the browser** (`-p` works natively since v0.22.0, and
+  in the playground since v0.5.0 with no socket, through `portmap.Virtual` (v0.24.0) and a second origin; natively there is no SCTP,
   and the source address the guest sees is its own). A container on several networks binds to its
   primary address or to all (`0.0.0.0`), not to a secondary address alone;
   aliases work on in-engine networks only; no IPv6 on in-engine networks; the DNS
