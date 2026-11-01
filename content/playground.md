@@ -60,9 +60,10 @@ v0.30.1.
   browser without WebGPU, gets no adapter: these images print `no GPU adapter` and
   exit 2.
 - **WASIX**: programs started by a shell run as WASIX processes in the page.
-- **The `shell` image**, `ghcr.io/go-wasmcontainers/shell:0.1.0`, mirrored verbatim
-  and pinned by its digest: `wctr run --rm shell sh -c 'echo a | cat'` and
-  `wctr exec -it CONTAINER sh` work in the page.
+- **The `shell` image**, `ghcr.io/go-wasmcontainers/shell:0.5.0`, mirrored verbatim
+  and pinned by its digest (`sha256:d122bdb7…df433ed`): `wctr run --rm shell sh -c 'echo a | cat'` and
+  `wctr exec -it CONTAINER sh` work in the page, and `sh` completes with Tab
+  (`ec` Tab gives `echo`).
 - **Typing into `exec -i`**: a line whose own `wctr` flags say `-i` gets what you
   type, Ctrl-C and Ctrl-D included.
 - **`wctr build` and `wctr compose`** are wired into the page's `wctr`, as in
