@@ -1,13 +1,13 @@
 ---
 title: "Limitations"
 weight: 25
-description: "What the engine (v0.30.0) and the playground do not do."
+description: "What the engine (v0.30.1) and the playground do not do."
 tags: [limits]
 ---
 
 ## Playground
 
-The playground (v0.6.0, built on engine v0.30.0) takes one `wctr` command per
+The playground (v0.7.0, built on engine v0.30.1) takes one `wctr` command per
 line, with no pipes in that line. It has `exec`, a shell (the `shell` image),
 typing into `exec -i`, and `run -it` and `start -ai` (its end-to-end test runs
 `wctr run --rm -it shell`). Its dashboard is v0.8.0, so GPU panes send input
@@ -26,7 +26,7 @@ page is at `?ui=terminal`.
 
 ## Engine
 
-Engine v0.30.0 does **not** have:
+Engine v0.30.1 does **not** have:
 
 - CPU accounting: a WebAssembly guest gives none, so `wctr stats` shows CPU as
   `--`;

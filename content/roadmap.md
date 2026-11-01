@@ -45,6 +45,9 @@ tags: [roadmap]
 | **Typed-ahead keys survive a terminal's switch to raw mode**: when a process on a terminal (`exec -t`) turns line mode off, the line being typed is handed over at once, as Linux does when ICANON is cleared (before, keys typed before a shell's first prompt were lost); `wasi.Terminal.OnMode`; the hand-over runs in at most one goroutine at a time | engine v0.29.2 |
 | **A container's own stdin and terminal**: `Config.Tty`, `OpenStdin`, `StdinOnce`, `HostConfig.ConsoleSize`; `wctr run -i/-t/--detach-keys`, `wctr attach`, `wctr start -ai`; `POST /containers/{id}/attach` with `stdin=1` and `detachKeys`, and `POST /containers/{id}/resize`; Ctrl-P Ctrl-Q detaches; works in both executors | engine v0.30.0 |
 | **`cmd/wctr` v0.2.0**: engine v0.22.0, compose v0.3.2, build v0.4.0 | `cmd/wctr` v0.2.0 |
+| **`cmd/wctr` v0.3.0**: requires engine v0.30.0, so the installed `wctr` has `run -i/-t`, `attach` and `start -ai` | `cmd/wctr` v0.3.0 |
+| **Engine v0.30.1**: piped standard input, output and error are no longer reported to a guest as a terminal (file type `unknown`, as in wasmtime); a guest's exit codes 0 to 255 are kept and only values outside become 1 | engine v0.30.1 |
+| **Playground v0.7.0**, on engine v0.30.1: `wctr images` and completion show `[checked]` or `[mirrored]`; the live catalogue has 52 images, 43 pkgx bottles, 41 of them checked against wasmtime 50.0.1 | playground v0.7.0, live |
 | **A line editor on a terminal** (arrow keys, history, ^C, ^D) in `sh`; the public image `ghcr.io/go-wasmcontainers/shell:0.2.0` (digest `sha256:32bb0127…505a7`, coreutils v0.4.0) | shell v0.2.0 |
 | **`wasix/exec`**, `os/exec` for WASI containers, in `wasix`, a module of its own | shell v0.2.0, `wasix/v0.1.0` |
 | **Coreutils**: `grep` flags, `tee` streaming, `ls FILE`, `find`, `sort`, `head`/`tail`, `date`, `tr`, `printf` in full; `hostname`, `uname`, `id`, `whoami`, `clear`, `which` | coreutils v0.5.0 |

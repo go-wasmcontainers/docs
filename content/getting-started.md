@@ -18,15 +18,14 @@ and `wctr compose` built in**, so there are two `go install` commands, one per
 module (one command naming both no longer works):
 
 ```sh
-go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.2.0
-go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.30.0
+go install github.com/go-wasmcontainers/engine/cmd/wctr@v0.3.0
+go install github.com/go-wasmcontainers/engine/cmd/wctrd@v0.30.1
 ```
 
-`cmd/wctr` v0.2.0 requires engine v0.22.0 (with compose v0.3.2 and build v0.4.0),
-so the `wctr` it installs carries that version's commands; the daemon (`wctrd`,
-engine v0.30.0) serves everything else, including health checks and a container's
-own stdin and terminal (`run -i/-t` and `attach` reach `wctr` when `cmd/wctr`
-requires engine v0.30.0).
+`cmd/wctr` v0.3.0 requires engine v0.30.0 (with compose v0.3.2 and build v0.4.0),
+so the `wctr` it installs has `run -i/-t`, `attach` and `start -ai`; the daemon
+(`wctrd`, engine v0.30.1) serves everything else. (`cmd/wctr` v0.2.0 required
+engine v0.22.0 and has none of them.)
 
 Shell completion for `wctr` (bash, zsh, fish or PowerShell), for example in
 zsh:

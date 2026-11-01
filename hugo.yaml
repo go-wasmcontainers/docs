@@ -78,14 +78,14 @@ menu:
         icon: github
 
 params:
-  description: "A container engine whose containers are WASI (wasip1) modules, compatible with the Docker Engine API, in pure Go (CGO=0), with an in-browser playground for container training labs. Engine v0.30.0 is released and the playground is live."
+  description: "A container engine whose containers are WASI (wasip1) modules, compatible with the Docker Engine API, in pure Go (CGO=0), with an in-browser playground for container training labs. Engine v0.30.1 is released and the playground is live."
 
   # The go-wasmcontainers/engine release these pages describe. Its minor
   # version is the documentation's version label (v0.1.2 -> 0.1): the CI reads
   # it here. "main" while nothing is released: the pages then describe the
   # branch being written, and say so.
   engine:
-    version: "v0.30.0"
+    version: "v0.30.1"
   versions:
     # The version selector shows "main" with the development icon.
     development: "main"

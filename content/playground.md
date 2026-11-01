@@ -8,10 +8,22 @@ tags: [playground]
 **<https://go-wasmcontainers.github.io/playground/>** is a dashboard of WASI
 containers, images and volumes with a terminal running `wctr`, in a web page.
 There is no server: the engine runs in the page (the browser executor,
-`runtime/browser`, new in engine v0.2.0). This is **playground v0.6.0**, on engine
-v0.30.0.
+`runtime/browser`, new in engine v0.2.0). This is **playground v0.7.0**, on engine
+v0.30.1.
 
-## What is new in v0.6.0
+## What is new in v0.7.0
+
+- **Engine v0.30.1**: piped standard input, output and error are no longer
+  reported to a guest as a terminal, and a guest's exit codes 0 to 255 are kept
+  (see [Commands]({{< relref "commands" >}})).
+- **`[checked]` or `[mirrored]`** next to each image in `wctr images` and in
+  completion, read from `catalog.json`: `[checked]` when the build ran the image
+  under the engine and under wasmtime and nothing differed. The live catalogue has
+  52 images, 43 of them pkgx bottles, 41 of those checked against wasmtime 50.0.1.
+- A stale `yq` expectation is removed (it now matches wasmtime byte for byte);
+  `gnostic` stays a named difference.
+
+## What was new in v0.6.0
 
 - **A file server in the tab**: the `fileshare` image, then **explore :8080** in
   the ports bar (see [A file server in the tab](#a-file-server-in-the-tab-the-fileshare-image)).
@@ -222,7 +234,8 @@ holds, each entry with its project, version and layer size.
 - **Checked**: each `catalog.json` entry has `checked`: `true` when the build ran
   the image under the engine and under wasmtime (probes with real input for
   `yq`, `gojq`, `jj`, `tomljson` and others) and nothing failed or differed
-  (40 of 43 today), `false` when it is only mirrored.
+  (41 of 43 pkgx images on 2026-11-01, against wasmtime 50.0.1), `false` when it is
+  only mirrored.
 - **Site size**: GitHub Pages refuses a site over 1 GB. With 43 images the mirror
   is 112 MB (about 2.6 MB per image, each image stored separately) and the whole
   site 167 MB. The build stops if the layers exceed 700 MiB; the plan beyond that
