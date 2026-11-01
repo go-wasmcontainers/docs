@@ -53,9 +53,10 @@ pane under the dashboard&amp;rsquo;s &lt;strong&gt;Surfaces&lt;/strong&gt; view.
 browser without WebGPU, gets no adapter: these images print &lt;code&gt;no GPU adapter&lt;/code&gt; and
 exit 2.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;WASIX&lt;/strong&gt;: programs started by a shell run as WASIX processes in the page.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;The &lt;code&gt;shell&lt;/code&gt; image&lt;/strong&gt;, &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;, mirrored verbatim
-and pinned by its digest: &lt;code&gt;wctr run --rm shell sh -c 'echo a | cat'&lt;/code&gt; and
-&lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt; work in the page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The &lt;code&gt;shell&lt;/code&gt; image&lt;/strong&gt;, &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.5.0&lt;/code&gt;, mirrored verbatim
+and pinned by its digest (&lt;code&gt;sha256:d122bdb7…df433ed&lt;/code&gt;): &lt;code&gt;wctr run --rm shell sh -c 'echo a | cat'&lt;/code&gt; and
+&lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt; work in the page, and &lt;code&gt;sh&lt;/code&gt; completes with Tab
+(&lt;code&gt;ec&lt;/code&gt; Tab gives &lt;code&gt;echo&lt;/code&gt;).&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Typing into &lt;code&gt;exec -i&lt;/code&gt;&lt;/strong&gt;: a line whose own &lt;code&gt;wctr&lt;/code&gt; flags say &lt;code&gt;-i&lt;/code&gt; gets what you
 type, Ctrl-C and Ctrl-D included.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; and &lt;code&gt;wctr compose&lt;/code&gt;&lt;/strong&gt; are wired into the page&amp;rsquo;s &lt;code&gt;wctr&lt;/code&gt;, as in
