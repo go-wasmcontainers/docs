@@ -1,0 +1,104 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Gpu</title><link>https://go-wasmcontainers.github.io/docs/0.31/tags/gpu/</link><description>Recent content in Gpu on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.31/tags/gpu/index.xml" rel="self" type="application/rss+xml"/><item><title>GPU</title><link>https://go-wasmcontainers.github.io/docs/0.31/gpu/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.31/gpu/</guid><description>
+&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/gpu" target="_blank" rel="noopener"&gt;go-wasmcontainers/gpu&lt;/a&gt; is the module
+for GPU access from WASI containers: wasi-nn inference, wasi:webgpu compute and
+rendering, on WebGPU in the browser and on the CPU natively. Pure Go. The design
+and its references are in
+&lt;a href="https://github.com/go-wasmcontainers/gpu/blob/main/docs/DESIGN.md" target="_blank" rel="noopener"&gt;docs/DESIGN.md&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Status (v0.6.0): inference, compute, rendering and surface input exist.&lt;/strong&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Part&lt;/th&gt;
+&lt;th&gt;State&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;onnx&lt;/code&gt;: ONNX model loader and CPU operators&lt;/td&gt;
+&lt;td&gt;done (v0.1.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;nn&lt;/code&gt;: wasi-nn host module (&lt;code&gt;wasi_ephemeral_nn&lt;/code&gt;), CPU backend; &lt;code&gt;wasinn&lt;/code&gt; Go guest bindings; the &lt;code&gt;mnist&lt;/code&gt; example&lt;/td&gt;
+&lt;td&gt;done (v0.2.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;nn/webgpu&lt;/code&gt;: wasi-nn on the GPU, WGSL kernels (browser)&lt;/td&gt;
+&lt;td&gt;done (v0.3.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;wasi:webgpu compute (host and Go guest), &lt;code&gt;examples/compute&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;done (v0.4.0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;rendering: &lt;code&gt;wasi-gfx:surface&lt;/code&gt; and &lt;code&gt;surface-webgpu&lt;/code&gt;, frames to the page, &lt;code&gt;examples/triangle&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;surface input: &lt;code&gt;on-pointer-up/down/move&lt;/code&gt; and &lt;code&gt;on-key-up/down&lt;/code&gt; streams for the guest, &lt;code&gt;webgpu.SurfaceInput&lt;/code&gt; for the page&lt;/td&gt;
+&lt;td&gt;done (v0.6.0); the dashboard forwards pane events since its v0.8.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;on-resize&lt;/code&gt; and &lt;code&gt;on-frame&lt;/code&gt; streams, vertex buffers, depth-stencil&lt;/td&gt;
+&lt;td&gt;not yet&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;A container asks for the GPU with &lt;code&gt;wctr run --gpu&lt;/code&gt; (engine v0.13.0 or later). The
+execution target is checked: &lt;code&gt;gpu&lt;/code&gt; needs that capability &lt;strong&gt;and&lt;/strong&gt; a GPU backend,
+and otherwise fails with &lt;code&gt;unsupported_operation&lt;/code&gt;, never running on the CPU in its
+place. A process without &lt;code&gt;--gpu&lt;/code&gt; gets no adapter.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="wasi-nn-on-the-cpu-and-on-webgpu"&gt;wasi-nn, on the CPU and on WebGPU&lt;span class="hx:absolute hx:-mt-20" id="wasi-nn-on-the-cpu-and-on-webgpu"&gt;&lt;/span&gt;
+&lt;a href="#wasi-nn-on-the-cpu-and-on-webgpu" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wasinn&lt;/code&gt; gives Go guests &lt;code&gt;Load&lt;/code&gt;, &lt;code&gt;NewContext&lt;/code&gt;, &lt;code&gt;SetInputF32&lt;/code&gt;, &lt;code&gt;Compute&lt;/code&gt; and
+&lt;code&gt;OutputF32&lt;/code&gt;. In the browser, each ONNX node becomes one WGSL compute dispatch on a
+WebGPU device of the graph&amp;rsquo;s own. The WGSL kernels are checked twice: natively,
+against all 122 vendored ONNX node tests, with each kernel&amp;rsquo;s index arithmetic run
+in Go (no GPU needed); and in a browser, on the real WGSL. &lt;strong&gt;On an Apple Metal
+adapter (Chromium 143), 123 of 123 pass, MNIST-12 within 3.1e-5 of the
+reference.&lt;/strong&gt; CI has a macOS lane that must get a GPU adapter or fail, so the GPU
+path is proven on a real Apple GPU; the Linux lane runs on SwiftShader, a
+software adapter, and is labelled as proving the WGSL and not a GPU.&lt;/p&gt;
+&lt;p&gt;The &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/playground/"&gt;playground&lt;/a&gt; has an &lt;code&gt;mnist&lt;/code&gt; image that runs
+wasi-nn in the browser.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="wasiwebgpu-compute"&gt;wasi:webgpu compute&lt;span class="hx:absolute hx:-mt-20" id="wasiwebgpu-compute"&gt;&lt;/span&gt;
+&lt;a href="#wasiwebgpu-compute" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Containers are WASI preview 1 core modules and the engine has no component-model
+runtime, so the gpu module parses the WIT and implements the Canonical ABI for a
+32-bit memory by hand. The host serves every function of the &lt;code&gt;wasi:webgpu&lt;/code&gt;
+interface; in the browser it maps them to WebGPU in the engine&amp;rsquo;s worker. Quotas
+per process: 4096 handles, 256 MiB of buffers, 1 MiB per WGSL module and 256
+pipelines; a submission still running after 2 seconds has its device destroyed,
+and fallback adapters are refused.&lt;/p&gt;
+&lt;p&gt;On an Apple Metal adapter, &lt;code&gt;examples/compute&lt;/code&gt; (adding two 1M-float vectors,
+multiplying two 256×256 matrices) matches the CPU on every element, with the
+matmul in 15 ms on the GPU against 42 ms on the guest&amp;rsquo;s CPU, and the vector add in
+69 ms against 3.5 ms (dominated by transfers). That is one run, not a benchmark.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="rendering-surfaces"&gt;Rendering: surfaces&lt;span class="hx:absolute hx:-mt-20" id="rendering-surfaces"&gt;&lt;/span&gt;
+&lt;a href="#rendering-surfaces" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In the browser each &lt;code&gt;wasi-gfx:surface&lt;/code&gt; is an &lt;code&gt;OffscreenCanvas&lt;/code&gt; in the engine&amp;rsquo;s
+worker; &lt;code&gt;present&lt;/code&gt; turns it into an &lt;code&gt;ImageBitmap&lt;/code&gt; handed to the page, which draws it
+(in the playground, a dashboard pane). The page acknowledges each frame: at most two
+are unacknowledged, a page that stops acknowledging slows the guest to a frame per
+second without stopping it, frames are paced to 60 per second, and surfaces are at
+most 1920×1080. Render pipelines take their vertices from the shader (no vertex
+buffers yet) and have no depth-stencil. &lt;strong&gt;Surface input&lt;/strong&gt; (v0.6.0): pointer and key
+events reach the guest as &lt;code&gt;wasi-gfx:surface&lt;/code&gt; streams, which the host serves for
+core modules per the Canonical ABI. The page&amp;rsquo;s events are untrusted and bounded:
+finite coordinates up to 2^16, key text of at most 64 bytes of valid UTF-8, 256
+queued events per stream and 64 streams per surface.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;examples/triangle&lt;/code&gt; draws a spinning triangle. On an Apple Metal adapter, the end to
+end test checks 60 frames in order, the clear colour, the triangle, frames that
+change, and a rate within the pacing (one run: 51 frames per second).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Testing on headless Linux (fixed in v0.5.1).&lt;/strong&gt; Before v0.5.1, on Linux headless
+Chromium 143 with SwiftShader (the CI fallback lane), every frame reached the page
+fully transparent. Headless Linux Chromium can back a WebGPU canvas only with Skia
+on Vulkan: launch it with &lt;code&gt;--enable-features=Vulkan --use-vulkan=swiftshader --use-angle=swiftshader&lt;/code&gt; (or a real Vulkan driver); otherwise the WebGPU instance is
+torn down at the first canvas configure and frames are blank. With those flags the
+Linux SwiftShader lane passes the same checks as macOS, pixels included, and the
+pixel checks are strict. &lt;code&gt;go run ./internal/cmd/gpuprobe --canvas&lt;/code&gt; follows one
+canvas frame from the GPU to the page, to check a browser.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="onnx"&gt;&lt;code&gt;onnx&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="onnx"&gt;&lt;/span&gt;
+&lt;a href="#onnx" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The ONNX loader runs a model on the CPU. Operators: Add, AveragePool, Concat,
+Constant, Conv, Div, Dropout (inference), Flatten, Gemm, Identity, MatMul,
+MaxPool, Mul, Relu, Reshape, Softmax, Sub and Transpose (default domain, operator
+sets 7 and later, float tensors, int64 for shapes). A model using anything else
+fails at load, naming every unsupported operator. The model is untrusted input:
+its sizes and the work of one inference are bounded, and the decoder is fuzzed.
+CPU performance has not been measured yet.&lt;/p&gt;</description></item></channel></rss>

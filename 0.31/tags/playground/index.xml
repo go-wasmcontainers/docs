@@ -1,0 +1,317 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Playground</title><link>https://go-wasmcontainers.github.io/docs/0.31/tags/playground/</link><description>Recent content in Playground on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.31/tags/playground/index.xml" rel="self" type="application/rss+xml"/><item><title>Playground</title><link>https://go-wasmcontainers.github.io/docs/0.31/playground/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.31/playground/</guid><description>
+&lt;p&gt;&lt;strong&gt;&lt;a href="https://go-wasmcontainers.github.io/playground/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers.github.io/playground/&lt;/a&gt;&lt;/strong&gt; is a dashboard of WASI
+containers, images and volumes with a terminal running &lt;code&gt;wctr&lt;/code&gt;, in a web page.
+There is no server: the engine runs in the page (the browser executor,
+&lt;code&gt;runtime/browser&lt;/code&gt;, new in engine v0.2.0). This is &lt;strong&gt;playground v0.7.0&lt;/strong&gt;, on engine
+v0.30.1.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-is-new-in-v070"&gt;What is new in v0.7.0&lt;span class="hx:absolute hx:-mt-20" id="what-is-new-in-v070"&gt;&lt;/span&gt;
+&lt;a href="#what-is-new-in-v070" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Engine v0.30.1&lt;/strong&gt;: piped standard input, output and error are no longer
+reported to a guest as a terminal, and a guest&amp;rsquo;s exit codes 0 to 255 are kept
+(see &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/commands/"&gt;Commands&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;[checked]&lt;/code&gt; or &lt;code&gt;[mirrored]&lt;/code&gt;&lt;/strong&gt; next to each image in &lt;code&gt;wctr images&lt;/code&gt; and in
+completion, read from &lt;code&gt;catalog.json&lt;/code&gt;: &lt;code&gt;[checked]&lt;/code&gt; when the build ran the image
+under the engine and under wasmtime and nothing differed. The live catalogue has
+52 images, 43 of them pkgx bottles, 41 of those checked against wasmtime 50.0.1.&lt;/li&gt;
+&lt;li&gt;A stale &lt;code&gt;yq&lt;/code&gt; expectation is removed (it now matches wasmtime byte for byte);
+&lt;code&gt;gnostic&lt;/code&gt; stays a named difference.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v060"&gt;What was new in v0.6.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v060"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;A file server in the tab&lt;/strong&gt;: the &lt;code&gt;fileshare&lt;/code&gt; image, then &lt;strong&gt;explore :8080&lt;/strong&gt; in
+the ports bar (see &lt;a href="#a-file-server-in-the-tab-the-fileshare-image"&gt;A file server in the tab&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The &lt;code&gt;-p&lt;/code&gt; route relays WebDAV&amp;rsquo;s methods&lt;/strong&gt; (&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;,
+&lt;code&gt;COPY&lt;/code&gt;, &lt;code&gt;MOVE&lt;/code&gt;, &lt;code&gt;LOCK&lt;/code&gt;, &lt;code&gt;UNLOCK&lt;/code&gt;; RFC 4918) as well as HTTP&amp;rsquo;s.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;GPU surface input&lt;/strong&gt;: click a surface&amp;rsquo;s pane under &lt;strong&gt;Surfaces&lt;/strong&gt; to give it the
+focus, and its pointer presses and keys reach the guest (gpu v0.6.0, dashboard
+v0.8.0). &lt;code&gt;wctr run --rm --gpu triangle [frames [input]]&lt;/code&gt; with &lt;code&gt;input&lt;/code&gt; prints what the guest receives,
+such as &lt;code&gt;pointer-down 80,80&lt;/code&gt; and &lt;code&gt;key-down key-a &amp;quot;A&amp;quot; shift=true&lt;/code&gt;; the end-to-end
+test &lt;code&gt;TestGPUSurfaceInput&lt;/code&gt; checks the coordinates and Shift+A.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v050"&gt;What was new in v0.5.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v050"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v050" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;-p&lt;/code&gt; in the browser&lt;/strong&gt;: &lt;code&gt;wctr run -d -p 8080:80 net serve&lt;/code&gt;, then &lt;strong&gt;open :8080&lt;/strong&gt;
+in the bar above the terminal. The container&amp;rsquo;s pages open in a tab of their own,
+on the usercontent origin (see &lt;a href="#published-ports--p"&gt;Published ports&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Every pkgx image comes from the signed catalogue&lt;/strong&gt;, and Pages rebuilds daily, so
+new pkgx bottles appear without a release.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v041"&gt;What was new in v0.4.1&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v041"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v041" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Engine v0.30.0&lt;/strong&gt;: &lt;code&gt;run -i/-t&lt;/code&gt;, &lt;code&gt;attach&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt; in the page. A line
+whose own &lt;code&gt;wctr&lt;/code&gt; flags say &lt;code&gt;-i&lt;/code&gt; (&lt;code&gt;run&lt;/code&gt;, &lt;code&gt;start&lt;/code&gt;, &lt;code&gt;exec&lt;/code&gt;; also &lt;code&gt;-dit&lt;/code&gt;) gets what
+you type; the end-to-end test runs &lt;code&gt;wctr run --rm -it shell&lt;/code&gt; and &lt;code&gt;exec -it c sh&lt;/code&gt;
+and checks the exit status.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The usercontent shell forgets requests the playground never answers&lt;/strong&gt;
+(&lt;code&gt;shell.js&lt;/code&gt; and &lt;code&gt;sw.js&lt;/code&gt;): a pending-request leak fixed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v040"&gt;What was new in v0.4.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v040"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GPU surfaces and compute&lt;/strong&gt;: the &lt;code&gt;compute&lt;/code&gt; and &lt;code&gt;triangle&lt;/code&gt; images (copies of
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/gpu/"&gt;gpu&lt;/a&gt; v0.5.1&amp;rsquo;s examples) run with &lt;code&gt;--gpu&lt;/code&gt;; a surface is a
+pane under the dashboard&amp;rsquo;s &lt;strong&gt;Surfaces&lt;/strong&gt; view. A container without &lt;code&gt;--gpu&lt;/code&gt;, or a
+browser without WebGPU, gets no adapter: these images print &lt;code&gt;no GPU adapter&lt;/code&gt; and
+exit 2.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;WASIX&lt;/strong&gt;: programs started by a shell run as WASIX processes in the page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The &lt;code&gt;shell&lt;/code&gt; image&lt;/strong&gt;, &lt;code&gt;ghcr.io/go-wasmcontainers/shell:0.1.0&lt;/code&gt;, mirrored verbatim
+and pinned by its digest: &lt;code&gt;wctr run --rm shell sh -c 'echo a | cat'&lt;/code&gt; and
+&lt;code&gt;wctr exec -it CONTAINER sh&lt;/code&gt; work in the page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Typing into &lt;code&gt;exec -i&lt;/code&gt;&lt;/strong&gt;: a line whose own &lt;code&gt;wctr&lt;/code&gt; flags say &lt;code&gt;-i&lt;/code&gt; gets what you
+type, Ctrl-C and Ctrl-D included.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; and &lt;code&gt;wctr compose&lt;/code&gt;&lt;/strong&gt; are wired into the page&amp;rsquo;s &lt;code&gt;wctr&lt;/code&gt;, as in
+&lt;code&gt;cmd/wctr&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The shell of a second origin&lt;/strong&gt; for containers&amp;rsquo; pages
+(&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) and the route policy: the
+first half of &lt;code&gt;-p&lt;/code&gt; in the browser. The second half came in v0.5.0.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="what-was-new-in-v030"&gt;What was new in v0.3.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v030"&gt;&lt;/span&gt;
+&lt;a href="#what-was-new-in-v030" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;The dashboard is the main UI&lt;/strong&gt;: the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/dashboard/"&gt;dashboard&lt;/a&gt;
+(Containers, Images, Volumes, Networks, Terminal) runs on the persistent engine
+worker. The terminal alone, on xterm.js, stays at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Networking in the browser&lt;/strong&gt;: containers talk over TCP and UDP, by name (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/networking/"&gt;Networking&lt;/a&gt;). The &lt;code&gt;net&lt;/code&gt; image has &lt;code&gt;serve&lt;/code&gt;, &lt;code&gt;get&lt;/code&gt;,
+&lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt; and &lt;code&gt;dial&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Join class&lt;/strong&gt;: with a teacher&amp;rsquo;s &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/relay/"&gt;relay&lt;/a&gt;, the page joins
+the class network (the dashboard&amp;rsquo;s Networks view, &lt;strong&gt;Join class…&lt;/strong&gt;). The relay
+must run with &lt;code&gt;--cors-origin https://go-wasmcontainers.github.io&lt;/code&gt; (relay v0.3.0 or
+later). The join code is typed in a password field, posted once to the engine
+worker, and never stored.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;wasi-nn in the browser&lt;/strong&gt;: the &lt;code&gt;mnist&lt;/code&gt; image reads a handwritten digit (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/gpu/"&gt;GPU&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;It still works offline and keeps its images and containers across a reload.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 data-hextra-search-id="published-ports--p"&gt;Published ports (&lt;code&gt;-p&lt;/code&gt;)&lt;span class="hx:absolute hx:-mt-20" id="published-ports--p"&gt;&lt;/span&gt;
+&lt;a href="#published-ports--p" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d -p 8080:80 net serve
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The bar above the terminal then shows &lt;strong&gt;open :8080&lt;/strong&gt;, which opens the
+container&amp;rsquo;s web pages in a tab of their own. They are served on another site,
+&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;, never on the playground&amp;rsquo;s
+origin: a container&amp;rsquo;s page there could otherwise read the playground&amp;rsquo;s storage and
+script it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The engine publishes the port in memory, and gives each opened port a
+&lt;strong&gt;session&lt;/strong&gt;: a random id that names its pages (&lt;code&gt;/s/&amp;lt;session&amp;gt;/8080/&lt;/code&gt;), bound to
+that one port.&lt;/li&gt;
+&lt;li&gt;The view tab relays each request of the container&amp;rsquo;s page to the playground tab,
+which runs the engine, and the answer back. Nothing leaves the browser.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cookies work, but not as you might expect.&lt;/strong&gt; The engine keeps one cookie jar
+per session. The container&amp;rsquo;s &lt;code&gt;Set-Cookie&lt;/code&gt; never reaches the browser, and
+&lt;code&gt;document.cookie&lt;/code&gt; in its page does not see them.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Closing the view tab ends the session.&lt;/strong&gt; The playground tab must stay open, as
+it runs the engine.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Measured in Chromium: 8 MiB from a container to its page, through every hop, in
+32 ms (about 265 MB/s).&lt;/p&gt;
+&lt;h3 data-hextra-search-id="a-file-server-in-the-tab-the-fileshare-image"&gt;A file server in the tab: the &lt;code&gt;fileshare&lt;/code&gt; image&lt;span class="hx:absolute hx:-mt-20" id="a-file-server-in-the-tab-the-fileshare-image"&gt;&lt;/span&gt;
+&lt;a href="#a-file-server-in-the-tab-the-fileshare-image" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d -p 8080:80 --name files fileshare
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The image is &lt;a href="https://github.com/go-fileshare/fileshare" target="_blank" rel="noopener"&gt;go-fileshare/fileshare&lt;/a&gt;
+v0.32.0, built for &lt;code&gt;wasip1&lt;/code&gt; and serving WebDAV only (6.5 MB gzip):&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;one share, &lt;code&gt;files&lt;/code&gt;, with a README in it;&lt;/li&gt;
+&lt;li&gt;one person: user &lt;code&gt;alice&lt;/code&gt;, password &lt;code&gt;playground&lt;/code&gt;. The password is a demo,
+written into the image on purpose, since nothing the share holds belongs to
+anybody;&lt;/li&gt;
+&lt;li&gt;plaintext WebDAV, because TLS ends at the browser&amp;rsquo;s origin and the hop to the
+container is the engine&amp;rsquo;s, in memory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;open :8080&lt;/strong&gt; shows the server&amp;rsquo;s page. The route relays WebDAV&amp;rsquo;s methods
+(&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;, &lt;code&gt;COPY&lt;/code&gt;, &lt;code&gt;MOVE&lt;/code&gt;, &lt;code&gt;LOCK&lt;/code&gt;, &lt;code&gt;UNLOCK&lt;/code&gt;; RFC 4918) as
+well as HTTP&amp;rsquo;s, so a WebDAV client in the page works. WebDAV through
+&lt;strong&gt;open :8080&lt;/strong&gt; works on the live playground: the usercontent origin
+(&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) is rendered from playground
+v0.6.0 and relays these methods. The end-to-end test &lt;code&gt;TestFileshare&lt;/code&gt; checks, from inside the container&amp;rsquo;s page:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;without credentials: 401 with a &lt;code&gt;Basic&lt;/code&gt; challenge;&lt;/li&gt;
+&lt;li&gt;with a wrong password: 401;&lt;/li&gt;
+&lt;li&gt;with alice&amp;rsquo;s: a PROPFIND of the share (207) lists &lt;code&gt;README.txt&lt;/code&gt;, which reads;&lt;/li&gt;
+&lt;li&gt;a PUT lands (201) and reads back.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;explore :8080&lt;/strong&gt; opens the &lt;a href="https://github.com/go-fileshare/explorer" target="_blank" rel="noopener"&gt;go-fileshare explorer&lt;/a&gt;
+(v0.4.0, built into the site as &lt;code&gt;explorer.wasm&lt;/code&gt;, fetched only when used) as a
+browser client of the server:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It asks for a user and a password first. They are sent as HTTP Basic with
+each request, and they stay in the page&amp;rsquo;s memory. They are dropped when the
+explorer closes; nothing is stored.&lt;/li&gt;
+&lt;li&gt;The explorer runs in a frame of the playground, in its bridge mode. Its
+requests go straight to the engine, on a relay session of its own, with no
+view tab and no usercontent origin.&lt;/li&gt;
+&lt;li&gt;The explorer is the site&amp;rsquo;s own code, not the container&amp;rsquo;s, and it draws on a
+canvas. Nothing the container answers becomes HTML in the playground.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;explorer.html&lt;/code&gt; is the only page that may be framed, and only by the
+playground (&lt;code&gt;frame-ancestors 'self'&lt;/code&gt;; everything else keeps &lt;code&gt;'none'&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;The session&amp;rsquo;s credentials replace any &lt;code&gt;Authorization&lt;/code&gt; header the frame sends.&lt;/li&gt;
+&lt;li&gt;A download is read whole, up to the route&amp;rsquo;s 256 MiB bound, and saved under a
+sanitised name.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;TestFileshareExplorer&lt;/code&gt; checks that a wrong password gives 401 and the explorer
+says the server refused the login, that alice&amp;rsquo;s lists the share, that a PUT
+through the bridge (201) reads back, that a frame-supplied &lt;code&gt;Authorization&lt;/code&gt; is
+replaced, and that after close the bridge refuses.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="completion-and-editing"&gt;Completion and editing&lt;span class="hx:absolute hx:-mt-20" id="completion-and-editing"&gt;&lt;/span&gt;
+&lt;a href="#completion-and-editing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The terminal completes with Tab, as a shell does: subcommands, flags, &lt;code&gt;-m&lt;/code&gt;
+sizes, local images (for &lt;code&gt;run&lt;/code&gt; and &lt;code&gt;rmi&lt;/code&gt;), the catalogue of images to pull,
+container names and IDs (&lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt;, &lt;code&gt;inspect&lt;/code&gt;, and only running containers
+for &lt;code&gt;kill&lt;/code&gt;) and image arguments. Editing is bash-style: Up and Down for the
+history, Ctrl-R to search it, Ctrl-A, Ctrl-E, Ctrl-B and Ctrl-F to move,
+Ctrl-U, Ctrl-K and Ctrl-W to cut, Ctrl-D, and Ctrl-L to clear. The history is
+kept per tab (in &lt;code&gt;sessionStorage&lt;/code&gt;). From a keypress to the line on screen took
+7 to 14 ms in Chromium and 23 ms in Firefox, measured in CI.&lt;/p&gt;
+&lt;p&gt;The line editor and its completion are the package &lt;code&gt;cli/lineedit&lt;/code&gt; of the
+engine: pure Go, usable by anyone who embeds the engine&amp;rsquo;s CLI. Since engine
+v0.31.0, &lt;code&gt;cli/lineedit&lt;/code&gt; is a thin adapter over &lt;code&gt;lineedit&lt;/code&gt;, a module of its own
+(&lt;code&gt;github.com/go-wasmcontainers/engine/lineedit&lt;/code&gt;, tag &lt;code&gt;lineedit/v0.1.0&lt;/code&gt;, standard
+library only) that the guest shell uses too. The playground (v0.7.0) is built on
+engine v0.30.1.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-you-can-type"&gt;What you can type&lt;span class="hx:absolute hx:-mt-20" id="what-you-can-type"&gt;&lt;/span&gt;
+&lt;a href="#what-you-can-type" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr pull&lt;/code&gt;, &lt;code&gt;run&lt;/code&gt;, &lt;code&gt;ps&lt;/code&gt;, &lt;code&gt;logs&lt;/code&gt;, &lt;code&gt;rm&lt;/code&gt;, &lt;code&gt;rmi&lt;/code&gt;, &lt;code&gt;images&lt;/code&gt;, &lt;code&gt;inspect&lt;/code&gt; and &lt;code&gt;kill&lt;/code&gt;,
+&lt;code&gt;start&lt;/code&gt;, &lt;code&gt;stop&lt;/code&gt;, &lt;code&gt;restart&lt;/code&gt;, &lt;code&gt;diff&lt;/code&gt;, &lt;code&gt;stats&lt;/code&gt;, &lt;code&gt;events&lt;/code&gt;, &lt;code&gt;volume&lt;/code&gt;, &lt;code&gt;network&lt;/code&gt; and
+&lt;code&gt;system df|prune&lt;/code&gt;, plus &lt;code&gt;help&lt;/code&gt; and &lt;code&gt;clear&lt;/code&gt;. &lt;code&gt;run&lt;/code&gt; takes &lt;code&gt;--rm&lt;/code&gt;, &lt;code&gt;-d&lt;/code&gt;, &lt;code&gt;--name&lt;/code&gt;,
+&lt;code&gt;-e&lt;/code&gt;, &lt;code&gt;-w&lt;/code&gt;, &lt;code&gt;-m&lt;/code&gt;, &lt;code&gt;--entrypoint&lt;/code&gt;, &lt;code&gt;-v NAME:/path[:ro]&lt;/code&gt;, &lt;code&gt;--network NAME&lt;/code&gt; and
+&lt;code&gt;-p HOST:CONTAINER&lt;/code&gt; (see &lt;a href="#published-ports--p"&gt;Published ports&lt;/a&gt;). Exit
+codes are the native engine&amp;rsquo;s: the container&amp;rsquo;s own, or 125, 126, 127, 134 and 137;
+see &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/commands/"&gt;Commands&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm hello
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm -e &lt;span class="nv"&gt;NAME&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;you greet
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 data-hextra-search-id="images"&gt;Images&lt;span class="hx:absolute hx:-mt-20" id="images"&gt;&lt;/span&gt;
+&lt;a href="#images" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Image&lt;/th&gt;
+&lt;th&gt;What it is&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;hello&lt;/code&gt;, &lt;code&gt;greet&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;the small demonstration modules&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;lab&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a module with subcommands: &lt;code&gt;echo&lt;/code&gt;, &lt;code&gt;env&lt;/code&gt;, &lt;code&gt;pwd&lt;/code&gt;, &lt;code&gt;ls&lt;/code&gt;, &lt;code&gt;cat&lt;/code&gt;, &lt;code&gt;write&lt;/code&gt;, &lt;code&gt;count&lt;/code&gt;, &lt;code&gt;sleep&lt;/code&gt;, &lt;code&gt;spin&lt;/code&gt;, &lt;code&gt;hog&lt;/code&gt;, &lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;fs&lt;/code&gt;, &lt;code&gt;exit&lt;/code&gt;, &lt;code&gt;esc&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;net&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a networking probe: &lt;code&gt;serve&lt;/code&gt;, &lt;code&gt;get&lt;/code&gt;, &lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt;, &lt;code&gt;dial&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;fileshare&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;a WebDAV file server (&lt;a href="https://github.com/go-fileshare/fileshare" target="_blank" rel="noopener"&gt;go-fileshare&lt;/a&gt; v0.32.0, 6.5 MB gzip): share &lt;code&gt;files&lt;/code&gt;, user &lt;code&gt;alice&lt;/code&gt;, password &lt;code&gt;playground&lt;/code&gt; (a demo)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;mnist&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;classifies a handwritten digit with wasi-nn&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;every &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1/wasm&lt;/code&gt; bottle: 43 images from 41 bottles today (&lt;code&gt;yq&lt;/code&gt;, &lt;code&gt;gojq&lt;/code&gt;, &lt;code&gt;jj&lt;/code&gt;, &lt;code&gt;shfmt&lt;/code&gt;, &lt;code&gt;actionlint&lt;/code&gt;, &lt;code&gt;age&lt;/code&gt;, &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;luac&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;, &lt;code&gt;zstd&lt;/code&gt;, &lt;code&gt;simdjson-minify&lt;/code&gt; and more; &lt;code&gt;wctr images&lt;/code&gt; lists them all)&lt;/td&gt;
+&lt;td&gt;derived from pkgx&amp;rsquo;s signed catalogue at build time, see below&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 data-hextra-search-id="pkgx-images-are-derived-not-listed"&gt;pkgx images are derived, not listed&lt;span class="hx:absolute hx:-mt-20" id="pkgx-images-are-derived-not-listed"&gt;&lt;/span&gt;
+&lt;a href="#pkgx-images-are-derived-not-listed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The site build (&lt;code&gt;cmd/site build --pkgx&lt;/code&gt;) reads pkgx&amp;rsquo;s signed &lt;code&gt;wasip1/wasm&lt;/code&gt;
+catalogue (&lt;code&gt;go-pkgx.dev/catalog&lt;/code&gt;; the signature is verified) and mirrors the
+newest version of every project that has one published. No list is typed in the
+playground: a bottle published tomorrow is an image after the next build, and
+&lt;code&gt;wctr images&lt;/code&gt; and the dashboard&amp;rsquo;s Images view show whatever &lt;code&gt;catalog.json&lt;/code&gt;
+holds, each entry with its project, version and layer size.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Version&lt;/strong&gt;: the highest by numeric components, then rebuild counter, then
+raw string; the catalogue&amp;rsquo;s order is not trusted.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Names&lt;/strong&gt;: one image per &lt;code&gt;bin/&amp;lt;name&amp;gt;.wasm&lt;/code&gt; in the bottle (&lt;code&gt;lua&lt;/code&gt; gives &lt;code&gt;lua&lt;/code&gt;
+and &lt;code&gt;luac&lt;/code&gt;), at most 8 per bottle; all of a bottle&amp;rsquo;s images share its layer.
+The catalogue&amp;rsquo;s &lt;code&gt;provides&lt;/code&gt; is only a hint (on wasip1/wasm it is copied from
+the host recipe and wrong both ways): a name without a module and a module it
+does not list are reported as findings. The image&amp;rsquo;s entrypoint is the bare
+binary name, so argv[0] is &lt;code&gt;lua&lt;/code&gt;. A name taken by two projects goes to the one
+whose last path segment equals it, else the smallest project name; the other is
+published as &lt;code&gt;&amp;lt;project-with-dashes&amp;gt;-&amp;lt;name&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Dependencies are ignored&lt;/strong&gt;: a &lt;code&gt;wasip1&lt;/code&gt; module is statically linked.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Limits&lt;/strong&gt;: 400 projects, 900 images, 8 images per bottle, 100 MiB per
+compressed layer, 512 MiB and 20 000 entries unpacked, 3 minutes for the
+catalogue and 30 in all. An unverifiable or empty catalogue stops the build;
+there is no built-in list. A bottle over a limit, or whose tar has an absolute
+path, a &lt;code&gt;..&lt;/code&gt; or a link leaving the root, is refused and listed in
+&lt;code&gt;findings.json&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Checked&lt;/strong&gt;: each &lt;code&gt;catalog.json&lt;/code&gt; entry has &lt;code&gt;checked&lt;/code&gt;: &lt;code&gt;true&lt;/code&gt; when the build ran
+the image under the engine and under wasmtime (probes with real input for
+&lt;code&gt;yq&lt;/code&gt;, &lt;code&gt;gojq&lt;/code&gt;, &lt;code&gt;jj&lt;/code&gt;, &lt;code&gt;tomljson&lt;/code&gt; and others) and nothing failed or differed
+(41 of 43 pkgx images on 2026-11-01, against wasmtime 50.0.1), &lt;code&gt;false&lt;/code&gt; when it is
+only mirrored.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Site size&lt;/strong&gt;: GitHub Pages refuses a site over 1 GB. With 43 images the mirror
+is 112 MB (about 2.6 MB per image, each image stored separately) and the whole
+site 167 MB. The build stops if the layers exceed 700 MiB; the plan beyond that
+is to drop the largest, then to shard across a second Pages site.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Page cost&lt;/strong&gt;: one &lt;code&gt;catalog.json&lt;/code&gt; of about 330 bytes per image, read once;
+an image&amp;rsquo;s blobs are fetched only when a command uses it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Smoke test&lt;/strong&gt;: CI runs every derived image with &lt;code&gt;--version&lt;/code&gt; and &lt;code&gt;--help&lt;/code&gt; (or a
+named probe such as &lt;code&gt;lua -v&lt;/code&gt;) under the engine and under wasmtime and compares
+exit status, stdout and stderr byte for byte; a failure or difference that is
+not named, with its reason, fails the job.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Lua&amp;rsquo;s errors, which use WebAssembly exception handling, work in Chromium,
+Firefox and natively. The first &lt;code&gt;lua&lt;/code&gt; run took 69–108 ms in Chromium and 170 ms
+in Firefox, measured in CI.&lt;/p&gt;
+&lt;p&gt;Images and pulls survive a reload: they are kept in the browser&amp;rsquo;s IndexedDB.
+So do the containers (engine v0.4.0): state, exit code, logs and written files.
+A container that was running comes back exited with code 137, and a &lt;code&gt;--rm&lt;/code&gt; one
+is removed.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="offline-and-updates"&gt;Offline and updates&lt;span class="hx:absolute hx:-mt-20" id="offline-and-updates"&gt;&lt;/span&gt;
+&lt;a href="#offline-and-updates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground works offline (&lt;code&gt;dashboard.wasm&lt;/code&gt; is in the service-worker cache). A
+new version installs in the background and applies when you choose &amp;ldquo;Reload to
+update&amp;rdquo;. Only one tab runs the engine at a time; another tab can take over with
+&amp;ldquo;Use it here&amp;rdquo;. The engine was ready in 130–190 ms on a first visit in Chromium,
+80–115 ms after a reload, and 75 ms offline.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="limits-per-container"&gt;Limits per container&lt;span class="hx:absolute hx:-mt-20" id="limits-per-container"&gt;&lt;/span&gt;
+&lt;a href="#limits-per-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB of logs, and 64
+containers at once.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
+&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line (pipes need the &lt;code&gt;shell&lt;/code&gt; image&amp;rsquo;s &lt;code&gt;sh&lt;/code&gt;); vertex buffers and
+depth-stencil are not served to GPU guests; published ports are HTTP and WebDAV only, shown
+in a tab, with no UDP and no raw TCP from outside the page. Networks stay inside the page: there is no route to the Internet. Ctrl-C
+stops waiting for a container but leaves it running. See
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/limitations/"&gt;Limitations&lt;/a&gt; and the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="speed"&gt;Speed&lt;span class="hx:absolute hx:-mt-20" id="speed"&gt;&lt;/span&gt;
+&lt;a href="#speed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Measured in one CI run, the page is ready in 0.46 s in Chromium and 1.0 s in
+Firefox, and the first &lt;code&gt;hello&lt;/code&gt; runs in 81 ms and 291 ms. &lt;strong&gt;Cold start is slower
+than wasmtime&lt;/strong&gt; (23 ms natively). The table is on
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/performance/"&gt;Performance&lt;/a&gt;.&lt;/p&gt;</description></item></channel></rss>

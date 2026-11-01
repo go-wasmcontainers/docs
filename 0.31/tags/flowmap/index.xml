@@ -1,0 +1,83 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Flowmap</title><link>https://go-wasmcontainers.github.io/docs/0.31/tags/flowmap/</link><description>Recent content in Flowmap on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.31/tags/flowmap/index.xml" rel="self" type="application/rss+xml"/><item><title>The live flow map</title><link>https://go-wasmcontainers.github.io/docs/0.31/relay/flowmap/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.31/relay/flowmap/</guid><description>
+&lt;p&gt;Since relay &lt;strong&gt;v0.2.0&lt;/strong&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr-relay flowmap --class &amp;lt;class&amp;gt; --url &amp;lt;the relay&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;s https address&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;prints a link; open it on the projector. Each student is a box holding their
+containers, coloured by security group. Each flow is a line between two
+containers whose width follows its throughput. A &lt;strong&gt;refused flow is a dashed
+red line&lt;/strong&gt;, and the event log beside the map says which rule was missing
+(&amp;ldquo;no ingress rule of … allows it&amp;rdquo;). Click a container for its address and
+groups, or a flow for its counters and the rules that allowed it; the arrow
+keys move from container to container. The filter box dims everything that
+does not match a student, a container or a group.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="who-can-see-what"&gt;Who can see what&lt;span class="hx:absolute hx:-mt-20" id="who-can-see-what"&gt;&lt;/span&gt;
+&lt;a href="#who-can-see-what" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Viewer&lt;/th&gt;
+&lt;th&gt;Credential&lt;/th&gt;
+&lt;th&gt;Sees&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;The teacher&lt;/td&gt;
+&lt;td&gt;the link from &lt;code&gt;wctr-relay flowmap&lt;/code&gt;: a read-only ticket in the URL fragment (never sent to a server, removed from the address bar when the page loads), valid 12 hours&lt;/td&gt;
+&lt;td&gt;the whole class&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;A student&lt;/td&gt;
+&lt;td&gt;their own session token (&lt;code&gt;#class=…&amp;amp;session=…&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;only the flows that touch their own containers, and the containers at the other end&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The ticket allows watching that class&amp;rsquo;s map and nothing else: it cannot
+change a rule, list the groups, or join the class.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="how-it-works"&gt;How it works&lt;span class="hx:absolute hx:-mt-20" id="how-it-works"&gt;&lt;/span&gt;
+&lt;a href="#how-it-works" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The relay aggregates its flow log per edge — source container, destination
+container, protocol and port — and streams one update per tick (4 per
+second) over &lt;code&gt;FlowLogService.WatchFlowMap&lt;/code&gt;, a server stream of the Connect
+protocol. A slow page gets the newest map, never a backlog. An update holds at
+most 400 containers, 2 000 flows and 200 events.&lt;/p&gt;
+&lt;p&gt;The page is a Go WebAssembly application built on
+&lt;a href="https://github.com/go-widgets/toolkit" target="_blank" rel="noopener"&gt;go-widgets&lt;/a&gt;&amp;rsquo; &lt;code&gt;GraphView&lt;/code&gt; (a
+node-link graph over a view model, added to go-widgets for this page and
+reusable elsewhere) and &lt;code&gt;LogView&lt;/code&gt;. The relay serves it itself, under a strict
+Content-Security-Policy: &lt;code&gt;default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'&lt;/code&gt; — no inline script, nothing loaded
+from anywhere else, so it works on a classroom LAN with no internet.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="getting-a-binary-that-has-it"&gt;Getting a binary that has it&lt;span class="hx:absolute hx:-mt-20" id="getting-a-binary-that-has-it"&gt;&lt;/span&gt;
+&lt;a href="#getting-a-binary-that-has-it" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The page&amp;rsquo;s WebAssembly is about 5 MB, so it is not in the repository: the
+binaries attached to each
+&lt;a href="https://github.com/go-wasmcontainers/relay/releases" target="_blank" rel="noopener"&gt;release&lt;/a&gt; carry it. From
+source:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go run ./internal/buildflowmap
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;go install -tags flowmap ./cmd/wctr-relay&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;A plain &lt;code&gt;go install …@latest&lt;/code&gt; serves the page, which then says the map is
+missing from that build.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
+&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Pause and replay of the last minutes; the relay keeps the last 1 000 events,
+the page shows the last 200.&lt;/p&gt;</description></item></channel></rss>

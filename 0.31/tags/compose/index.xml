@@ -1,0 +1,109 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>go-wasmcontainers – Compose</title><link>https://go-wasmcontainers.github.io/docs/0.31/tags/compose/</link><description>Recent content in Compose on go-wasmcontainers</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://go-wasmcontainers.github.io/docs/0.31/tags/compose/index.xml" rel="self" type="application/rss+xml"/><item><title>Compose</title><link>https://go-wasmcontainers.github.io/docs/0.31/compose/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.31/compose/</guid><description>
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;wctr compose&lt;/code&gt; runs a multi-container application described by the Compose
+Specification, through the engine&amp;rsquo;s API.&lt;/strong&gt; It is the separate module
+&lt;a href="https://github.com/go-wasmcontainers/compose" target="_blank" rel="noopener"&gt;go-wasmcontainers/compose&lt;/a&gt;
+(v0.6.0, status M1; it needs engine v0.14.0 or later, &lt;strong&gt;engine v0.22.0 or later for published ports&lt;/strong&gt;, &lt;strong&gt;engine v0.25.0 or later for restart policies&lt;/strong&gt; and &lt;strong&gt;engine v0.28.0 or later for health checks&lt;/strong&gt;), and it is &lt;strong&gt;built into &lt;code&gt;wctr&lt;/code&gt;&lt;/strong&gt; since &lt;code&gt;cmd/wctr&lt;/code&gt; v0.1.0 (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/getting-started/"&gt;Getting started&lt;/a&gt;); the standalone
+&lt;code&gt;wctr-compose&lt;/code&gt; still exists. Compose files are accepted in &lt;strong&gt;three formats, YAML,
+JSON and HCL2&lt;/strong&gt;, which load to the same model; files of different formats merge
+(&lt;code&gt;-f compose.yaml -f override.hcl&lt;/code&gt;). The HCL2 mapping is specified in
+&lt;a href="https://github.com/go-wasmcontainers/compose/blob/main/docs/HCL.md" target="_blank" rel="noopener"&gt;docs/HCL.md&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="commands"&gt;Commands&lt;span class="hx:absolute hx:-mt-20" id="commands"&gt;&lt;/span&gt;
+&lt;a href="#commands" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr compose [-f FILE]... [-p NAME] [--profile P]... COMMAND&lt;/code&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Command&lt;/th&gt;
+&lt;th&gt;Flags&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;up [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-d&lt;/code&gt;, &lt;code&gt;--force-recreate&lt;/code&gt;, &lt;code&gt;--build&lt;/code&gt;, &lt;code&gt;--remove-orphans&lt;/code&gt;, &lt;code&gt;--wait-timeout&lt;/code&gt; (how long a &lt;code&gt;service_healthy&lt;/code&gt; dependency may stay starting; default 5 minutes)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;down&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-v&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;ps [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-a&lt;/code&gt;, &lt;code&gt;-q&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;logs [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-f&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;start&lt;/code&gt;, &lt;code&gt;stop&lt;/code&gt;, &lt;code&gt;restart&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;dependencies first; &lt;code&gt;stop&lt;/code&gt; also stops a container waiting to restart, and ends its restart policy until the next start&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rm [SERVICE...]&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;-s&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;pull&lt;/code&gt;, &lt;code&gt;images&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;build&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;builds the services&amp;rsquo; images with &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/build/"&gt;&lt;code&gt;wctr build&lt;/code&gt;&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;config&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;--format yaml|json|hcl&lt;/code&gt;, &lt;code&gt;-q&lt;/code&gt;, &lt;code&gt;--services&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Loading is complete: discovery, interpolation, &lt;code&gt;.env&lt;/code&gt;, merging, &lt;code&gt;extends&lt;/code&gt;,
+&lt;code&gt;include&lt;/code&gt;, profiles, and validation against the specification&amp;rsquo;s schema, with
+every error carrying &lt;code&gt;file:line:column&lt;/code&gt;. The Compose files are untrusted input
+and every reader is bounded and fuzzed.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="networking-v030"&gt;Networking (v0.3.0)&lt;span class="hx:absolute hx:-mt-20" id="networking-v030"&gt;&lt;/span&gt;
+&lt;a href="#networking-v030" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Services &lt;strong&gt;reach each other by service name and aliases&lt;/strong&gt;, on as many networks as
+they declare. This needs engine v0.14.0 or later (it is built against v0.18.0).
+Builds (&lt;code&gt;up --build&lt;/code&gt;, &lt;code&gt;build&lt;/code&gt;) use &lt;code&gt;wctr build&lt;/code&gt; (compose v0.2.0).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="published-ports-v040"&gt;Published ports (v0.4.0)&lt;span class="hx:absolute hx:-mt-20" id="published-ports-v040"&gt;&lt;/span&gt;
+&lt;a href="#published-ports-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A service&amp;rsquo;s &lt;code&gt;ports&lt;/code&gt; (short and long syntax) and &lt;code&gt;expose&lt;/code&gt; are applied, through the
+engine&amp;rsquo;s published ports (engine v0.22.0 or later; see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/networking/"&gt;Networking&lt;/a&gt;). &lt;strong&gt;One difference from the
+specification, on purpose&lt;/strong&gt;: a port that names no host address (&lt;code&gt;&amp;quot;8080:80&amp;quot;&lt;/code&gt;, or the
+long syntax without &lt;code&gt;host_ip&lt;/code&gt;) is published on &lt;strong&gt;127.0.0.1&lt;/strong&gt;, the engine&amp;rsquo;s
+default, not on every interface as the specification says, so that a lab
+container does not become a service on the machine&amp;rsquo;s network by accident. Write
+&lt;code&gt;&amp;quot;0.0.0.0:8080:80&amp;quot;&lt;/code&gt; (or &lt;code&gt;host_ip: 0.0.0.0&lt;/code&gt;) when that is meant.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="restart-policies-v050"&gt;Restart policies (v0.5.0)&lt;span class="hx:absolute hx:-mt-20" id="restart-policies-v050"&gt;&lt;/span&gt;
+&lt;a href="#restart-policies-v050" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A service&amp;rsquo;s &lt;code&gt;restart&lt;/code&gt; (&lt;code&gt;no&lt;/code&gt;, &lt;code&gt;always&lt;/code&gt;, &lt;code&gt;on-failure[:N]&lt;/code&gt;, &lt;code&gt;unless-stopped&lt;/code&gt;) and
+&lt;code&gt;deploy.restart_policy&lt;/code&gt; are applied, through the engine&amp;rsquo;s restart policies
+(engine v0.25.0 or later; see &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/commands/"&gt;Commands&lt;/a&gt;).
+In &lt;code&gt;deploy.restart_policy&lt;/code&gt;, &lt;code&gt;condition&lt;/code&gt; &lt;code&gt;none&lt;/code&gt;, &lt;code&gt;on-failure&lt;/code&gt; and &lt;code&gt;any&lt;/code&gt; map to &lt;code&gt;no&lt;/code&gt;,
+&lt;code&gt;on-failure&lt;/code&gt; and &lt;code&gt;always&lt;/code&gt;, and &lt;code&gt;max_attempts&lt;/code&gt; is the retry count. When both are
+written, &lt;strong&gt;&lt;code&gt;deploy.restart_policy&lt;/code&gt; wins over &lt;code&gt;restart&lt;/code&gt;&lt;/strong&gt;. &lt;code&gt;delay&lt;/code&gt; and &lt;code&gt;window&lt;/code&gt; are
+not applied: the engine&amp;rsquo;s own backoff (100 ms, doubling up to a minute) applies, and
+compose warns about them. &lt;code&gt;compose stop&lt;/code&gt; also stops a container that is waiting to
+restart, and ends its restart policy until the next start.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="health-checks-v060"&gt;Health checks (v0.6.0)&lt;span class="hx:absolute hx:-mt-20" id="health-checks-v060"&gt;&lt;/span&gt;
+&lt;a href="#health-checks-v060" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A service&amp;rsquo;s &lt;code&gt;healthcheck&lt;/code&gt; is applied, through the engine&amp;rsquo;s health checks (engine
+v0.28.0 or later; see &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/commands/"&gt;Commands&lt;/a&gt;): &lt;code&gt;test&lt;/code&gt; as &lt;code&gt;CMD&lt;/code&gt;,
+&lt;code&gt;CMD-SHELL&lt;/code&gt; or &lt;code&gt;NONE&lt;/code&gt;, the durations, and &lt;code&gt;retries&lt;/code&gt;. &lt;code&gt;disable: true&lt;/code&gt; is &lt;code&gt;NONE&lt;/code&gt;.
+What a &lt;code&gt;healthcheck&lt;/code&gt; leaves unset, even &lt;code&gt;test&lt;/code&gt;, comes from the image&amp;rsquo;s own check,
+which the engine merges field by field, as Docker does. &lt;strong&gt;&lt;code&gt;CMD-SHELL&lt;/code&gt; needs a
+&lt;code&gt;/bin/sh&lt;/code&gt; in the image&lt;/strong&gt;, for example &lt;code&gt;ghcr.io/go-wasmcontainers/shell&lt;/code&gt;
+(&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/shell/"&gt;Shell&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;depends_on&lt;/code&gt; with &lt;code&gt;condition: service_healthy&lt;/code&gt; &lt;strong&gt;really waits&lt;/strong&gt;. The wait follows
+the engine&amp;rsquo;s events, and &lt;code&gt;up&lt;/code&gt; fails when the dependency reports unhealthy (with the
+last probe&amp;rsquo;s exit code and output), when it stops first, when it has no health
+check, and after &lt;code&gt;--wait-timeout&lt;/code&gt; (default 5 minutes) when it is still starting. A
+dependency with &lt;code&gt;required: false&lt;/code&gt; that fails any of these is a warning, and &lt;code&gt;up&lt;/code&gt;
+carries on. The engine&amp;rsquo;s minimum interval is 100 ms.&lt;/p&gt;
+&lt;p&gt;With this, every engine feature compose waited for is applied: aliases and several
+networks, label filters, ports, restart policies and health checks.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="limits"&gt;Limits&lt;span class="hx:absolute hx:-mt-20" id="limits"&gt;&lt;/span&gt;
+&lt;a href="#limits" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;What the engine cannot do yet, and compose therefore does not:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Build attributes&lt;/strong&gt; such as remote contexts, &lt;code&gt;cache_from&lt;/code&gt; and &lt;code&gt;secrets&lt;/code&gt; are
+accepted with a warning and not applied; what the builder itself does not do is
+on the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/build/"&gt;Build&lt;/a&gt; page.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No host bind mounts&lt;/strong&gt;, and no file outside the project directory.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
