@@ -10,6 +10,11 @@ v0.30.0.&lt;/p&gt;
 the ports bar (see &lt;a href="#a-file-server-in-the-tab-the-fileshare-image"&gt;A file server in the tab&lt;/a&gt;).&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;The &lt;code&gt;-p&lt;/code&gt; route relays WebDAV&amp;rsquo;s methods&lt;/strong&gt; (&lt;code&gt;PROPFIND&lt;/code&gt;, &lt;code&gt;PROPPATCH&lt;/code&gt;, &lt;code&gt;MKCOL&lt;/code&gt;,
 &lt;code&gt;COPY&lt;/code&gt;, &lt;code&gt;MOVE&lt;/code&gt;, &lt;code&gt;LOCK&lt;/code&gt;, &lt;code&gt;UNLOCK&lt;/code&gt;; RFC 4918) as well as HTTP&amp;rsquo;s.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;GPU surface input&lt;/strong&gt;: click a surface&amp;rsquo;s pane under &lt;strong&gt;Surfaces&lt;/strong&gt; to give it the
+focus, and its pointer presses and keys reach the guest (gpu v0.6.0, dashboard
+v0.8.0). &lt;code&gt;wctr run --rm --gpu triangle [frames [input]]&lt;/code&gt; with &lt;code&gt;input&lt;/code&gt; prints what the guest receives,
+such as &lt;code&gt;pointer-down 80,80&lt;/code&gt; and &lt;code&gt;key-down key-a &amp;quot;A&amp;quot; shift=true&lt;/code&gt;; the end-to-end
+test &lt;code&gt;TestGPUSurfaceInput&lt;/code&gt; checks the coordinates and Shift+A.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 data-hextra-search-id="what-was-new-in-v050"&gt;What was new in v0.5.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v050"&gt;&lt;/span&gt;
 &lt;a href="#what-was-new-in-v050" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
@@ -283,8 +288,8 @@ update&amp;rdquo;. Only one tab runs the engine at a time; another tab can take 
 &lt;a href="#limits-per-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;256 MiB of memory, a 5-minute run, 64 MiB of writes, 4 MiB of logs, and 64
 containers at once.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="not-yet"&gt;Not yet&lt;span class="hx:absolute hx:-mt-20" id="not-yet"&gt;&lt;/span&gt;
-&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line (pipes need the &lt;code&gt;shell&lt;/code&gt; image&amp;rsquo;s &lt;code&gt;sh&lt;/code&gt;); the dashboard in the
-page is v0.6.0, so GPU panes send no input yet; published ports are HTTP only, shown
+&lt;a href="#not-yet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One &lt;code&gt;wctr&lt;/code&gt; command per line (pipes need the &lt;code&gt;shell&lt;/code&gt; image&amp;rsquo;s &lt;code&gt;sh&lt;/code&gt;); vertex buffers and
+depth-stencil are not served to GPU guests; published ports are HTTP and WebDAV only, shown
 in a tab, with no UDP and no raw TCP from outside the page. Networks stay inside the page: there is no route to the Internet. Ctrl-C
 stops waiting for a container but leaves it running. See
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/limitations/"&gt;Limitations&lt;/a&gt; and the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/roadmap/"&gt;roadmap&lt;/a&gt;.&lt;/p&gt;

@@ -3,8 +3,8 @@
 &lt;a href="#playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The playground (v0.6.0, built on engine v0.30.0) takes one &lt;code&gt;wctr&lt;/code&gt; command per
 line, with no pipes in that line. It has &lt;code&gt;exec&lt;/code&gt;, a shell (the &lt;code&gt;shell&lt;/code&gt; image),
 typing into &lt;code&gt;exec -i&lt;/code&gt;, and &lt;code&gt;run -it&lt;/code&gt; and &lt;code&gt;start -ai&lt;/code&gt; (its end-to-end test runs
-&lt;code&gt;wctr run --rm -it shell&lt;/code&gt;). Its dashboard is v0.6.0, so GPU panes do not send
-input there yet. &lt;code&gt;-p&lt;/code&gt; works in the
+&lt;code&gt;wctr run --rm -it shell&lt;/code&gt;). Its dashboard is v0.8.0, so GPU panes send input
+there (click a pane to focus it; vertex buffers and depth-stencil are not served). &lt;code&gt;-p&lt;/code&gt; works in the
 browser since v0.5.0, in a tab of its own, for HTTP and (v0.6.0) WebDAV methods;
 there is no UDP and no raw TCP from outside the page. Networks
 stay inside the page: no Internet. Ctrl-C stops waiting for a container but leaves it running.

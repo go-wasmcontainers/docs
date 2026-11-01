@@ -181,6 +181,10 @@
 &lt;td&gt;dashboard v0.8.0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;GPU surface input in the playground&lt;/strong&gt;: click a surface&amp;rsquo;s pane to give it the focus, and its pointer presses and keys reach the guest (&lt;code&gt;{t:&amp;quot;input&amp;quot;}&lt;/code&gt; to the engine worker, then &lt;code&gt;webgpu.SurfaceInput&lt;/code&gt;); &lt;code&gt;wctr run --rm --gpu triangle [frames [input]]&lt;/code&gt; prints what it receives; the end-to-end test &lt;code&gt;TestGPUSurfaceInput&lt;/code&gt; checks the coordinates and Shift+A; the playground uses dashboard v0.8.0 and gpu v0.6.0&lt;/td&gt;
+&lt;td&gt;playground v0.6.0, live&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
 &lt;td&gt;&lt;strong&gt;Coreutils&lt;/strong&gt;: &lt;code&gt;env CMD&lt;/code&gt;, &lt;code&gt;xargs&lt;/code&gt; and &lt;code&gt;find -exec&lt;/code&gt; run programs (&lt;code&gt;fsx.Env.Exec&lt;/code&gt;, &lt;code&gt;pkg/procx&lt;/code&gt;: &lt;code&gt;wasix/exec&lt;/code&gt; on wasip1, &lt;code&gt;os/exec&lt;/code&gt; natively)&lt;/td&gt;
 &lt;td&gt;coreutils v0.6.0&lt;/td&gt;
 &lt;/tr&gt;
@@ -292,10 +296,6 @@
 &lt;tr&gt;
 &lt;td&gt;Classroom relay, the rest&lt;/td&gt;
 &lt;td&gt;students&amp;rsquo; containers reaching each other through the relay from the playground: the engine&amp;rsquo;s network driver and the browser path (M-relay-3, -4), ICMP (M-relay-5), high availability across relays (M-relay-HA); see the &lt;a href="https://go-wasmcontainers.github.io/docs/0.30/design/classroom-network/"&gt;design&lt;/a&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;Surface input in the playground&lt;/td&gt;
-&lt;td&gt;gpu v0.6.0 and dashboard v0.8.0 have it; the playground (v0.4.1) still uses dashboard v0.6.0 and gpu v0.5.1&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;on-resize&lt;/code&gt; and &lt;code&gt;on-frame&lt;/code&gt; streams, vertex buffers, depth-stencil&lt;/td&gt;
