@@ -116,10 +116,9 @@ v0.32.0, built for `wasip1` and serving WebDAV only (6.5 MB gzip):
 **open :8080** shows the server's page. The route relays WebDAV's methods
 (`PROPFIND`, `PROPPATCH`, `MKCOL`, `COPY`, `MOVE`, `LOCK`, `UNLOCK`; RFC 4918) as
 well as HTTP's, so a WebDAV client in the page works. WebDAV through
-**open :8080** needs the usercontent origin
-(<https://go-wasmcontainers-usercontent.github.io/>) re-rendered from playground
-v0.6.0, which is being deployed; until then that origin refuses these methods.
-The end-to-end test `TestFileshare` checks, from inside the container's page:
+**open :8080** works on the live playground: the usercontent origin
+(<https://go-wasmcontainers-usercontent.github.io/>) is rendered from playground
+v0.6.0 and relays these methods. The end-to-end test `TestFileshare` checks, from inside the container's page:
 
 - without credentials: 401 with a `Basic` challenge;
 - with a wrong password: 401;
