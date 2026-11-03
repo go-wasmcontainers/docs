@@ -139,4 +139,71 @@ MaxPool, Mul, Relu, Reshape, Softmax, Sub and Transpose (default domain, operato
 sets 7 and later, float tensors, int64 for shapes). A model using anything else
 fails at load, naming every unsupported operator. The model is untrusted input:
 its sizes and the work of one inference are bounded, and the decoder is fuzzed.
-CPU performance has not been measured yet.&lt;/p&gt;</description></item></channel></rss>
+CPU performance has not been measured yet.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="invalid-wgsl-fails-loudly-gpu-v090"&gt;Invalid WGSL fails loudly (gpu v0.9.0)&lt;span class="hx:absolute hx:-mt-20" id="invalid-wgsl-fails-loudly-gpu-v090"&gt;&lt;/span&gt;
+&lt;a href="#invalid-wgsl-fails-loudly-gpu-v090" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A shader module, layout, pipeline or bind group the GPU refuses used to do
+nothing: the kernels simply never ran. Now the &lt;code&gt;submit&lt;/code&gt; that carries it fails
+with errno &lt;strong&gt;11, invalid shader&lt;/strong&gt;, the context is lost, and the fifth import
+&lt;code&gt;last_error(ctx, buf, len, out)&lt;/code&gt; returns the browser compiler&amp;rsquo;s message (at
+most 1 KiB, WGSL line and column included; on Firefox it comes from
+&lt;code&gt;getCompilationInfo&lt;/code&gt;). &lt;code&gt;batchsink.Error.Msg&lt;/code&gt; carries it:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;submit: invalid shader or object (the GPU refused it): ...: &amp;#39;meta&amp;#39; is a reserved keyword&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;meta&lt;/code&gt; is a reserved WGSL word, which is how the defect was found. The
+scoping is in go-gfx/webgpu v0.10.0 (&lt;code&gt;batch.ErrInvalid&lt;/code&gt;,
+&lt;code&gt;ShaderModule.CompilationMessages&lt;/code&gt;). &lt;code&gt;examples/batchcompute shaders&lt;/code&gt; runs a
+reserved word, a syntax error and a valid control in a container.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="a-language-model-in-a-container"&gt;A language model in a container&lt;span class="hx:absolute hx:-mt-20" id="a-language-model-in-a-container"&gt;&lt;/span&gt;
+&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.2.0)
+runs a GGUF llama model, SmolLM2-135M Q4_0 first, inside a container: the
+module reads &lt;code&gt;/models/NAME.gguf&lt;/code&gt; and generates on the GPU through
+&lt;code&gt;wasi_webgpu_batch&lt;/code&gt;, one submit per token with a 4-byte read-back of the
+sampled token (argmax runs on the GPU).&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --gpu --gpu-memory&lt;span class="o"&gt;=&lt;/span&gt;512m --model smollm2-135m-instruct-q4_0 IMAGE run &lt;span class="s2"&gt;&amp;#34;The capital of France is&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;The model mount&lt;/strong&gt; (engine v0.33.0): &lt;code&gt;--model NAME&lt;/code&gt; names an entry of the
+engine&amp;rsquo;s registry, a Hugging Face repository pinned by commit and sha256.
+The size (at most 2 GiB) and then the sha256 are checked before the
+container exists; the file is read-only and range-readable, never copied
+into memory, and a container can neither write to it nor name a URL.
+Natively it is the cache file &lt;code&gt;&amp;lt;sha256&amp;gt;.gguf&lt;/code&gt;; in a browser it is fetched
+by 16 MiB ranges into the origin&amp;rsquo;s OPFS and read through a synchronous
+handle. Only huggingface.co and us.aws.cdn.hf.co are allowed, at every
+redirect.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Kernels&lt;/strong&gt; are f32 WGSL (Q4_0, Q4_1, Q8_0), with no subgroups and no f16;
+the workgroup size and grids come from the adapter&amp;rsquo;s limits. Only Apple Metal
+has been run.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Correctness&lt;/strong&gt;: against llama.cpp running the same weights dequantised to
+F32 (its own &lt;code&gt;llama-quantize&lt;/code&gt;), the container gives the same 32 greedy
+tokens on all four test prompts, in Chromium on the Apple GPU. llama.cpp&amp;rsquo;s own
+Q4_0 CPU run differs by 0.1 to 0.4 nats because it quantises activations to
+Q8_0, which amplifies rounding about a million times; the repository&amp;rsquo;s README
+explains the measurement.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Speed&lt;/strong&gt;: 171 tokens/s decoding and 311 prefill (128-token prompt),
+against 529 and 1286 for llama.cpp on one CPU core: slower, an open defect
+(405 tiny dispatches and a serial attention kernel per token). Firefox is a
+known-slow target for a submit per token.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
