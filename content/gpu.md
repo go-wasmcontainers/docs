@@ -1,7 +1,7 @@
 ---
 title: "GPU"
 weight: 28
-description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.7.0, with surface input and the batched command stream."
+description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.9.0, with surface input, the batched command stream, loud WGSL errors, and a language model in a container."
 tags: [gpu]
 ---
 
@@ -134,3 +134,56 @@ sets 7 and later, float tensors, int64 for shapes). A model using anything else
 fails at load, naming every unsupported operator. The model is untrusted input:
 its sizes and the work of one inference are bounded, and the decoder is fuzzed.
 CPU performance has not been measured yet.
+
+## Invalid WGSL fails loudly (gpu v0.9.0)
+
+A shader module, layout, pipeline or bind group the GPU refuses used to do
+nothing: the kernels simply never ran. Now the `submit` that carries it fails
+with errno **11, invalid shader**, the context is lost, and the fifth import
+`last_error(ctx, buf, len, out)` returns the browser compiler's message (at
+most 1 KiB, WGSL line and column included; on Firefox it comes from
+`getCompilationInfo`). `batchsink.Error.Msg` carries it:
+
+```text
+submit: invalid shader or object (the GPU refused it): ...: 'meta' is a reserved keyword
+```
+
+`meta` is a reserved WGSL word, which is how the defect was found. The
+scoping is in go-gfx/webgpu v0.10.0 (`batch.ErrInvalid`,
+`ShaderModule.CompilationMessages`). `examples/batchcompute shaders` runs a
+reserved word, a syntax error and a valid control in a container.
+
+## A language model in a container
+
+[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.2.0)
+runs a GGUF llama model, SmolLM2-135M Q4_0 first, inside a container: the
+module reads `/models/NAME.gguf` and generates on the GPU through
+`wasi_webgpu_batch`, one submit per token with a 4-byte read-back of the
+sampled token (argmax runs on the GPU).
+
+```sh
+wctr run --gpu --gpu-memory=512m --model smollm2-135m-instruct-q4_0 IMAGE run "The capital of France is"
+```
+
+- **The model mount** (engine v0.33.0): `--model NAME` names an entry of the
+  engine's registry, a Hugging Face repository pinned by commit and sha256.
+  The size (at most 2 GiB) and then the sha256 are checked before the
+  container exists; the file is read-only and range-readable, never copied
+  into memory, and a container can neither write to it nor name a URL.
+  Natively it is the cache file `<sha256>.gguf`; in a browser it is fetched
+  by 16 MiB ranges into the origin's OPFS and read through a synchronous
+  handle. Only huggingface.co and us.aws.cdn.hf.co are allowed, at every
+  redirect.
+- **Kernels** are f32 WGSL (Q4_0, Q4_1, Q8_0), with no subgroups and no f16;
+  the workgroup size and grids come from the adapter's limits. Only Apple Metal
+  has been run.
+- **Correctness**: against llama.cpp running the same weights dequantised to
+  F32 (its own `llama-quantize`), the container gives the same 32 greedy
+  tokens on all four test prompts, in Chromium on the Apple GPU. llama.cpp's own
+  Q4_0 CPU run differs by 0.1 to 0.4 nats because it quantises activations to
+  Q8_0, which amplifies rounding about a million times; the repository's README
+  explains the measurement.
+- **Speed**: 171 tokens/s decoding and 311 prefill (128-token prompt),
+  against 529 and 1286 for llama.cpp on one CPU core: slower, an open defect
+  (405 tiny dispatches and a serial attention kernel per token). Firefox is a
+  known-slow target for a submit per token.
