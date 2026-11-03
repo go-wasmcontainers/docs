@@ -1,7 +1,7 @@
 ---
 title: "GPU"
 weight: 28
-description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.6.0, with surface input."
+description: "wasi-nn on the CPU and on WebGPU, wasi:webgpu compute and rendering to surfaces, for WASI containers. gpu v0.7.0, with surface input and the batched command stream."
 tags: [gpu]
 ---
 
@@ -11,7 +11,7 @@ rendering, on WebGPU in the browser and on the CPU natively. Pure Go. The design
 and its references are in
 [docs/DESIGN.md](https://github.com/go-wasmcontainers/gpu/blob/main/docs/DESIGN.md).
 
-**Status (v0.6.0): inference, compute, rendering and surface input exist.**
+**Status (v0.7.0): inference, compute, rendering, surface input and the batched command stream exist.**
 
 | Part | State |
 |---|---|
@@ -21,9 +21,13 @@ and its references are in
 | wasi:webgpu compute (host and Go guest), `examples/compute` | done (v0.4.0) |
 | rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
 | surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); the dashboard forwards pane events since its v0.8.0 |
+| `gpubatch` and `wasigpu/batchsink`: the batched command stream (`wasi_webgpu_batch`), one host call per submit, with read-back; `examples/batchcompute` | done (v0.7.0), see [Batched commands](#batched-commands-wasi_webgpu_batch) |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | not yet |
 
-A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later). The
+A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later);
+`--gpu-memory=SIZE` (engine v0.32.0) sets the GPU memory quota of its batched
+contexts, 256 MiB by default and at most 1.5 GiB. `--gpu-memory` without `--gpu`
+is refused. The
 execution target is checked: `gpu` needs that capability **and** a GPU backend,
 and otherwise fails with `unsupported_operation`, never running on the CPU in its
 place. A process without `--gpu` gets no adapter.
@@ -57,6 +61,41 @@ On an Apple Metal adapter, `examples/compute` (adding two 1M-float vectors,
 multiplying two 256×256 matrices) matches the CPU on every element, with the
 matmul in 15 ms on the GPU against 42 ms on the guest's CPU, and the vector add in
 69 ms against 3.5 ms (dominated by transfers). That is one run, not a benchmark.
+
+## Batched commands: `wasi_webgpu_batch`
+
+`wasi:webgpu` costs one host call per WebGPU call. The batched path costs one per
+submit: a Go guest (`wasigpu/batchsink`, `GOOS=wasip1`) records
+[go-gfx/webgpu](https://github.com/go-gfx/webgpu) work with a remote device, the
+sink packs creations, destructions and the recorded stream into one frame, and
+the host module `wasi_webgpu_batch` (`gpubatch`) replays it on the container's
+WebGPU device and fills a read window before returning (`caps`,
+`context_create`, `submit`, `context_destroy`). It is the host ABI for running
+a small language model inside a container; the
+[design](https://github.com/go-wasmcontainers/gpu/blob/docs/llm-design/docs/llm-design.md)
+has the plan.
+
+The guest is hostile and the replay is the trust boundary: the frame is copied
+out of guest memory before it is decoded; guest ids are private to a context
+and remapped; descriptors, streams and buffer ranges (writes, copies, indirect
+arguments, dispatch sizes) are checked before WebGPU sees them; a refused frame
+loses its context and releases what it held; guest memory is written only
+inside the read window; a submit that runs more than 2 s destroys the device.
+Without `--gpu` every call answers *denied*; with no GPU backend, or only a
+software adapter, *unsupported*. A container has at most 4 contexts and one
+GPU memory quota, `--gpu-memory` (256 MiB, at most 1.5 GiB).
+
+[`examples/batchcompute`](https://github.com/go-wasmcontainers/gpu/tree/main/examples/batchcompute)
+records a compute shader that writes known values and reads 1 MiB and 4 KiB
+back, one crossing each. **Run as real containers in the engine's browser
+executor on Chromium and the Apple GPU (no fallback adapter), every element
+matches**, and the refusals are checked there: no `--gpu`, an out-of-range
+write (refused by the host before WebGPU), a read outside the window, an
+oversized, truncated or bad-magic frame, an allocation past the quota, a
+smaller `--gpu-memory`, and a software adapter. Measured from the guest on an
+Apple M4 Max at a load below 8 (medians of 30 interleaved rounds): a read-back
+submit takes 315 to 375 µs at 4 KiB and 895 to 1 105 µs at 1 MiB, against 124
+and 155 µs host-only.
 
 ## Rendering: surfaces
 
