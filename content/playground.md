@@ -87,6 +87,22 @@ v0.30.1.
   worker, and never stored.
 - **wasi-nn in the browser**: the `mnist` image reads a handwritten digit (see
   [GPU]({{< relref "gpu" >}})).
+- **A language model in the tab** (playground v0.9.0, needs WebGPU): the
+  `llm` image generates text with SmolLM2-135M (Apache-2.0, 92 MB):
+
+  ```sh
+  wctr run --rm --gpu --gpu-memory 512m --model smollm2-135m-instruct-q4_0 llm "Once upon a time"
+  ```
+
+  The first run downloads the weights from Hugging Face with progress,
+  checks the size and then the sha256 against the engine's pinned registry
+  before the container exists, and keeps them in the browser's OPFS; later
+  runs, after a reload or offline, fetch nothing. A refused or failed
+  download leaves no file. `models` lists the registry and what is cached,
+  `models rm NAME` frees the storage. Only the engine worker's CSP names
+  `https://huggingface.co` and `https://us.aws.cdn.hf.co` (the weights are
+  never part of the site). See [GPU]({{< relref "gpu" >}}) for the model
+  itself.
 - It still works offline and keeps its images and containers across a reload.
 
 ## Published ports (`-p`)
@@ -208,6 +224,7 @@ $ wctr run --rm -e NAME=you greet
 | `net` | a networking probe: `serve`, `get`, `bench`, `udp-echo`, `udp`, `lookup`, `dial` |
 | `fileshare` | a WebDAV file server ([go-fileshare](https://github.com/go-fileshare/fileshare) v0.32.0, 6.5 MB gzip): share `files`, user `alice`, password `playground` (a demo) |
 | `mnist` | classifies a handwritten digit with wasi-nn |
+| `llm` | generates text with SmolLM2-135M on the page's WebGPU; weights (92 MB) downloaded once with `--model`, see above |
 | every [pkgx](https://github.com/go-pkgx) `wasip1/wasm` bottle: 43 images from 41 bottles today (`yq`, `gojq`, `jj`, `shfmt`, `actionlint`, `age`, `lua`, `luac`, `sqlite3`, `zstd`, `simdjson-minify` and more; `wctr images` lists them all) | derived from pkgx's signed catalogue at build time, see below |
 
 ### pkgx images are derived, not listed
