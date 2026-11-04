@@ -140,9 +140,9 @@ answers &lt;em&gt;timeout&lt;/em&gt; (errno 8) and every later call except &lt;c
 waits for the destroyed device&amp;rsquo;s work to leave the GPU before it serves the
 next container, so an innocent container is never charged for it. A container
 can stall the GPU at most once. The longest legitimate submit measured is
-226 ms (Firefox 159, whose round trip has a 200 ms floor) and 43 ms
-(Chromium 151, the language model); that is why the default is 500 ms and not
-250 ms.&lt;/p&gt;
+226 ms (Firefox 159, measured when its round trip had a 200 ms floor, see
+the Firefox read-back note in &lt;a href="#a-language-model-in-a-container"&gt;A language model in a container&lt;/a&gt;) and 43 ms (Chromium 151, the language
+model); that is why the default is 500 ms and not 250 ms.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;A compute quota.&lt;/strong&gt; Before anything is replayed, a dispatch is refused above
@@ -256,6 +256,21 @@ Natively it is the cache file &lt;code&gt;&amp;lt;sha256&amp;gt;.gguf&lt;/code&g
 by 16 MiB ranges into the origin&amp;rsquo;s OPFS and read through a synchronous
 handle. Only huggingface.co and us.aws.cdn.hf.co are allowed, at every
 redirect.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Firefox read-back&lt;/strong&gt; (gpu v0.11.1, go-gfx/webgpu v0.12.1). Firefox 159
+resolves &lt;code&gt;mapAsync&lt;/code&gt; and &lt;code&gt;onSubmittedWorkDone&lt;/code&gt; on the tick of a 100 ms
+device-poll timer (&lt;a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1870699" target="_blank" rel="noopener"&gt;Bugzilla 1870699&lt;/a&gt;,
+&lt;code&gt;POLL_TIME_MS = 100&lt;/code&gt; in &lt;code&gt;WebGPUParent.cpp&lt;/code&gt;), so a submit with a read-back
+cost 200 ms (a work-done wait, then a map) whatever its size. While the host
+waits it now kicks the queue with an empty &lt;code&gt;submit([])&lt;/code&gt; (the first after
+500 us, then at doubling gaps up to 8 ms); wgpu-core polls at the end of a
+submit, so the completion arrives as soon as the GPU has it. Measured on
+Firefox 159, Apple M4 Max, load 5: 200 ms before, 2.6 ms after (Chromium
+0.35 to 1 ms, Safari 0.34 to 0.94 ms). A language model (llm v0.3.1,
+SmolLM2-135M Q4_0) decodes at about 290 tokens/s on Firefox and about
+550 on Chromium; the default decode reads back once per eight tokens, so the
+fix does not move it. The control is &lt;code&gt;internal/cmd/ffwait&lt;/code&gt; in the gpu
+repository (a bare page, no engine); the kick stays harmless when Firefox
+polls on demand.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Kernels&lt;/strong&gt; are f32 WGSL (Q4_0, Q4_1, Q8_0), with no subgroups and no f16;
 the workgroup size and grids come from the adapter&amp;rsquo;s limits. Only Apple Metal
 has been run.&lt;/li&gt;
