@@ -22,7 +22,7 @@ and its references are in
 | rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
 | surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); the dashboard forwards pane events since its v0.8.0 |
 | `gpubatch` and `wasigpu/batchsink`: the batched command stream (`wasi_webgpu_batch`), one host call per submit, with read-back; `examples/batchcompute` | done (v0.7.0), see [Batched commands](#batched-commands-wasi_webgpu_batch) |
-| GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, `gpu-sanction` event), a compute quota | done (v0.9.0), see [GPU time](#gpu-time-scheduling-budget-sanction-quota) |
+| GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, `gpu-sanction` event), a compute quota | done (v0.10.0), see [GPU time](#gpu-time-scheduling-budget-sanction-quota) |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | not yet |
 
 A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later);
@@ -107,7 +107,7 @@ WebGPU has no way to cancel or preempt work already submitted (the spec's
 operations; its denial-of-service section only allows a browser watchdog, and
 Chromium's kills the whole GPU process). So a container whose shader runs for
 seconds keeps the GPU busy after the host destroys its device, and the next
-container queues behind it (go-wasmcontainers/gpu#26). The module (gpu v0.9.0)
+container queues behind it (go-wasmcontainers/gpu#26). The module (gpu v0.10.0)
 does what a host can do about it:
 
 - **Fair scheduling.** One submit is in flight in the whole module; waiting
