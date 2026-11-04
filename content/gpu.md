@@ -22,7 +22,7 @@ and its references are in
 | rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
 | surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); the dashboard forwards pane events since its v0.8.0 |
 | `gpubatch` and `wasigpu/batchsink`: the batched command stream (`wasi_webgpu_batch`), one host call per submit, with read-back; `examples/batchcompute` | done (v0.7.0), see [Batched commands](#batched-commands-wasi_webgpu_batch) |
-| GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, `gpu-sanction` event), a compute quota | done (v0.10.0), plus a loop budget that cuts runaway shader loops (v0.11.0), see [GPU time](#gpu-time-scheduling-budget-sanction-quota) |
+| GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, `gpu-sanction` event), a compute quota | done (v0.10.0), plus a loop budget that cuts runaway shader loops (v0.11.0) and refuses what it cannot bound (v0.12.0), see [GPU time](#gpu-time-scheduling-budget-sanction-quota) |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | not yet |
 
 A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later);
@@ -130,23 +130,26 @@ does what a host can do about it:
   2^26 invocations and a stream above 2^30 (workgroup counts times the device's
   workgroup bound; go-gfx/webgpu v0.11.0, fuzzed).
 
-- **A loop budget (gpu v0.11.0).** What the layers above cannot bound is the
-  **first** stall: the victim waits for the hostile shader's remaining length.
-  So the host rewrites every guest compute shader before it is compiled
-  (go-gfx/wgsl `transform.LoopBudget`, parse only: WGSL that does not parse
-  reaches the browser unchanged and the browser reports its own error). Each
-  loop nest stops after `Work / invocations` iterations of its dispatch (2^36
-  work, a power of 4, between 1024 and 2^24) and sets a flag the host reads after
-  the stream. A flagged submit answers *truncated* (errno 14, the partial result
-  is never returned) and the container is revoked like for a timeout; the
-  victim's worst latency fell from 4,574 ms to 41 ms (Chromium 151) and from
-  2,176 ms to 278 ms (Firefox 159, whose own floor is 200 ms). Bind group 3 is
-  the host's: a guest that uses it gets *reserved* (errno 13). The LLM tests
-  pass with 256 times the work they need, and decode costs about 10 % of its
-  tokens per second. On Safari 27.2 the victim's worst submit is 22 to 69 ms. Safari's own
-  watchdog destroys a device after about 3 s of shader and never completes
-  the work queued behind it, which the loop budget keeps a shader from
-  reaching. The note,
+- **A loop budget (gpu v0.11.0, nothing unbounded runs since v0.12.0).** What the layers
+  above cannot bound is the **first** stall: the victim waits for the hostile
+  shader's remaining length. So the host rewrites every guest compute shader
+  before it is compiled (go-gfx/wgsl `transform.LoopBudget`, parse only). Each
+  loop stops after `Work / invocations` iterations of its dispatch (2^36 work,
+  between 1024 and 2^24), with one counter per loop depth, and sets a flag the
+  host reads after the stream. A flagged submit answers *truncated* (errno 14,
+  the partial result is never returned) and the container is revoked like for a
+  timeout; the victim's worst latency fell from 4,574 ms to 41 ms (Chromium 151)
+  and from 2,176 ms to 278 ms (Firefox 159, whose own floor is 200 ms), 22 to
+  69 ms on Safari 27.2. A module the host cannot bound (WGSL its parser does
+  not accept, a loop in a vertex or fragment module, a rewrite the browser
+  refuses) is refused with *unbounded* (errno 15), never run as written; the
+  `wasi:webgpu` module and the wasi-nn GPU kernels go through the same guard.
+  Bind group 3 is the host's: a guest that uses it gets *reserved* (errno 13).
+  A submit that never completes because the browser destroyed another
+  container's device (Safari's own watchdog does, after about 3 s) is not an
+  overrun: the device is reset, the guest answers *context lost* and nobody is
+  sanctioned. SmolLM2-135M and Qwen2.5-0.5B run with zero refusals and zero
+  truncations; decode costs about 9 % of its tokens per second. The note,
 [docs/gpu-scheduling.md](https://github.com/go-wasmcontainers/gpu/blob/main/docs/gpu-scheduling.md),
 has the threat model (a student's own tab, or, natively, users sharing a GPU),
 the sources and the measurements.
