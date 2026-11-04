@@ -100,8 +100,8 @@ v0.30.1.
   runs, after a reload or offline, fetch nothing. A refused or failed
   download leaves no file. `models` lists the registry and what is cached,
   `models rm NAME` frees the storage. Only the engine worker's CSP names
-  `https://huggingface.co` and `https://us.aws.cdn.hf.co`; the weights are
-  never part of the site. See [GPU]({{< relref "gpu" >}}) for the model
+  `https://huggingface.co` and `https://us.aws.cdn.hf.co` (the weights are
+  never part of the site). See [GPU]({{< relref "gpu" >}}) for the model
   itself.
 - It still works offline and keeps its images and containers across a reload.
 
