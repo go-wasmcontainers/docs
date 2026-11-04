@@ -195,11 +195,11 @@ reserved word, a syntax error and a valid control in a container.
 
 ## A language model in a container
 
-[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.2.0)
+[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.3.0)
 runs a GGUF llama model, SmolLM2-135M Q4_0 first, inside a container: the
 module reads `/models/NAME.gguf` and generates on the GPU through
-`wasi_webgpu_batch`, one submit per token with a 4-byte read-back of the
-sampled token (argmax runs on the GPU).
+`wasi_webgpu_batch`, eight tokens per submit with one read-back of the
+sampled tokens (argmax runs on the GPU).
 
 ```sh
 wctr run --gpu --gpu-memory=512m --model smollm2-135m-instruct-q4_0 IMAGE run "The capital of France is"
@@ -223,7 +223,10 @@ wctr run --gpu --gpu-memory=512m --model smollm2-135m-instruct-q4_0 IMAGE run "T
   Q4_0 CPU run differs by 0.1 to 0.4 nats because it quantises activations to
   Q8_0, which amplifies rounding about a million times; the repository's README
   explains the measurement.
-- **Speed**: 171 tokens/s decoding and 311 prefill (128-token prompt),
-  against 529 and 1286 for llama.cpp on one CPU core: slower, an open defect
-  (405 tiny dispatches and a serial attention kernel per token). Firefox is a
-  known-slow target for a submit per token.
+- **Speed** (v0.3.0): 580 tokens/s decoding and 5359 prefill (128-token
+  prompt), against 514 and 1268 for llama.cpp on one CPU core in the same
+  session (v0.2.0: 154 and 312). A layer is five fused dispatches, eight tokens
+  are computed per submit and prompt chunks of up to 64 tokens go through the
+  layers together. Firefox and non-Apple adapters are not measured; the
+  profile, each change and the limits are in the repository's
+  [docs/perf/2026-11-04.md](https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04.md).
