@@ -67,20 +67,56 @@ first half of &lt;code&gt;-p&lt;/code&gt; in the browser. The second half came i
 &lt;/ul&gt;
 &lt;h2 data-hextra-search-id="what-was-new-in-v030"&gt;What was new in v0.3.0&lt;span class="hx:absolute hx:-mt-20" id="what-was-new-in-v030"&gt;&lt;/span&gt;
 &lt;a href="#what-was-new-in-v030" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;The dashboard is the main UI&lt;/strong&gt;: the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/dashboard/"&gt;dashboard&lt;/a&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;The dashboard is the main UI&lt;/strong&gt;: the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/dashboard/"&gt;dashboard&lt;/a&gt;
 (Containers, Images, Volumes, Networks, Terminal) runs on the persistent engine
-worker. The terminal alone, on xterm.js, stays at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Networking in the browser&lt;/strong&gt;: containers talk over TCP and UDP, by name (see
+worker. The terminal alone, on xterm.js, stays at &lt;code&gt;?ui=terminal&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Networking in the browser&lt;/strong&gt;: containers talk over TCP and UDP, by name (see
 &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/networking/"&gt;Networking&lt;/a&gt;). The &lt;code&gt;net&lt;/code&gt; image has &lt;code&gt;serve&lt;/code&gt;, &lt;code&gt;get&lt;/code&gt;,
-&lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt; and &lt;code&gt;dial&lt;/code&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Join class&lt;/strong&gt;: with a teacher&amp;rsquo;s &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/relay/"&gt;relay&lt;/a&gt;, the page joins
+&lt;code&gt;bench&lt;/code&gt;, &lt;code&gt;udp-echo&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, &lt;code&gt;lookup&lt;/code&gt; and &lt;code&gt;dial&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Join class&lt;/strong&gt;: with a teacher&amp;rsquo;s &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/relay/"&gt;relay&lt;/a&gt;, the page joins
 the class network (the dashboard&amp;rsquo;s Networks view, &lt;strong&gt;Join class…&lt;/strong&gt;). The relay
 must run with &lt;code&gt;--cors-origin https://go-wasmcontainers.github.io&lt;/code&gt; (relay v0.3.0 or
 later). The join code is typed in a password field, posted once to the engine
-worker, and never stored.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;wasi-nn in the browser&lt;/strong&gt;: the &lt;code&gt;mnist&lt;/code&gt; image reads a handwritten digit (see
-&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/gpu/"&gt;GPU&lt;/a&gt;).&lt;/li&gt;
-&lt;li&gt;It still works offline and keeps its images and containers across a reload.&lt;/li&gt;
+worker, and never stored.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;wasi-nn in the browser&lt;/strong&gt;: the &lt;code&gt;mnist&lt;/code&gt; image reads a handwritten digit (see
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/gpu/"&gt;GPU&lt;/a&gt;).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;A language model in the tab&lt;/strong&gt; (playground v0.9.0, needs WebGPU): the
+&lt;code&gt;llm&lt;/code&gt; image generates text with SmolLM2-135M (Apache-2.0, 92 MB):&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --rm --gpu --gpu-memory 512m --model smollm2-135m-instruct-q4_0 llm &lt;span class="s2"&gt;&amp;#34;Once upon a time&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The first run downloads the weights from Hugging Face with progress,
+checks the size and then the sha256 against the engine&amp;rsquo;s pinned registry
+before the container exists, and keeps them in the browser&amp;rsquo;s OPFS; later
+runs, after a reload or offline, fetch nothing. A refused or failed
+download leaves no file. &lt;code&gt;models&lt;/code&gt; lists the registry and what is cached,
+&lt;code&gt;models rm NAME&lt;/code&gt; frees the storage. Only the engine worker&amp;rsquo;s CSP names
+&lt;code&gt;https://huggingface.co&lt;/code&gt; and &lt;code&gt;https://us.aws.cdn.hf.co&lt;/code&gt; (the weights are
+never part of the site). See &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/gpu/"&gt;GPU&lt;/a&gt; for the model
+itself.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It still works offline and keeps its images and containers across a reload.&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 data-hextra-search-id="published-ports--p"&gt;Published ports (&lt;code&gt;-p&lt;/code&gt;)&lt;span class="hx:absolute hx:-mt-20" id="published-ports--p"&gt;&lt;/span&gt;
 &lt;a href="#published-ports--p" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
@@ -241,6 +277,10 @@ data-copied-label="Copied!"
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;mnist&lt;/code&gt;&lt;/td&gt;
 &lt;td&gt;classifies a handwritten digit with wasi-nn&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;llm&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;generates text with SmolLM2-135M on the page&amp;rsquo;s WebGPU; weights (92 MB) downloaded once with &lt;code&gt;--model&lt;/code&gt;, see above&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;every &lt;a href="https://github.com/go-pkgx" target="_blank" rel="noopener"&gt;pkgx&lt;/a&gt; &lt;code&gt;wasip1/wasm&lt;/code&gt; bottle: 43 images from 41 bottles today (&lt;code&gt;yq&lt;/code&gt;, &lt;code&gt;gojq&lt;/code&gt;, &lt;code&gt;jj&lt;/code&gt;, &lt;code&gt;shfmt&lt;/code&gt;, &lt;code&gt;actionlint&lt;/code&gt;, &lt;code&gt;age&lt;/code&gt;, &lt;code&gt;lua&lt;/code&gt;, &lt;code&gt;luac&lt;/code&gt;, &lt;code&gt;sqlite3&lt;/code&gt;, &lt;code&gt;zstd&lt;/code&gt;, &lt;code&gt;simdjson-minify&lt;/code&gt; and more; &lt;code&gt;wctr images&lt;/code&gt; lists them all)&lt;/td&gt;
