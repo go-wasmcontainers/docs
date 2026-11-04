@@ -43,7 +43,7 @@ and its references are in
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, &lt;code&gt;gpu-sanction&lt;/code&gt; event), a compute quota&lt;/td&gt;
-&lt;td&gt;done (v0.10.0), see &lt;a href="#gpu-time-scheduling-budget-sanction-quota"&gt;GPU time&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;done (v0.10.0), plus a loop budget that cuts runaway shader loops (v0.11.0), see &lt;a href="#gpu-time-scheduling-budget-sanction-quota"&gt;GPU time&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;on-resize&lt;/code&gt; and &lt;code&gt;on-frame&lt;/code&gt; streams, vertex buffers, depth-stencil&lt;/td&gt;
@@ -124,10 +124,13 @@ seconds keeps the GPU busy after the host destroys its device, and the next
 container queues behind it (go-wasmcontainers/gpu#26). The module (gpu v0.10.0)
 does what a host can do about it:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Fair scheduling.&lt;/strong&gt; One submit is in flight in the whole module; waiting
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Fair scheduling.&lt;/strong&gt; One submit is in flight in the whole module; waiting
 submits of different containers are served round-robin. A submit&amp;rsquo;s clock
-starts when it gets its turn, not when it was queued.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;A budget and a sanction.&lt;/strong&gt; A frame that only streams commands has
+starts when it gets its turn, not when it was queued.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;A budget and a sanction.&lt;/strong&gt; A frame that only streams commands has
 &lt;strong&gt;500 ms&lt;/strong&gt;; a frame that creates objects (shader and pipeline compilation) has
 the &lt;strong&gt;2 s&lt;/strong&gt; hard cap. On an overrun the device is destroyed and the
 container&amp;rsquo;s GPU grant is &lt;strong&gt;revoked for the rest of its life&lt;/strong&gt;: the submit
@@ -139,17 +142,36 @@ next container, so an innocent container is never charged for it. A container
 can stall the GPU at most once. The longest legitimate submit measured is
 226 ms (Firefox 159, whose round trip has a 200 ms floor) and 43 ms
 (Chromium 151, the language model); that is why the default is 500 ms and not
-250 ms.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;A compute quota.&lt;/strong&gt; Before anything is replayed, a dispatch is refused above
+250 ms.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;A compute quota.&lt;/strong&gt; Before anything is replayed, a dispatch is refused above
 2^26 invocations and a stream above 2^30 (workgroup counts times the device&amp;rsquo;s
-workgroup bound; go-gfx/webgpu v0.11.0, fuzzed).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;What none of this bounds is the &lt;strong&gt;first&lt;/strong&gt; stall: the victim waits for the
-hostile shader&amp;rsquo;s remaining length. Only rewriting the WGSL to bound its loops
-could, and that is not done. The note,
+workgroup bound; go-gfx/webgpu v0.11.0, fuzzed).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;A loop budget (gpu v0.11.0).&lt;/strong&gt; What the layers above cannot bound is the
+&lt;strong&gt;first&lt;/strong&gt; stall: the victim waits for the hostile shader&amp;rsquo;s remaining length.
+So the host rewrites every guest compute shader before it is compiled
+(go-gfx/wgsl &lt;code&gt;transform.LoopBudget&lt;/code&gt;, parse only: WGSL that does not parse
+reaches the browser unchanged and the browser reports its own error). Each
+loop nest stops after &lt;code&gt;Work / invocations&lt;/code&gt; iterations of its dispatch (2^36
+work, a power of 4, between 1024 and 2^24) and sets a flag the host reads after
+the stream. A flagged submit answers &lt;em&gt;truncated&lt;/em&gt; (errno 14, the partial result
+is never returned) and the container is revoked like for a timeout; the
+victim&amp;rsquo;s worst latency fell from 4,574 ms to 41 ms (Chromium 151) and from
+2,176 ms to 278 ms (Firefox 159, whose own floor is 200 ms). Bind group 3 is
+the host&amp;rsquo;s: a guest that uses it gets &lt;em&gt;reserved&lt;/em&gt; (errno 13). The LLM tests
+pass with 256 times the work they need, and decode costs about 10 % of its
+tokens per second. On Safari 27.2 the victim&amp;rsquo;s worst submit is 22 to 69 ms. Safari&amp;rsquo;s own
+watchdog destroys a device after about 3 s of shader and never completes
+the work queued behind it, which the loop budget keeps a shader from
+reaching. The note,
 &lt;a href="https://github.com/go-wasmcontainers/gpu/blob/main/docs/gpu-scheduling.md" target="_blank" rel="noopener"&gt;docs/gpu-scheduling.md&lt;/a&gt;,
 has the threat model (a student&amp;rsquo;s own tab, or, natively, users sharing a GPU),
 the sources and the measurements.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 data-hextra-search-id="rendering-surfaces"&gt;Rendering: surfaces&lt;span class="hx:absolute hx:-mt-20" id="rendering-surfaces"&gt;&lt;/span&gt;
 &lt;a href="#rendering-surfaces" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In the browser each &lt;code&gt;wasi-gfx:surface&lt;/code&gt; is an &lt;code&gt;OffscreenCanvas&lt;/code&gt; in the engine&amp;rsquo;s
 worker; &lt;code&gt;present&lt;/code&gt; turns it into an &lt;code&gt;ImageBitmap&lt;/code&gt; handed to the page, which draws it
