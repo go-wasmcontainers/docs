@@ -123,9 +123,9 @@ does what a host can do about it:
   waits for the destroyed device's work to leave the GPU before it serves the
   next container, so an innocent container is never charged for it. A container
   can stall the GPU at most once. The longest legitimate submit measured is
-  226 ms (Firefox 159, whose round trip has a 200 ms floor) and 43 ms
-  (Chromium 151, the language model); that is why the default is 500 ms and not
-  250 ms.
+  226 ms (Firefox 159, measured when its round trip had a 200 ms floor, see
+  the Firefox read-back note in [A language model in a container](#a-language-model-in-a-container)) and 43 ms (Chromium 151, the language
+  model); that is why the default is 500 ms and not 250 ms.
 - **A compute quota.** Before anything is replayed, a dispatch is refused above
   2^26 invocations and a stream above 2^30 (workgroup counts times the device's
   workgroup bound; go-gfx/webgpu v0.11.0, fuzzed).
@@ -228,6 +228,21 @@ wctr run --gpu --gpu-memory=512m --model smollm2-135m-instruct-q4_0 IMAGE run "T
   by 16 MiB ranges into the origin's OPFS and read through a synchronous
   handle. Only huggingface.co and us.aws.cdn.hf.co are allowed, at every
   redirect.
+- **Firefox read-back** (gpu v0.11.1, go-gfx/webgpu v0.12.1). Firefox 159
+  resolves `mapAsync` and `onSubmittedWorkDone` on the tick of a 100 ms
+  device-poll timer ([Bugzilla 1870699](https://bugzilla.mozilla.org/show_bug.cgi?id=1870699),
+  `POLL_TIME_MS = 100` in `WebGPUParent.cpp`), so a submit with a read-back
+  cost 200 ms (a work-done wait, then a map) whatever its size. While the host
+  waits it now kicks the queue with an empty `submit([])` (the first after
+  500 us, then at doubling gaps up to 8 ms); wgpu-core polls at the end of a
+  submit, so the completion arrives as soon as the GPU has it. Measured on
+  Firefox 159, Apple M4 Max, load 5: 200 ms before, 2.6 ms after (Chromium
+  0.35 to 1 ms, Safari 0.34 to 0.94 ms). A language model (llm v0.3.1,
+  SmolLM2-135M Q4_0) decodes at about 290 tokens/s on Firefox and about
+  550 on Chromium; the default decode reads back once per eight tokens, so the
+  fix does not move it. The control is `internal/cmd/ffwait` in the gpu
+  repository (a bare page, no engine); the kick stays harmless when Firefox
+  polls on demand.
 - **Kernels** are f32 WGSL (Q4_0, Q4_1, Q8_0), with no subgroups and no f16;
   the workgroup size and grids come from the adapter's limits. Only Apple Metal
   has been run.
