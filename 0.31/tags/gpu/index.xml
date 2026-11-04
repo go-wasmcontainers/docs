@@ -228,13 +228,15 @@ scoping is in go-gfx/webgpu v0.10.0 (&lt;code&gt;batch.ErrInvalid&lt;/code&gt;,
 &lt;code&gt;ShaderModule.CompilationMessages&lt;/code&gt;). &lt;code&gt;examples/batchcompute shaders&lt;/code&gt; runs a
 reserved word, a syntax error and a valid control in a container.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="a-language-model-in-a-container"&gt;A language model in a container&lt;span class="hx:absolute hx:-mt-20" id="a-language-model-in-a-container"&gt;&lt;/span&gt;
-&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.3.0)
-runs a GGUF llama model, SmolLM2-135M Q4_0 first, inside a container: the
+&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.4.0)
+runs a GGUF llama-family model, SmolLM2-135M Q4_0 first and Qwen2.5-0.5B
+Q4_0 since v0.4.0, inside a container: the
 module reads &lt;code&gt;/models/NAME.gguf&lt;/code&gt; and generates on the GPU through
 &lt;code&gt;wasi_webgpu_batch&lt;/code&gt;, eight tokens per submit with one read-back of the
 sampled tokens (argmax runs on the GPU).&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
-&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --gpu --gpu-memory&lt;span class="o"&gt;=&lt;/span&gt;512m --model smollm2-135m-instruct-q4_0 IMAGE run &lt;span class="s2"&gt;&amp;#34;The capital of France is&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --gpu --gpu-memory&lt;span class="o"&gt;=&lt;/span&gt;512m --model smollm2-135m-instruct-q4_0 IMAGE run &lt;span class="s2"&gt;&amp;#34;The capital of France is&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --gpu --gpu-memory&lt;span class="o"&gt;=&lt;/span&gt;512m --model qwen2.5-0.5b-instruct-q4_0 IMAGE run -model /models/qwen2.5-0.5b-instruct-q4_0.gguf &lt;span class="s2"&gt;&amp;#34;The capital of France is&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
 class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
 title="Copy code"
@@ -287,4 +289,10 @@ are computed per submit and prompt chunks of up to 64 tokens go through the
 layers together. Firefox and non-Apple adapters are not measured; the
 profile, each change and the limits are in the repository&amp;rsquo;s
 &lt;a href="https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04.md" target="_blank" rel="noopener"&gt;docs/perf/2026-11-04.md&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Qwen2.5-0.5B Q4_0&lt;/strong&gt; (428,730,208 bytes, engine v0.38.0 registry entry
+&lt;code&gt;qwen2.5-0.5b-instruct-q4_0&lt;/code&gt;): 350 tokens/s decoding and 1908 prefill against
+161 and 426 for llama.cpp on one CPU core, the same strict oracle (32 of 32
+greedy tokens on four prompts, CPU path and GPU), and 480 MB of GPU memory at
+context 512, so &lt;code&gt;--gpu-memory=512m&lt;/code&gt; suffices
+(&lt;a href="https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04-qwen2.5-0.5b.md" target="_blank" rel="noopener"&gt;details&lt;/a&gt;).&lt;/li&gt;
 &lt;/ul&gt;</description></item></channel></rss>
