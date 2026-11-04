@@ -22,6 +22,7 @@ and its references are in
 | rendering: `wasi-gfx:surface` and `surface-webgpu`, frames to the page, `examples/triangle` | done (v0.5.0); the dashboard (v0.6.0) shows the frames in its Surfaces view |
 | surface input: `on-pointer-up/down/move` and `on-key-up/down` streams for the guest, `webgpu.SurfaceInput` for the page | done (v0.6.0); the dashboard forwards pane events since its v0.8.0 |
 | `gpubatch` and `wasigpu/batchsink`: the batched command stream (`wasi_webgpu_batch`), one host call per submit, with read-back; `examples/batchcompute` | done (v0.7.0), see [Batched commands](#batched-commands-wasi_webgpu_batch) |
+| GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, `gpu-sanction` event), a compute quota | done (v0.10.0), see [GPU time](#gpu-time-scheduling-budget-sanction-quota) |
 | `on-resize` and `on-frame` streams, vertex buffers, depth-stencil | not yet |
 
 A container asks for the GPU with `wctr run --gpu` (engine v0.13.0 or later);
@@ -54,7 +55,8 @@ runtime, so the gpu module parses the WIT and implements the Canonical ABI for a
 32-bit memory by hand. The host serves every function of the `wasi:webgpu`
 interface; in the browser it maps them to WebGPU in the engine's worker. Quotas
 per process: 4096 handles, 256 MiB of buffers, 1 MiB per WGSL module and 256
-pipelines; a submission still running after 2 seconds has its device destroyed,
+pipelines; a submission still running after 2 seconds has its device destroyed
+(the `wasi_webgpu_batch` module below has the scheduled, budgeted version),
 and fallback adapters are refused.
 
 On an Apple Metal adapter, `examples/compute` (adding two 1M-float vectors,
@@ -80,7 +82,8 @@ out of guest memory before it is decoded; guest ids are private to a context
 and remapped; descriptors, streams and buffer ranges (writes, copies, indirect
 arguments, dispatch sizes) are checked before WebGPU sees them; a refused frame
 loses its context and releases what it held; guest memory is written only
-inside the read window; a submit that runs more than 2 s destroys the device.
+inside the read window; GPU time is scheduled and budgeted (see
+[GPU time](#gpu-time-scheduling-budget-sanction-quota)).
 Without `--gpu` every call answers *denied*; with no GPU backend, or only a
 software adapter, *unsupported*. A container has at most 4 contexts and one
 GPU memory quota, `--gpu-memory` (256 MiB, at most 1.5 GiB).
@@ -96,6 +99,43 @@ smaller `--gpu-memory`, and a software adapter. Measured from the guest on an
 Apple M4 Max at a load below 8 (medians of 30 interleaved rounds): a read-back
 submit takes 315 to 375 µs at 4 KiB and 895 to 1 105 µs at 1 MiB, against 124
 and 155 µs host-only.
+
+## GPU time: scheduling, budget, sanction, quota
+
+WebGPU has no way to cancel or preempt work already submitted (the spec's
+`GPUDevice.destroy()` loses the device and fails outstanding asynchronous
+operations; its denial-of-service section only allows a browser watchdog, and
+Chromium's kills the whole GPU process). So a container whose shader runs for
+seconds keeps the GPU busy after the host destroys its device, and the next
+container queues behind it (go-wasmcontainers/gpu#26). The module (gpu v0.10.0)
+does what a host can do about it:
+
+- **Fair scheduling.** One submit is in flight in the whole module; waiting
+  submits of different containers are served round-robin. A submit's clock
+  starts when it gets its turn, not when it was queued.
+- **A budget and a sanction.** A frame that only streams commands has
+  **500 ms**; a frame that creates objects (shader and pipeline compilation) has
+  the **2 s** hard cap. On an overrun the device is destroyed and the
+  container's GPU grant is **revoked for the rest of its life**: the submit
+  answers *timeout* (errno 8) and every later call except `context_destroy`
+  *revoked* (errno 12). The engine (v0.34.0) publishes the event `gpu-sanction`
+  (`wctr events`) and `wctr inspect` shows it as `State.Sanction`. The host then
+  waits for the destroyed device's work to leave the GPU before it serves the
+  next container, so an innocent container is never charged for it. A container
+  can stall the GPU at most once. The longest legitimate submit measured is
+  226 ms (Firefox 159, whose round trip has a 200 ms floor) and 43 ms
+  (Chromium 151, the language model); that is why the default is 500 ms and not
+  250 ms.
+- **A compute quota.** Before anything is replayed, a dispatch is refused above
+  2^26 invocations and a stream above 2^30 (workgroup counts times the device's
+  workgroup bound; go-gfx/webgpu v0.11.0, fuzzed).
+
+What none of this bounds is the **first** stall: the victim waits for the
+hostile shader's remaining length. Only rewriting the WGSL to bound its loops
+could, and that is not done. The note,
+[docs/gpu-scheduling.md](https://github.com/go-wasmcontainers/gpu/blob/main/docs/gpu-scheduling.md),
+has the threat model (a student's own tab, or, natively, users sharing a GPU),
+the sources and the measurements.
 
 ## Rendering: surfaces
 
