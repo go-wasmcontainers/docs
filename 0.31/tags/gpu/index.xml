@@ -206,11 +206,11 @@ scoping is in go-gfx/webgpu v0.10.0 (&lt;code&gt;batch.ErrInvalid&lt;/code&gt;,
 &lt;code&gt;ShaderModule.CompilationMessages&lt;/code&gt;). &lt;code&gt;examples/batchcompute shaders&lt;/code&gt; runs a
 reserved word, a syntax error and a valid control in a container.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="a-language-model-in-a-container"&gt;A language model in a container&lt;span class="hx:absolute hx:-mt-20" id="a-language-model-in-a-container"&gt;&lt;/span&gt;
-&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.2.0)
+&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.3.0)
 runs a GGUF llama model, SmolLM2-135M Q4_0 first, inside a container: the
 module reads &lt;code&gt;/models/NAME.gguf&lt;/code&gt; and generates on the GPU through
-&lt;code&gt;wasi_webgpu_batch&lt;/code&gt;, one submit per token with a 4-byte read-back of the
-sampled token (argmax runs on the GPU).&lt;/p&gt;
+&lt;code&gt;wasi_webgpu_batch&lt;/code&gt;, eight tokens per submit with one read-back of the
+sampled tokens (argmax runs on the GPU).&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
 &lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --gpu --gpu-memory&lt;span class="o"&gt;=&lt;/span&gt;512m --model smollm2-135m-instruct-q4_0 IMAGE run &lt;span class="s2"&gt;&amp;#34;The capital of France is&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
 &lt;button
@@ -243,8 +243,11 @@ tokens on all four test prompts, in Chromium on the Apple GPU. llama.cpp&amp;rsq
 Q4_0 CPU run differs by 0.1 to 0.4 nats because it quantises activations to
 Q8_0, which amplifies rounding about a million times; the repository&amp;rsquo;s README
 explains the measurement.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Speed&lt;/strong&gt;: 171 tokens/s decoding and 311 prefill (128-token prompt),
-against 529 and 1286 for llama.cpp on one CPU core: slower, an open defect
-(405 tiny dispatches and a serial attention kernel per token). Firefox is a
-known-slow target for a submit per token.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Speed&lt;/strong&gt; (v0.3.0): 580 tokens/s decoding and 5359 prefill (128-token
+prompt), against 514 and 1268 for llama.cpp on one CPU core in the same
+session (v0.2.0: 154 and 312). A layer is five fused dispatches, eight tokens
+are computed per submit and prompt chunks of up to 64 tokens go through the
+layers together. Firefox and non-Apple adapters are not measured; the
+profile, each change and the limits are in the repository&amp;rsquo;s
+&lt;a href="https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04.md" target="_blank" rel="noopener"&gt;docs/perf/2026-11-04.md&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;</description></item></channel></rss>
