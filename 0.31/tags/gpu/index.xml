@@ -42,6 +42,10 @@ and its references are in
 &lt;td&gt;done (v0.7.0), see &lt;a href="#batched-commands-wasi_webgpu_batch"&gt;Batched commands&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
+&lt;td&gt;GPU time for the batched stream: fair scheduling, a per-submit budget with a sanction (revoked grant, &lt;code&gt;gpu-sanction&lt;/code&gt; event), a compute quota&lt;/td&gt;
+&lt;td&gt;done (v0.10.0), see &lt;a href="#gpu-time-scheduling-budget-sanction-quota"&gt;GPU time&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
 &lt;td&gt;&lt;code&gt;on-resize&lt;/code&gt; and &lt;code&gt;on-frame&lt;/code&gt; streams, vertex buffers, depth-stencil&lt;/td&gt;
 &lt;td&gt;not yet&lt;/td&gt;
 &lt;/tr&gt;
@@ -72,7 +76,8 @@ runtime, so the gpu module parses the WIT and implements the Canonical ABI for a
 32-bit memory by hand. The host serves every function of the &lt;code&gt;wasi:webgpu&lt;/code&gt;
 interface; in the browser it maps them to WebGPU in the engine&amp;rsquo;s worker. Quotas
 per process: 4096 handles, 256 MiB of buffers, 1 MiB per WGSL module and 256
-pipelines; a submission still running after 2 seconds has its device destroyed,
+pipelines; a submission still running after 2 seconds has its device destroyed
+(the &lt;code&gt;wasi_webgpu_batch&lt;/code&gt; module below has the scheduled, budgeted version),
 and fallback adapters are refused.&lt;/p&gt;
 &lt;p&gt;On an Apple Metal adapter, &lt;code&gt;examples/compute&lt;/code&gt; (adding two 1M-float vectors,
 multiplying two 256×256 matrices) matches the CPU on every element, with the
@@ -94,7 +99,8 @@ out of guest memory before it is decoded; guest ids are private to a context
 and remapped; descriptors, streams and buffer ranges (writes, copies, indirect
 arguments, dispatch sizes) are checked before WebGPU sees them; a refused frame
 loses its context and releases what it held; guest memory is written only
-inside the read window; a submit that runs more than 2 s destroys the device.
+inside the read window; GPU time is scheduled and budgeted (see
+&lt;a href="#gpu-time-scheduling-budget-sanction-quota"&gt;GPU time&lt;/a&gt;).
 Without &lt;code&gt;--gpu&lt;/code&gt; every call answers &lt;em&gt;denied&lt;/em&gt;; with no GPU backend, or only a
 software adapter, &lt;em&gt;unsupported&lt;/em&gt;. A container has at most 4 contexts and one
 GPU memory quota, &lt;code&gt;--gpu-memory&lt;/code&gt; (256 MiB, at most 1.5 GiB).&lt;/p&gt;
@@ -109,6 +115,41 @@ smaller &lt;code&gt;--gpu-memory&lt;/code&gt;, and a software adapter. Measured 
 Apple M4 Max at a load below 8 (medians of 30 interleaved rounds): a read-back
 submit takes 315 to 375 µs at 4 KiB and 895 to 1 105 µs at 1 MiB, against 124
 and 155 µs host-only.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="gpu-time-scheduling-budget-sanction-quota"&gt;GPU time: scheduling, budget, sanction, quota&lt;span class="hx:absolute hx:-mt-20" id="gpu-time-scheduling-budget-sanction-quota"&gt;&lt;/span&gt;
+&lt;a href="#gpu-time-scheduling-budget-sanction-quota" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;WebGPU has no way to cancel or preempt work already submitted (the spec&amp;rsquo;s
+&lt;code&gt;GPUDevice.destroy()&lt;/code&gt; loses the device and fails outstanding asynchronous
+operations; its denial-of-service section only allows a browser watchdog, and
+Chromium&amp;rsquo;s kills the whole GPU process). So a container whose shader runs for
+seconds keeps the GPU busy after the host destroys its device, and the next
+container queues behind it (go-wasmcontainers/gpu#26). The module (gpu v0.10.0)
+does what a host can do about it:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Fair scheduling.&lt;/strong&gt; One submit is in flight in the whole module; waiting
+submits of different containers are served round-robin. A submit&amp;rsquo;s clock
+starts when it gets its turn, not when it was queued.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;A budget and a sanction.&lt;/strong&gt; A frame that only streams commands has
+&lt;strong&gt;500 ms&lt;/strong&gt;; a frame that creates objects (shader and pipeline compilation) has
+the &lt;strong&gt;2 s&lt;/strong&gt; hard cap. On an overrun the device is destroyed and the
+container&amp;rsquo;s GPU grant is &lt;strong&gt;revoked for the rest of its life&lt;/strong&gt;: the submit
+answers &lt;em&gt;timeout&lt;/em&gt; (errno 8) and every later call except &lt;code&gt;context_destroy&lt;/code&gt;
+&lt;em&gt;revoked&lt;/em&gt; (errno 12). The engine (v0.34.0) publishes the event &lt;code&gt;gpu-sanction&lt;/code&gt;
+(&lt;code&gt;wctr events&lt;/code&gt;) and &lt;code&gt;wctr inspect&lt;/code&gt; shows it as &lt;code&gt;State.Sanction&lt;/code&gt;. The host then
+waits for the destroyed device&amp;rsquo;s work to leave the GPU before it serves the
+next container, so an innocent container is never charged for it. A container
+can stall the GPU at most once. The longest legitimate submit measured is
+226 ms (Firefox 159, whose round trip has a 200 ms floor) and 43 ms
+(Chromium 151, the language model); that is why the default is 500 ms and not
+250 ms.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;A compute quota.&lt;/strong&gt; Before anything is replayed, a dispatch is refused above
+2^26 invocations and a stream above 2^30 (workgroup counts times the device&amp;rsquo;s
+workgroup bound; go-gfx/webgpu v0.11.0, fuzzed).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;What none of this bounds is the &lt;strong&gt;first&lt;/strong&gt; stall: the victim waits for the
+hostile shader&amp;rsquo;s remaining length. Only rewriting the WGSL to bound its loops
+could, and that is not done. The note,
+&lt;a href="https://github.com/go-wasmcontainers/gpu/blob/main/docs/gpu-scheduling.md" target="_blank" rel="noopener"&gt;docs/gpu-scheduling.md&lt;/a&gt;,
+has the threat model (a student&amp;rsquo;s own tab, or, natively, users sharing a GPU),
+the sources and the measurements.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="rendering-surfaces"&gt;Rendering: surfaces&lt;span class="hx:absolute hx:-mt-20" id="rendering-surfaces"&gt;&lt;/span&gt;
 &lt;a href="#rendering-surfaces" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In the browser each &lt;code&gt;wasi-gfx:surface&lt;/code&gt; is an &lt;code&gt;OffscreenCanvas&lt;/code&gt; in the engine&amp;rsquo;s
 worker; &lt;code&gt;present&lt;/code&gt; turns it into an &lt;code&gt;ImageBitmap&lt;/code&gt; handed to the page, which draws it
