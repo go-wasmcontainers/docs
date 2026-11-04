@@ -209,14 +209,16 @@ reserved word, a syntax error and a valid control in a container.
 
 ## A language model in a container
 
-[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.3.0)
-runs a GGUF llama model, SmolLM2-135M Q4_0 first, inside a container: the
+[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.4.0)
+runs a GGUF llama-family model, SmolLM2-135M Q4_0 first and Qwen2.5-0.5B
+Q4_0 since v0.4.0, inside a container: the
 module reads `/models/NAME.gguf` and generates on the GPU through
 `wasi_webgpu_batch`, eight tokens per submit with one read-back of the
 sampled tokens (argmax runs on the GPU).
 
 ```sh
 wctr run --gpu --gpu-memory=512m --model smollm2-135m-instruct-q4_0 IMAGE run "The capital of France is"
+wctr run --gpu --gpu-memory=512m --model qwen2.5-0.5b-instruct-q4_0 IMAGE run -model /models/qwen2.5-0.5b-instruct-q4_0.gguf "The capital of France is"
 ```
 
 - **The model mount** (engine v0.33.0): `--model NAME` names an entry of the
@@ -244,3 +246,9 @@ wctr run --gpu --gpu-memory=512m --model smollm2-135m-instruct-q4_0 IMAGE run "T
   layers together. Firefox and non-Apple adapters are not measured; the
   profile, each change and the limits are in the repository's
   [docs/perf/2026-11-04.md](https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04.md).
+- **Qwen2.5-0.5B Q4_0** (428,730,208 bytes, engine v0.38.0 registry entry
+  `qwen2.5-0.5b-instruct-q4_0`): 350 tokens/s decoding and 1908 prefill against
+  161 and 426 for llama.cpp on one CPU core, the same strict oracle (32 of 32
+  greedy tokens on four prompts, CPU path and GPU), and 480 MB of GPU memory at
+  context 512, so `--gpu-memory=512m` suffices
+  ([details](https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04-qwen2.5-0.5b.md)).
