@@ -212,7 +212,7 @@ reserved word, a syntax error and a valid control in a container.
 
 ## A language model in a container
 
-[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.4.0)
+[go-wasmcontainers/llm](https://github.com/go-wasmcontainers/llm) (v0.5.0)
 runs a GGUF llama-family model, SmolLM2-135M Q4_0 first and Qwen2.5-0.5B
 Q4_0 since v0.4.0, inside a container: the
 module reads `/models/NAME.gguf` and generates on the GPU through
@@ -268,5 +268,8 @@ wctr run --gpu --gpu-memory=512m --model qwen2.5-0.5b-instruct-q4_0 IMAGE run -m
   `qwen2.5-0.5b-instruct-q4_0`): 350 tokens/s decoding and 1908 prefill against
   161 and 426 for llama.cpp on one CPU core, the same strict oracle (32 of 32
   greedy tokens on four prompts, CPU path and GPU), and 480 MB of GPU memory at
-  context 512, so `--gpu-memory=512m` suffices
+  context 512, so `--gpu-memory=512m` suffices; v0.5.0 runs its Q8_0 output
+  matrix through the shared `kernels/q4` kernel of go-gfx/webgpu v0.15.0 and
+  decodes 1.19 times faster than v0.4.0 (325 to 387 tokens/s, interleaved,
+  load at most 6.6; the guard of gpu v0.12.0 refuses and truncates nothing)
   ([details](https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04-qwen2.5-0.5b.md)).
