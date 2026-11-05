@@ -231,7 +231,7 @@ scoping is in go-gfx/webgpu v0.10.0 (&lt;code&gt;batch.ErrInvalid&lt;/code&gt;,
 &lt;code&gt;ShaderModule.CompilationMessages&lt;/code&gt;). &lt;code&gt;examples/batchcompute shaders&lt;/code&gt; runs a
 reserved word, a syntax error and a valid control in a container.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="a-language-model-in-a-container"&gt;A language model in a container&lt;span class="hx:absolute hx:-mt-20" id="a-language-model-in-a-container"&gt;&lt;/span&gt;
-&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.4.0)
+&lt;a href="#a-language-model-in-a-container" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://github.com/go-wasmcontainers/llm" target="_blank" rel="noopener"&gt;go-wasmcontainers/llm&lt;/a&gt; (v0.5.0)
 runs a GGUF llama-family model, SmolLM2-135M Q4_0 first and Qwen2.5-0.5B
 Q4_0 since v0.4.0, inside a container: the
 module reads &lt;code&gt;/models/NAME.gguf&lt;/code&gt; and generates on the GPU through
@@ -296,6 +296,9 @@ profile, each change and the limits are in the repository&amp;rsquo;s
 &lt;code&gt;qwen2.5-0.5b-instruct-q4_0&lt;/code&gt;): 350 tokens/s decoding and 1908 prefill against
 161 and 426 for llama.cpp on one CPU core, the same strict oracle (32 of 32
 greedy tokens on four prompts, CPU path and GPU), and 480 MB of GPU memory at
-context 512, so &lt;code&gt;--gpu-memory=512m&lt;/code&gt; suffices
+context 512, so &lt;code&gt;--gpu-memory=512m&lt;/code&gt; suffices; v0.5.0 runs its Q8_0 output
+matrix through the shared &lt;code&gt;kernels/q4&lt;/code&gt; kernel of go-gfx/webgpu v0.15.0 and
+decodes 1.19 times faster than v0.4.0 (325 to 387 tokens/s, interleaved,
+load at most 6.6; the guard of gpu v0.12.0 refuses and truncates nothing)
 (&lt;a href="https://github.com/go-wasmcontainers/llm/blob/main/docs/perf/2026-11-04-qwen2.5-0.5b.md" target="_blank" rel="noopener"&gt;details&lt;/a&gt;).&lt;/li&gt;
 &lt;/ul&gt;</description></item></channel></rss>
