@@ -198,6 +198,36 @@ torn down at the first canvas configure and frames are blank. With those flags t
 Linux SwiftShader lane passes the same checks as macOS, pixels included, and the
 pixel checks are strict. &lt;code&gt;go run ./internal/cmd/gpuprobe --canvas&lt;/code&gt; follows one
 canvas frame from the GPU to the page, to check a browser.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="quake"&gt;Quake&lt;span class="hx:absolute hx:-mt-20" id="quake"&gt;&lt;/span&gt;
+&lt;a href="#quake" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The &lt;code&gt;quake&lt;/code&gt; image of the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/playground/"&gt;playground&lt;/a&gt; runs the
+&lt;a href="https://github.com/go-quake1/engine" target="_blank" rel="noopener"&gt;go-quake1/engine&lt;/a&gt; guest (&lt;code&gt;cmd/quake-wctr&lt;/code&gt;,
+engine v0.10.0) on a surface with &lt;code&gt;--gpu&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wctr run --rm --gpu -m 512m quake&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;It draws every frame with the engine&amp;rsquo;s software renderer and presents it on a
+&lt;code&gt;wasi-gfx:surface&lt;/code&gt;. The 8-bit frame and its palette go to the GPU as storage
+buffers, and a loop-free WGSL shader looks up the colours. Keys come from the
+surface&amp;rsquo;s input stream. There is no audio yet, and the game boots straight into
+&lt;code&gt;e1m1&lt;/code&gt; of LibreQuake (data from &lt;a href="https://github.com/go-quake1/freepak" target="_blank" rel="noopener"&gt;go-quake1/freepak&lt;/a&gt;
+v0.2.0). The image is GPL-3.0-or-later; its source is named in
+&lt;code&gt;/usr/share/doc/quake/copyright&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The playground&amp;rsquo;s end-to-end test, &lt;code&gt;TestQuake&lt;/code&gt;, runs on a real GPU in CI (GitHub&amp;rsquo;s
+macOS runner, Apple adapter). For fixed view 4 (640x400) the frame the page receives
+has RGBA sha256 &lt;code&gt;f84421f86941b51dbb5afafd0eb2cb6a608314e3064b07100ff83c2fb2b3c8df&lt;/code&gt;,
+the figure the guest computed on the CPU; 150 frames reach the page, 140 of them
+distinct. One CI run measured 58 ms per frame on that runner, one run and not a
+benchmark. The world drawn on the GPU is not done yet.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="onnx"&gt;&lt;code&gt;onnx&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="onnx"&gt;&lt;/span&gt;
 &lt;a href="#onnx" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The ONNX loader runs a model on the CPU. Operators: Add, AveragePool, Concat,
 Constant, Conv, Div, Dropout (inference), Flatten, Gemm, Identity, MatMul,
