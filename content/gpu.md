@@ -182,6 +182,31 @@ Linux SwiftShader lane passes the same checks as macOS, pixels included, and the
 pixel checks are strict. `go run ./internal/cmd/gpuprobe --canvas` follows one
 canvas frame from the GPU to the page, to check a browser.
 
+### Quake
+
+The `quake` image of the [playground]({{< relref "playground" >}}) runs the
+[go-quake1/engine](https://github.com/go-quake1/engine) guest (`cmd/quake-wctr`,
+engine v0.10.0) on a surface with `--gpu`:
+
+```sh
+wctr run --rm --gpu -m 512m quake
+```
+
+It draws every frame with the engine's software renderer and presents it on a
+`wasi-gfx:surface`. The 8-bit frame and its palette go to the GPU as storage
+buffers, and a loop-free WGSL shader looks up the colours. Keys come from the
+surface's input stream. There is no audio yet, and the game boots straight into
+`e1m1` of LibreQuake (data from [go-quake1/freepak](https://github.com/go-quake1/freepak)
+v0.2.0). The image is GPL-3.0-or-later; its source is named in
+`/usr/share/doc/quake/copyright`.
+
+The playground's end-to-end test, `TestQuake`, runs on a real GPU in CI (GitHub's
+macOS runner, Apple adapter). For fixed view 4 (640x400) the frame the page receives
+has RGBA sha256 `f84421f86941b51dbb5afafd0eb2cb6a608314e3064b07100ff83c2fb2b3c8df`,
+the figure the guest computed on the CPU; 150 frames reach the page, 140 of them
+distinct. One CI run measured 58 ms per frame on that runner, one run and not a
+benchmark. The world drawn on the GPU is not done yet.
+
 ## `onnx`
 
 The ONNX loader runs a model on the CPU. Operators: Add, AveragePool, Concat,
