@@ -421,10 +421,14 @@ after a user gesture, so &lt;strong&gt;click the page once&lt;/strong&gt; (or pr
 then the stream is &lt;em&gt;waiting&lt;/em&gt;: the host accepts what the container writes and
 discards it, so sound made before the click is never played late. The host knows
 the page plays from a heartbeat the worklet advances every render quantum.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Volume and mute&lt;/strong&gt; work at two levels, in the &lt;em&gt;Sound&lt;/em&gt; strip at the bottom left of
-the page: a slider and a mute button for each container that plays, and &lt;em&gt;mute all&lt;/em&gt;.
-They are gain nodes between the worklet and the speakers, so a container cannot
-undo them.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Volume and mute&lt;/strong&gt; work at two levels. Each container&amp;rsquo;s &lt;strong&gt;dashboard pane&lt;/strong&gt; (the
+Surfaces view, dashboard v0.12.0) has a sound line with &lt;em&gt;Vol -&lt;/em&gt;, &lt;em&gt;Vol +&lt;/em&gt; (steps of
+10) and &lt;em&gt;Mute&lt;/em&gt; for the sound of its container, and a &lt;em&gt;Sound&lt;/em&gt; strip at the bottom
+left of the page has the page-wide &lt;em&gt;mute all&lt;/em&gt;. They are gain nodes between the
+worklet and the speakers, so a container cannot undo them. A container with no
+surface has no pane, so no per-container control. The end-to-end test clicks the
+pane&amp;rsquo;s buttons against Quake&amp;rsquo;s real sound: what reaches the speakers over what the
+worklet played is 1.000 at full volume and 0.300 at 30 %, and 0 muted.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="tone"&gt;&lt;code&gt;tone&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="tone"&gt;&lt;/span&gt;
 &lt;a href="#tone" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr run -d --audio tone [--hz N] [--silent] [--seconds N]&lt;/code&gt; plays a sine
 (440 Hz, 11025 Hz stereo, amplitude 0.25), keeping 60 ms queued. It prints the
