@@ -355,4 +355,99 @@ stops waiting for a container but leaves it running. See
 &lt;a href="#speed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Measured in one CI run, the page is ready in 0.46 s in Chromium and 1.0 s in
 Firefox, and the first &lt;code&gt;hello&lt;/code&gt; runs in 81 ms and 291 ms. &lt;strong&gt;Cold start is slower
 than wasmtime&lt;/strong&gt; (23 ms natively). The table is on
-&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/performance/"&gt;Performance&lt;/a&gt;.&lt;/p&gt;</description></item></channel></rss>
+&lt;a href="https://go-wasmcontainers.github.io/docs/0.31/performance/"&gt;Performance&lt;/a&gt;.&lt;/p&gt;</description></item><item><title>Sound</title><link>https://go-wasmcontainers.github.io/docs/0.31/audio/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://go-wasmcontainers.github.io/docs/0.31/audio/</guid><description>
+&lt;p&gt;A container can play sound in the playground. It is opt-in, like the GPU:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d --audio tone &lt;span class="c1"&gt;# a 440 Hz sine; click the page once&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run --rm --gpu --audio -m 512m quake --map e1m1
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Engine v0.40.0 adds &lt;code&gt;run --audio&lt;/code&gt; (the device capability &lt;code&gt;audio&lt;/code&gt;, independent of
+&lt;code&gt;--gpu&lt;/code&gt;, with no option) and the host module &lt;strong&gt;&lt;code&gt;wctr_audio_out&lt;/code&gt;&lt;/strong&gt;. It is not a
+&lt;code&gt;wasi_&lt;/code&gt; module: no WASI proposal covers audio (the proposal list has no audio, PCM
+or media entry in any phase), so the import is private, like &lt;code&gt;wasi_webgpu_batch&lt;/code&gt;,
+and is kept small so that it can be lowered onto a standard one if one appears.
+The design, with its prior art and threat model, is
+&lt;a href="https://github.com/go-wasmcontainers/engine/blob/main/docs/audio-design.md" target="_blank" rel="noopener"&gt;&lt;code&gt;docs/audio-design.md&lt;/code&gt;&lt;/a&gt;
+in the engine.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="what-a-guest-sees"&gt;What a guest sees&lt;span class="hx:absolute hx:-mt-20" id="what-a-guest-sees"&gt;&lt;/span&gt;
+&lt;a href="#what-a-guest-sees" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Four core-wasm functions, every parameter an &lt;code&gt;i32&lt;/code&gt;, every result an errno. Output
+only: there is no capture.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Function&lt;/th&gt;
+&lt;th&gt;Effect&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stream_open(rate, channels, capacity, out)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;rate 8000 to 48000 Hz, 1 or 2 channels, capacity 256 to 16384 frames (a power of two). The handle is stored at &lt;code&gt;out&lt;/code&gt;. The host never picks another rate: out of bounds is &lt;code&gt;InvalidArgument&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stream_write(stream, ptr, frames, out)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;copies and queues up to &lt;code&gt;frames&lt;/code&gt; interleaved little-endian &lt;code&gt;float32&lt;/code&gt; frames, never blocking; stores &lt;code&gt;{accepted, queued}&lt;/code&gt;. &lt;code&gt;frames = 0&lt;/code&gt; is a poll. Samples are clamped to [-1, 1] and a non-finite one becomes 0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stream_stats(stream, out)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;stores &lt;code&gt;{played, underruns, refused, state}&lt;/code&gt;; &lt;code&gt;state&lt;/code&gt; is 0 waiting, 1 playing, 2 closed&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;stream_close(stream)&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;closes it; the process ending does too&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Errors: &lt;code&gt;Denied&lt;/code&gt; (no &lt;code&gt;--audio&lt;/code&gt;), &lt;code&gt;Unsupported&lt;/code&gt; (no audio provider: &lt;strong&gt;native &lt;code&gt;wctr&lt;/code&gt;
+has no audio output&lt;/strong&gt;), &lt;code&gt;TooLarge&lt;/code&gt;, &lt;code&gt;QuotaExceeded&lt;/code&gt; (2 streams per container, 8 per
+page), &lt;code&gt;Fault&lt;/code&gt; (a range outside the guest&amp;rsquo;s memory, computed in 64 bits).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="the-page"&gt;The page&lt;span class="hx:absolute hx:-mt-20" id="the-page"&gt;&lt;/span&gt;
+&lt;a href="#the-page" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The engine worker allocates one &lt;code&gt;SharedArrayBuffer&lt;/code&gt; ring per stream and the page
+plays it through an &lt;strong&gt;AudioWorklet&lt;/strong&gt; (the &lt;code&gt;audioring&lt;/code&gt; module of
+&lt;a href="https://github.com/wasmdesk/wasmbox" target="_blank" rel="noopener"&gt;wasmbox&lt;/a&gt;, served as &lt;code&gt;audio-worklet.js&lt;/code&gt;, byte
+for byte), one &lt;code&gt;AudioContext&lt;/code&gt; for the page. A browser lets a page play sound only
+after a user gesture, so &lt;strong&gt;click the page once&lt;/strong&gt; (or press a key in it). Until
+then the stream is &lt;em&gt;waiting&lt;/em&gt;: the host accepts what the container writes and
+discards it, so sound made before the click is never played late. The host knows
+the page plays from a heartbeat the worklet advances every render quantum.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Volume and mute&lt;/strong&gt; work at two levels, in the &lt;em&gt;Sound&lt;/em&gt; strip at the bottom left of
+the page: a slider and a mute button for each container that plays, and &lt;em&gt;mute all&lt;/em&gt;.
+They are gain nodes between the worklet and the speakers, so a container cannot
+undo them.&lt;/p&gt;
+&lt;h2 data-hextra-search-id="tone"&gt;&lt;code&gt;tone&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="tone"&gt;&lt;/span&gt;
+&lt;a href="#tone" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr run -d --audio tone [--hz N] [--silent] [--seconds N]&lt;/code&gt; plays a sine
+(440 Hz, 11025 Hz stereo, amplitude 0.25), keeping 60 ms queued. It prints the
+mean cost of a &lt;code&gt;stream_write&lt;/code&gt; call at the end (one engine round trip each; about
+0.2 ms in headless Chromium on an Apple-silicon Mac). Without &lt;code&gt;--audio&lt;/code&gt; it prints that
+the host answered &lt;em&gt;denied&lt;/em&gt; and exits 2.&lt;/p&gt;
+&lt;p&gt;The end-to-end test (headless Chromium with
+&lt;code&gt;--autoplay-policy=document-user-activation-required&lt;/code&gt;) asserts the context is
+suspended before any gesture, clicks, and over 2 s asserts that at least half of
+the frames played, the analyser&amp;rsquo;s peak is in the 440 Hz bin (plus or minus one), the
+RMS is above -30 dBFS and fewer than 5 underruns happened. Four planted negatives
+must each fail their own assertion: &lt;code&gt;tone --silent&lt;/code&gt; (the RMS), &lt;code&gt;tone --hz 880&lt;/code&gt; (the
+frequency), no click (nothing plays, the context stays suspended) and no &lt;code&gt;--audio&lt;/code&gt;
+(&lt;em&gt;denied&lt;/em&gt;, no stream).&lt;/p&gt;
+&lt;h2 data-hextra-search-id="quake-with-sound"&gt;Quake with sound&lt;span class="hx:absolute hx:-mt-20" id="quake-with-sound"&gt;&lt;/span&gt;
+&lt;a href="#quake-with-sound" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The &lt;code&gt;quake&lt;/code&gt; image does &lt;strong&gt;not&lt;/strong&gt; run with &lt;code&gt;--audio&lt;/code&gt; by default; add it
+(&lt;code&gt;wctr run --rm --gpu --audio -m 512m quake&lt;/code&gt;). The game&amp;rsquo;s backend opens one stream
+(11025 Hz stereo, 1024 frames), converts its mix to &lt;code&gt;float32&lt;/code&gt; and writes once a tic;
+the host&amp;rsquo;s answer is the queue its mixer is paced by. Without the grant, on native
+&lt;code&gt;wctr&lt;/code&gt;, or in a build without the &lt;code&gt;wctraudio&lt;/code&gt; tag, the game plays silent and raises
+nothing.&lt;/p&gt;
+&lt;p&gt;The mixer used to paint a fixed 512 frames a tic, whatever the tic&amp;rsquo;s length: 2.8
+times real time at 60 tics a second. It is now paced like tyrquake&amp;rsquo;s &lt;code&gt;S_Update&lt;/code&gt;
+(go-quake1/engine v0.22.0). Measured as mix frames offered per second of game time
+over the 11025 an output plays, in headless Chromium on a real GPU (300 frames of
+e1m1): &lt;strong&gt;2.77 before, 1.01 after&lt;/strong&gt;.&lt;/p&gt;</description></item></channel></rss>
