@@ -231,6 +231,12 @@ entry that is corrupted is dropped and reported.&lt;/p&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;p&gt;Since engine v0.40.1 a container that traps says why on its own stderr, before
+the exit status: &lt;code&gt;wctr: the module trapped: &amp;lt;message&amp;gt;&lt;/code&gt;. For a failed host-module
+call the message names the module, the call and the browser&amp;rsquo;s own error, for
+example &lt;code&gt;wasi:webgpu: get-current-texture: webgpu: getCurrentTexture: InvalidStateError: ... Canvas not configured&lt;/code&gt;. It is in the container&amp;rsquo;s logs,
+so &lt;code&gt;--rm&lt;/code&gt; and the dashboard show it too; &lt;code&gt;wctr inspect&lt;/code&gt; still carries it in
+&lt;code&gt;State.Error&lt;/code&gt; until the container is removed.&lt;/p&gt;
 &lt;p&gt;A guest&amp;rsquo;s own &lt;code&gt;proc_exit&lt;/code&gt; code is a Docker status (engine v0.30.1): 0 to 255 is kept, so a
 guest that exits 126, 127 or 130 reports exactly that. A code outside that
 range (&lt;code&gt;os.Exit(-1)&lt;/code&gt; arrives as 4294967295, or 256 and above) is reported as 1,

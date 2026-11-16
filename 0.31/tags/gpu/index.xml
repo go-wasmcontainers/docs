@@ -237,6 +237,16 @@ has RGBA sha256 &lt;code&gt;f84421f86941b51dbb5afafd0eb2cb6a608314e3064b07100ff8
 the figure the guest computed on the CPU; 150 frames reach the page, 140 of them
 distinct. One CI run measured 58 ms per frame on that runner, one run and not a
 benchmark. The world drawn on the GPU is not done yet.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Firefox.&lt;/strong&gt; Quake runs in Firefox where it has WebGPU (141 on Windows, 145 on
+macOS Tahoe with Apple silicon, 147 on older macOS with Apple silicon; the window
+must be headed, since headless Firefox gets no adapter). Until go-wasmcontainers/gpu
+v0.14.1 it exited 134 at its second frame, because Firefox drops a canvas
+context&amp;rsquo;s configuration when &lt;code&gt;transferToImageBitmap&lt;/code&gt; takes the frame, and the
+next &lt;code&gt;getCurrentTexture&lt;/code&gt; threw &lt;code&gt;InvalidStateError: ... Canvas not configured&lt;/code&gt;
+(Chromium keeps the configuration). The host now configures the canvas again,
+once, and retries. Two lanes keep it fixed: the playground&amp;rsquo;s &lt;code&gt;TestQuakeFirefox&lt;/code&gt;
+and &lt;code&gt;TestQuakeSoakFirefox&lt;/code&gt; (the real Firefox through geckodriver, on macOS in CI)
+and gpu&amp;rsquo;s &lt;code&gt;TestSurfaceFrames&lt;/code&gt;, which runs the triangle container on Firefox.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="onnx"&gt;&lt;code&gt;onnx&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="onnx"&gt;&lt;/span&gt;
 &lt;a href="#onnx" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The ONNX loader runs a model on the CPU. Operators: Add, AveragePool, Concat,
 Constant, Conv, Div, Dropout (inference), Flatten, Gemm, Identity, MatMul,
