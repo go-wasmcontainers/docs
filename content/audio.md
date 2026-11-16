@@ -48,10 +48,14 @@ then the stream is *waiting*: the host accepts what the container writes and
 discards it, so sound made before the click is never played late. The host knows
 the page plays from a heartbeat the worklet advances every render quantum.
 
-**Volume and mute** work at two levels, in the *Sound* strip at the bottom left of
-the page: a slider and a mute button for each container that plays, and *mute all*.
-They are gain nodes between the worklet and the speakers, so a container cannot
-undo them.
+**Volume and mute** work at two levels. Each container's **dashboard pane** (the
+Surfaces view, dashboard v0.12.0) has a sound line with *Vol -*, *Vol +* (steps of
+10) and *Mute* for the sound of its container, and a *Sound* strip at the bottom
+left of the page has the page-wide *mute all*. They are gain nodes between the
+worklet and the speakers, so a container cannot undo them. A container with no
+surface has no pane, so no per-container control. The end-to-end test clicks the
+pane's buttons against Quake's real sound: what reaches the speakers over what the
+worklet played is 1.000 at full volume and 0.300 at 30 %, and 0 muted.
 
 ## `tone`
 
