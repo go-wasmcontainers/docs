@@ -134,6 +134,14 @@ The container's own, or:
 | 134 | the module trapped |
 | 137 | killed, or the wall-clock timeout |
 
+Since engine v0.40.1 a container that traps says why on its own stderr, before
+the exit status: `wctr: the module trapped: <message>`. For a failed host-module
+call the message names the module, the call and the browser's own error, for
+example `wasi:webgpu: get-current-texture: webgpu: getCurrentTexture:
+InvalidStateError: ... Canvas not configured`. It is in the container's logs,
+so `--rm` and the dashboard show it too; `wctr inspect` still carries it in
+`State.Error` until the container is removed.
+
 A guest's own `proc_exit` code is a Docker status (engine v0.30.1): 0 to 255 is kept, so a
 guest that exits 126, 127 or 130 reports exactly that. A code outside that
 range (`os.Exit(-1)` arrives as 4294967295, or 256 and above) is reported as 1,

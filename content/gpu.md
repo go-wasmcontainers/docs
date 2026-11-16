@@ -216,6 +216,17 @@ the figure the guest computed on the CPU; 150 frames reach the page, 140 of them
 distinct. One CI run measured 58 ms per frame on that runner, one run and not a
 benchmark. The world drawn on the GPU is not done yet.
 
+**Firefox.** Quake runs in Firefox where it has WebGPU (141 on Windows, 145 on
+macOS Tahoe with Apple silicon, 147 on older macOS with Apple silicon; the window
+must be headed, since headless Firefox gets no adapter). Until go-wasmcontainers/gpu
+v0.14.1 it exited 134 at its second frame, because Firefox drops a canvas
+context's configuration when `transferToImageBitmap` takes the frame, and the
+next `getCurrentTexture` threw `InvalidStateError: ... Canvas not configured`
+(Chromium keeps the configuration). The host now configures the canvas again,
+once, and retries. Two lanes keep it fixed: the playground's `TestQuakeFirefox`
+and `TestQuakeSoakFirefox` (the real Firefox through geckodriver, on macOS in CI)
+and gpu's `TestSurfaceFrames`, which runs the triangle container on Firefox.
+
 ## `onnx`
 
 The ONNX loader runs a model on the CPU. Operators: Add, AveragePool, Concat,
