@@ -186,7 +186,7 @@ canvas frame from the GPU to the page, to check a browser.
 
 The `quake` image of the [playground]({{< relref "playground" >}}) runs the
 [go-quake1/engine](https://github.com/go-quake1/engine) guest (`cmd/quake-wctr`,
-engine v0.19.0) on a surface with `--gpu`:
+engine v0.19.1) on a surface with `--gpu`:
 
 ```sh
 wctr run --rm --gpu -m 512m quake            # the main menu
