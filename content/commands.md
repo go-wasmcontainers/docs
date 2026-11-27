@@ -34,7 +34,7 @@ The client. It finds the daemon at `-H unix:///path`, else `$WCTR_HOST`, else
 | `events` | `--since`, `--until`, filters on type, event, container, image, volume and label (v0.6.0) |
 | `stats` | (v0.7.0) |
 | `volume create\|ls\|inspect\|rm\|prune` | (v0.8.0) |
-| `network create\|ls\|inspect\|rm` | (v0.10.0) |
+| `network create\|ls\|inspect\|rm` | (v0.10.0); `create --internal` makes a network with no route out (v0.51.0, see [Networking]({{< relref "networking" >}})) |
 | `network connect [--alias NAME] NETWORK CONTAINER` | a running container at once (v0.14.0) |
 | `network disconnect [-f] NETWORK CONTAINER` | (v0.14.0) |
 | `network prune [-f] [--filter label=K[=V]]` | unused networks (v0.14.0) |
