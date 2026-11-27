@@ -454,4 +454,23 @@ nothing.&lt;/p&gt;
 times real time at 60 tics a second. It is now paced like tyrquake&amp;rsquo;s &lt;code&gt;S_Update&lt;/code&gt;
 (go-quake1/engine v0.22.0). Measured as mix frames offered per second of game time
 over the 11025 an output plays, in headless Chromium on a real GPU (300 frames of
-e1m1): &lt;strong&gt;2.77 before, 1.01 after&lt;/strong&gt;.&lt;/p&gt;</description></item></channel></rss>
+e1m1): &lt;strong&gt;2.77 before, 1.01 after&lt;/strong&gt;.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="the-mixer-runs-in-the-pages-worklet"&gt;The mixer runs in the page&amp;rsquo;s worklet&lt;span class="hx:absolute hx:-mt-20" id="the-mixer-runs-in-the-pages-worklet"&gt;&lt;/span&gt;
+&lt;a href="#the-mixer-runs-in-the-pages-worklet" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;With go-quake1/engine v0.56.0 and go-wasmcontainers/engine v0.49.0 the game no
+longer mixes on its own thread. It loads its samples once and sends &lt;em&gt;play&lt;/em&gt;,
+&lt;em&gt;stop&lt;/em&gt; and &lt;em&gt;volume&lt;/em&gt; commands (the voices of &lt;code&gt;wctr_audio_out&lt;/code&gt;); the page&amp;rsquo;s
+AudioWorklet (wasmbox &lt;code&gt;audioring&lt;/code&gt; v0.3.0, the &lt;code&gt;wasmbox-voices&lt;/code&gt; worklet) paints the
+voices &lt;strong&gt;0.1 s ahead&lt;/strong&gt; on the audio thread. A garbage collection or a slow frame
+on the game&amp;rsquo;s thread then cannot starve the speakers: the game prints &lt;code&gt;QUAKE: sound on (wctr_audio_out voices, mixed in the page)&lt;/code&gt;, and &lt;code&gt;--fixed-mixer&lt;/code&gt; forces
+the old single stream.&lt;/p&gt;
+&lt;h3 data-hextra-search-id="how-a-guest-and-its-gpu-host-worker-attach"&gt;How a guest and its GPU host worker attach&lt;span class="hx:absolute hx:-mt-20" id="how-a-guest-and-its-gpu-host-worker-attach"&gt;&lt;/span&gt;
+&lt;a href="#how-a-guest-and-its-gpu-host-worker-attach" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A guest&amp;rsquo;s GPU calls are served by a second worker (&lt;code&gt;role=host&lt;/code&gt;), so a present or a
+submit does not wait for the engine&amp;rsquo;s thread. Since go-wasmcontainers/engine
+v0.49.1 the guest&amp;rsquo;s memory (a &lt;code&gt;SharedArrayBuffer&lt;/code&gt;) and the control block do not
+travel on the guest&amp;rsquo;s own port: the guest posts its memory to the engine, the
+engine relays it on its control channel to the host worker as &lt;code&gt;{t: &amp;quot;attach&amp;quot;}&lt;/code&gt;,
+and the host answers &lt;code&gt;{t: &amp;quot;attached&amp;quot;}&lt;/code&gt; on the guest&amp;rsquo;s port. The guest starts only
+after that answer (or traps with &amp;ldquo;the gpu host worker did not answer&amp;rdquo; after 30
+s). Firefox keeps a message body that carries a &lt;code&gt;SharedArrayBuffer&lt;/code&gt; in a table
+keyed by the sending port and forgets it when that port closes, so the old way
+ended in &lt;code&gt;attach-refused&lt;/code&gt; there (go-wasmcontainers/engine#84).&lt;/p&gt;</description></item></channel></rss>
