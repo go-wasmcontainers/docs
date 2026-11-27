@@ -68,6 +68,15 @@ v0.30.1.
   type, Ctrl-C and Ctrl-D included.
 - **`wctr build` and `wctr compose`** are wired into the page's `wctr`, as in
   `cmd/wctr`.
+- **`wctr compose` reads a directory in memory.** A page has no working directory,
+  so compose's native loader cannot run there, and `wctr compose config` used to
+  fail with `getwd: not implemented on js`. The page now gives compose a flat,
+  in-memory directory of its own. It is empty until files are imported into it, and
+  bounded: **at most 64 files, 4 MiB each and 16 MiB in all**, with plain names (no
+  path separator, no `..`). An import that breaks a bound is refused whole and
+  leaves the previous files untouched; the host's own files are never read. With the
+  directory empty, compose answers `no Compose file found`. **The import control
+  (file picker and drop) is not in the page yet.**
 - **The shell of a second origin** for containers' pages
   (<https://go-wasmcontainers-usercontent.github.io/>) and the route policy: the
   first half of `-p` in the browser. The second half came in v0.5.0.
