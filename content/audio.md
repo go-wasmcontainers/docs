@@ -88,3 +88,27 @@ times real time at 60 tics a second. It is now paced like tyrquake's `S_Update`
 (go-quake1/engine v0.22.0). Measured as mix frames offered per second of game time
 over the 11025 an output plays, in headless Chromium on a real GPU (300 frames of
 e1m1): **2.77 before, 1.01 after**.
+
+### The mixer runs in the page's worklet
+
+With go-quake1/engine v0.56.0 and go-wasmcontainers/engine v0.49.0 the game no
+longer mixes on its own thread. It loads its samples once and sends *play*,
+*stop* and *volume* commands (the voices of `wctr_audio_out`); the page's
+AudioWorklet (wasmbox `audioring` v0.3.0, the `wasmbox-voices` worklet) paints the
+voices **0.1 s ahead** on the audio thread. A garbage collection or a slow frame
+on the game's thread then cannot starve the speakers: the game prints `QUAKE:
+sound on (wctr_audio_out voices, mixed in the page)`, and `--fixed-mixer` forces
+the old single stream.
+
+### How a guest and its GPU host worker attach
+
+A guest's GPU calls are served by a second worker (`role=host`), so a present or a
+submit does not wait for the engine's thread. Since go-wasmcontainers/engine
+v0.49.1 the guest's memory (a `SharedArrayBuffer`) and the control block do not
+travel on the guest's own port: the guest posts its memory to the engine, the
+engine relays it on its control channel to the host worker as `{t: "attach"}`,
+and the host answers `{t: "attached"}` on the guest's port. The guest starts only
+after that answer (or traps with "the gpu host worker did not answer" after 30
+s). Firefox keeps a message body that carries a `SharedArrayBuffer` in a table
+keyed by the sending port and forgets it when that port closes, so the old way
+ended in `attach-refused` there (go-wasmcontainers/engine#84).
