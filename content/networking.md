@@ -61,14 +61,8 @@ $ wctr network create --internal backend
 $ wctr run -d --name db --network backend netprobe serve 5432
 ```
 
-- **In-engine networks never have a route out, so the flag is a promise the engine
-  keeps**: a test asserts that a dial from an internal network to a public address
+- **In-engine networks have no route out**: a test asserts that a dial from an internal network to a public address
   fails. Containers on the same internal network still reach each other by name.
-- **A driver that can carry traffic out is refused on an internal network.**
-  A host driver that declares egress (`netdriver.EgressDriver`, with
-  `EgressEnabled()` true) cannot be added to an internal network:
-  `network.Manager.AddDriverWith` refuses it before it registers anything. No
-  such driver exists yet; the interface lets a future one declare itself.
 - A container on an internal network **and** another network keeps the other
   network's routes, as in Docker.
 - A network record written by an older engine reads back as not internal.
