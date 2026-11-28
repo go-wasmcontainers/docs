@@ -47,6 +47,33 @@ built with `-tags getaddrinfo` resolve through `sock_getaddrinfo` instead.
   filtered by label, and `wctr events` has network events (`create`, `connect`,
   `disconnect`, `destroy`, `prune`).
 
+## Internal networks (engine v0.51.0)
+
+`wctr network create --internal NAME` makes a network with no route out of the
+engine; `inspect` reports `"Internal": true`, and the API's `POST
+/networks/create` accepts `Internal`. This is what Compose sends for `internal:
+true` under a network (Compose Specification, "Networks top-level element",
+`internal`: "an externally isolated network"), so a Compose file that uses it now
+starts instead of failing.
+
+```console
+$ wctr network create --internal backend
+$ wctr run -d --name db --network backend netprobe serve 5432
+```
+
+- **In-engine networks have no route out**: a test asserts that a dial from an internal network to a public address
+  fails. Containers on the same internal network still reach each other by name.
+- A container on an internal network **and** another network keeps the other
+  network's routes, as in Docker.
+- **It fails closed.** An internal network accepts only a driver that positively
+  declares it has no egress; a driver that says nothing is refused. A relay
+  (remote endpoint) network cannot be internal: it is refused.
+- **No published ports.** A container whose networks are all internal publishes
+  no port (`-p` is silently inert, as in Docker), on start and as networks are
+  connected and disconnected while it runs.
+- A name that was internal stays internal across a restart and when it is
+  re-added.
+
 ## A class network
 
 `wctrd --relay URL --relay-join-code-file FILE [--relay-ca CA] [--relay-network

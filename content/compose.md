@@ -42,6 +42,12 @@ Services **reach each other by service name and aliases**, on as many networks a
 they declare. This needs engine v0.14.0 or later (it is built against v0.18.0).
 Builds (`up --build`, `build`) use `wctr build` (compose v0.2.0).
 
+**`internal: true` on a network** (Compose Specification, "Networks top-level
+element", `internal`) is accepted and creates an [internal
+network]({{< relref "networking" >}}#internal-networks-engine-v0510): no route out
+of the engine. It needs engine v0.51.0 or later; before, the engine refused the
+option and `up` failed.
+
 ## Published ports (v0.4.0)
 
 A service's `ports` (short and long syntax) and `expose` are applied, through the
