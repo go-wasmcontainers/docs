@@ -65,7 +65,14 @@ $ wctr run -d --name db --network backend netprobe serve 5432
   fails. Containers on the same internal network still reach each other by name.
 - A container on an internal network **and** another network keeps the other
   network's routes, as in Docker.
-- A network record written by an older engine reads back as not internal.
+- **It fails closed.** An internal network accepts only a driver that positively
+  declares it has no egress; a driver that says nothing is refused. A relay
+  (remote endpoint) network cannot be internal: it is refused.
+- **No published ports.** A container whose networks are all internal publishes
+  no port (`-p` is silently inert, as in Docker), on start and as networks are
+  connected and disconnected while it runs.
+- A name that was internal stays internal across a restart and when it is
+  re-added.
 
 ## A class network
 
