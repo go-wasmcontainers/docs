@@ -61,6 +61,15 @@ and pinned by its digest (&lt;code&gt;sha256:d122bdb7…df433ed&lt;/code&gt;): &
 type, Ctrl-C and Ctrl-D included.&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;wctr build&lt;/code&gt; and &lt;code&gt;wctr compose&lt;/code&gt;&lt;/strong&gt; are wired into the page&amp;rsquo;s &lt;code&gt;wctr&lt;/code&gt;, as in
 &lt;code&gt;cmd/wctr&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;wctr compose&lt;/code&gt; reads a directory in memory.&lt;/strong&gt; A page has no working directory,
+so compose&amp;rsquo;s native loader cannot run there, and &lt;code&gt;wctr compose config&lt;/code&gt; used to
+fail with &lt;code&gt;getwd: not implemented on js&lt;/code&gt;. The page now gives compose a flat,
+in-memory directory of its own. It is empty until files are imported into it, and
+bounded: &lt;strong&gt;at most 64 files, 4 MiB each and 16 MiB in all&lt;/strong&gt;, with plain names (no
+path separator, no &lt;code&gt;..&lt;/code&gt;). An import that breaks a bound is refused whole and
+leaves the previous files untouched; the host&amp;rsquo;s own files are never read. With the
+directory empty, compose answers &lt;code&gt;no Compose file found&lt;/code&gt;. &lt;strong&gt;The import control
+(file picker and drop) is not in the page yet.&lt;/strong&gt;&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;The shell of a second origin&lt;/strong&gt; for containers&amp;rsquo; pages
 (&lt;a href="https://go-wasmcontainers-usercontent.github.io/" target="_blank" rel="noopener"&gt;https://go-wasmcontainers-usercontent.github.io/&lt;/a&gt;) and the route policy: the
 first half of &lt;code&gt;-p&lt;/code&gt; in the browser. The second half came in v0.5.0.&lt;/li&gt;
