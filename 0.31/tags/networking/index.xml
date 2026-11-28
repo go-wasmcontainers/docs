@@ -1463,6 +1463,40 @@ container can be on &lt;strong&gt;several networks&lt;/strong&gt;; &lt;code&gt;d
 filtered by label, and &lt;code&gt;wctr events&lt;/code&gt; has network events (&lt;code&gt;create&lt;/code&gt;, &lt;code&gt;connect&lt;/code&gt;,
 &lt;code&gt;disconnect&lt;/code&gt;, &lt;code&gt;destroy&lt;/code&gt;, &lt;code&gt;prune&lt;/code&gt;).&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2 data-hextra-search-id="internal-networks-engine-v0510"&gt;Internal networks (engine v0.51.0)&lt;span class="hx:absolute hx:-mt-20" id="internal-networks-engine-v0510"&gt;&lt;/span&gt;
+&lt;a href="#internal-networks-engine-v0510" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctr network create --internal NAME&lt;/code&gt; makes a network with no route out of the
+engine; &lt;code&gt;inspect&lt;/code&gt; reports &lt;code&gt;&amp;quot;Internal&amp;quot;: true&lt;/code&gt;, and the API&amp;rsquo;s &lt;code&gt;POST /networks/create&lt;/code&gt; accepts &lt;code&gt;Internal&lt;/code&gt;. This is what Compose sends for &lt;code&gt;internal: true&lt;/code&gt; under a network (Compose Specification, &amp;ldquo;Networks top-level element&amp;rdquo;,
+&lt;code&gt;internal&lt;/code&gt;: &amp;ldquo;an externally isolated network&amp;rdquo;), so a Compose file that uses it now
+starts instead of failing.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-console" data-lang="console"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr network create --internal backend
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="gp"&gt;$&lt;/span&gt; wctr run -d --name db --network backend netprobe serve &lt;span class="m"&gt;5432&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;In-engine networks have no route out&lt;/strong&gt;: a test asserts that a dial from an internal network to a public address
+fails. Containers on the same internal network still reach each other by name.&lt;/li&gt;
+&lt;li&gt;A container on an internal network &lt;strong&gt;and&lt;/strong&gt; another network keeps the other
+network&amp;rsquo;s routes, as in Docker.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;It fails closed.&lt;/strong&gt; An internal network accepts only a driver that positively
+declares it has no egress; a driver that says nothing is refused. A relay
+(remote endpoint) network cannot be internal: it is refused.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No published ports.&lt;/strong&gt; A container whose networks are all internal publishes
+no port (&lt;code&gt;-p&lt;/code&gt; is silently inert, as in Docker), on start and as networks are
+connected and disconnected while it runs.&lt;/li&gt;
+&lt;li&gt;A name that was internal stays internal across a restart and when it is
+re-added.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2 data-hextra-search-id="a-class-network"&gt;A class network&lt;span class="hx:absolute hx:-mt-20" id="a-class-network"&gt;&lt;/span&gt;
 &lt;a href="#a-class-network" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;wctrd --relay URL --relay-join-code-file FILE [--relay-ca CA] [--relay-network class]&lt;/code&gt; joins a class of the &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/relay/"&gt;relay&lt;/a&gt; and adds a network
 on which containers get the class&amp;rsquo;s addresses and names, under the teacher&amp;rsquo;s

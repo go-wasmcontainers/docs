@@ -100,7 +100,7 @@
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;network create|ls|inspect|rm&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;(v0.10.0)&lt;/td&gt;
+&lt;td&gt;(v0.10.0); &lt;code&gt;create --internal&lt;/code&gt; makes a network with no route out (v0.51.0, see &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/networking/"&gt;Networking&lt;/a&gt;)&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;&lt;code&gt;network connect [--alias NAME] NETWORK CONTAINER&lt;/code&gt;&lt;/td&gt;

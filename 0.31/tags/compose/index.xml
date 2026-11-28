@@ -64,6 +64,11 @@ and every reader is bounded and fuzzed.&lt;/p&gt;
 &lt;a href="#networking-v030" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Services &lt;strong&gt;reach each other by service name and aliases&lt;/strong&gt;, on as many networks as
 they declare. This needs engine v0.14.0 or later (it is built against v0.18.0).
 Builds (&lt;code&gt;up --build&lt;/code&gt;, &lt;code&gt;build&lt;/code&gt;) use &lt;code&gt;wctr build&lt;/code&gt; (compose v0.2.0).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;internal: true&lt;/code&gt; on a network&lt;/strong&gt; (Compose Specification, &amp;ldquo;Networks top-level
+element&amp;rdquo;, &lt;code&gt;internal&lt;/code&gt;) is accepted and creates an &lt;a href="https://go-wasmcontainers.github.io/docs/0.31/networking/#internal-networks-engine-v0510"&gt;internal
+network&lt;/a&gt;: no route out
+of the engine. It needs engine v0.51.0 or later; before, the engine refused the
+option and &lt;code&gt;up&lt;/code&gt; failed.&lt;/p&gt;
 &lt;h2 data-hextra-search-id="published-ports-v040"&gt;Published ports (v0.4.0)&lt;span class="hx:absolute hx:-mt-20" id="published-ports-v040"&gt;&lt;/span&gt;
 &lt;a href="#published-ports-v040" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A service&amp;rsquo;s &lt;code&gt;ports&lt;/code&gt; (short and long syntax) and &lt;code&gt;expose&lt;/code&gt; are applied, through the
 engine&amp;rsquo;s published ports (engine v0.22.0 or later; see
